@@ -6,3 +6,7 @@
 !.gitignore
 !ml_study_playground.py
 !ml_study_playground.html
+!manifest.json
+!sw.js
+!icons/
+!icons/*.png

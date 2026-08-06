@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>데이터 분석 전체 연습 노트</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1D5C8A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="데이터연습노트">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
   :root{
     --paper:#F4F1E6;
@@ -1271,6 +1279,13 @@ rec = recall_score(y_test, y_pred)</div>
   var mo = new MutationObserver(draw);
   mo.observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
 })();
+</script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    });
+  }
 </script>
 </body>
 </html>
