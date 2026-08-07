@@ -362,6 +362,17 @@
   .formula-card .formula{font-family:var(--font-mono); font-size:.85rem; margin-bottom:4px;}
   .formula-card .result{font-family:var(--font-mono); font-weight:800; font-size:1.1rem;}
 
+  .ref-block{margin:18px 0;}
+  .ref-block h3{font-size:1rem; margin:18px 0 8px;}
+  .ref-table-wrap{overflow-x:auto; margin:10px 0;}
+  table.ref-table{border-collapse:collapse; width:100%; min-width:520px; font-size:.83rem; background:var(--card-bg); border-radius:10px; overflow:hidden;}
+  table.ref-table th, table.ref-table td{border:1px solid var(--paper-line); padding:9px 12px; text-align:left; vertical-align:top;}
+  table.ref-table thead th{background:var(--paper); font-weight:700;}
+  table.ref-table code{font-family:var(--font-mono); font-size:.82rem; background:var(--paper); padding:1px 5px; border-radius:4px;}
+  .stage-list{display:grid; gap:8px; margin:12px 0;}
+  .stage-list li{background:var(--card-bg); border-left:4px solid var(--blue); border-radius:0 8px 8px 0; padding:10px 14px; font-size:.88rem; list-style:none;}
+  .stage-list li b{display:block; margin-bottom:2px;}
+
   /* glossary flip cards */
   .glossary-grid{
     display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-top:18px;
@@ -670,6 +681,11 @@ rec = recall_score(y_test, y_pred)</div>
     return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   }
 
+  function buildExampleBlock(title, code){
+    return '<details class="code-toggle"><summary>'+title+'</summary>' +
+      '<div class="code-block">'+escapeHtml(code)+'</div></details>';
+  }
+
   function renderFlipGrid(gridEl, items){
     items.forEach(function(t){
       var card = document.createElement("div");
@@ -747,6 +763,275 @@ rec = recall_score(y_test, y_pred)</div>
     wrap.querySelector(".exercise-explain").classList.add("show");
   });
 
+  /* ================= 전처리 모듈 참고자료: 5단계 정리 + 실전 파이프라인 예제 ================= */
+  var PREPROCESS_STAGES_HTML =
+    '<div class="ref-block">' +
+      '<div class="note-box">' +
+        '💡 <b>정의</b>: 원시 데이터(raw data)를 분석·머신러닝에 적합한 형태로 바꾸는 것. ' +
+        '<b>목적</b>: 데이터 품질을 높이고, 분석·모델링 과정의 오류를 줄이고, 더 정확한 결과를 얻기 위해서예요.' +
+      '</div>' +
+      '<h3>전처리 5단계</h3>' +
+      '<ul class="stage-list">' +
+        '<li><b>1. 정제 (Cleansing)</b>결측치·이상치·중복 데이터를 찾아 손보는 단계. 결측치는 삭제/평균·중앙값·최빈값 대체/전후진 채우기/KNN·회귀 대체로, 이상치는 IQR·박스플롯으로 찾아 제거·대체·클리핑·로그변환으로 처리해요.</li>' +
+        '<li><b>2. 통합 (Integration)</b>여러 곳에서 온 데이터를 하나로 합치는 단계 (merge/concat/join).</li>' +
+        '<li><b>3. 변환 (Transformation)</b>분포를 정상화하고 범위를 맞추는 단계 — 스케일링, 정규화, 범주형 인코딩.</li>' +
+        '<li><b>4. 데이터 축소 (Reduction)</b>변수(차원)나 샘플 개수를 줄이는 단계 — PCA 같은 차원축소, 다운샘플링.</li>' +
+        '<li><b>5. 특징 선택·생성 (Feature Selection &amp; Engineering)</b>모델 성능에 도움되는 변수만 고르거나(SelectKBest, RFE), 새 변수를 만드는(파생 변수) 단계.</li>' +
+      '</ul>' +
+      '<h3>L1 · L2 · 엘라스틱넷 규제 비교</h3>' +
+      '<p style="font-size:.85rem; color:var(--ink-soft);">모든 예제에서 <code>LogisticRegression(solver=\'saga\')</code>를 쓰고 <code>l1_ratio</code>만 바꿔요: L1=1.0, L2=0.0, 엘라스틱넷=0~1 사이 값.</p>' +
+      '<div class="ref-table-wrap"><table class="ref-table"><thead><tr><th>구분</th><th>L1 (Lasso)</th><th>L2 (Ridge)</th><th>엘라스틱넷</th></tr></thead><tbody>' +
+        '<tr><td>손실함수 추가항</td><td>가중치 절대값의 합</td><td>가중치 제곱의 합</td><td>L1과 L2의 가중 조합</td></tr>' +
+        '<tr><td>특징 선택 능력</td><td>불필요한 가중치를 0으로</td><td>가중치를 0에 가깝게만</td><td>0으로 만들되 그룹화 유지</td></tr>' +
+        '<tr><td>상관관계 높은 변수</td><td>하나만 무작위로 선택</td><td>함께 가중치를 줄임</td><td>함께 선택/제거(그룹핑)</td></tr>' +
+        '<tr><td>적합한 상황</td><td>유의미한 변수가 적을 때</td><td>변수 대부분이 영향 줄 때</td><td>변수 많고 다중공선성 높을 때</td></tr>' +
+      '</tbody></table></div>' +
+      '<h3>SelectKBest의 score_func 고르는 기준</h3>' +
+      '<div class="ref-table-wrap"><table class="ref-table"><thead><tr><th>함수</th><th>입력 특성</th><th>타겟</th><th>핵심 특징</th></tr></thead><tbody>' +
+        '<tr><td><code>f_classif</code></td><td>연속형</td><td>범주형</td><td>ANOVA F-검정, 분류에서 가장 흔히 사용</td></tr>' +
+        '<tr><td><code>chi2</code></td><td>범주형·빈도(음수 불가)</td><td>범주형</td><td>카이제곱 검정, 원-핫 인코딩·텍스트 분류에 유용</td></tr>' +
+        '<tr><td><code>mutual_info_classif</code></td><td>연속·범주형</td><td>범주형</td><td>비선형 관계까지 포착 (느림)</td></tr>' +
+        '<tr><td><code>f_regression</code></td><td>연속형</td><td>연속형</td><td>피어슨 상관계수 기반, 선형 상관관계 측정</td></tr>' +
+        '<tr><td><code>mutual_info_regression</code></td><td>연속·범주형</td><td>연속형</td><td>연속형 타겟의 비선형 관계 파악</td></tr>' +
+      '</tbody></table></div>' +
+    '</div>';
+
+  var PREPROCESS_EXAMPLES_HTML =
+    '<div class="section-heading"><span class="ico">🧪</span><h2>실전 파이프라인 예제</h2></div>' +
+    '<p class="module-intro">seaborn·scikit-learn 데이터셋 5개로 전처리→학습→평가→저장까지 전 과정을 구현한 실제 코드예요. 접어뒀으니 필요할 때 펼쳐보세요.</p>' +
+    buildExampleBlock(
+      "1. Titanic — 중복제거·IQR클리핑·StandardScaler·PCA, Train/Val/Test(60:20:20) + 모델 저장/불러오기",
+`import os
+import joblib
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+df = sns.load_dataset("titanic")
+
+# 1. 기초 정제 (결측치·이상치·중복·파생변수)
+df["age"] = df["age"].fillna(df["age"].median())
+df["embarked"] = df["embarked"].fillna(df["embarked"].mode()[0])
+q1 = df["fare"].quantile(0.25)
+q3 = df["fare"].quantile(0.75)
+iqr = q3 - q1
+upper_bound = q3 + 1.5 * iqr
+lower_bound = q1 - 1.5 * iqr
+df["fare"] = np.clip(df["fare"], lower_bound, upper_bound)
+df["family_size"] = df["sibsp"] + df["parch"] + 1
+df = df.drop_duplicates().reset_index(drop=True)
+
+# 2. 원본 상태에서 먼저 분할 (Data Leakage 방지)
+X_raw = df[["sex", "age", "fare", "family_size"]]
+y = df["survived"]
+X_train_val_raw, X_test_raw, y_train_val, y_test = train_test_split(
+    X_raw, y, test_size=0.2, random_state=42, stratify=y
+)
+X_train_raw, X_val_raw, y_train, y_val = train_test_split(
+    X_train_val_raw, y_train_val, test_size=0.25, random_state=42, stratify=y_train_val
+)  # 0.8 * 0.25 = 0.2 → 최종 60:20:20
+
+# 3. Train 데이터 기준으로만 fit
+encoder = OneHotEncoder(sparse_output=False, drop="first")
+sex_train_enc = pd.DataFrame(encoder.fit_transform(X_train_raw[["sex"]]),
+    columns=encoder.get_feature_names_out(["sex"]), index=X_train_raw.index)
+sex_val_enc = pd.DataFrame(encoder.transform(X_val_raw[["sex"]]),
+    columns=encoder.get_feature_names_out(["sex"]), index=X_val_raw.index)
+
+scaler = StandardScaler()
+num_train_scaled = pd.DataFrame(scaler.fit_transform(X_train_raw[["age", "fare"]]),
+    columns=["age_scaled", "fare_scaled"], index=X_train_raw.index)
+num_val_scaled = pd.DataFrame(scaler.transform(X_val_raw[["age", "fare"]]),
+    columns=["age_scaled", "fare_scaled"], index=X_val_raw.index)
+
+X_train = pd.concat([num_train_scaled, X_train_raw[["family_size"]], sex_train_enc], axis=1)
+X_val = pd.concat([num_val_scaled, X_val_raw[["family_size"]], sex_val_enc], axis=1)
+
+pca = PCA(n_components=2)
+X_train_pca = pca.fit_transform(X_train)
+X_val_pca = pca.transform(X_val)
+
+# 4. 학습 & Validation 평가
+model = LogisticRegression(max_iter=1000, solver="saga", l1_ratio=0.0, random_state=42)
+model.fit(X_train_pca, y_train)
+print(classification_report(y_val, model.predict(X_val_pca)))
+
+# 5. 전처리기 + 모델을 한 번에 저장
+save_dir = "model"
+os.makedirs(save_dir, exist_ok=True)
+artifacts = {"encoder": encoder, "scaler": scaler, "pca": pca, "model": model}
+artifacts_path = os.path.join(save_dir, "titanic_pipeline.pkl")
+joblib.dump(artifacts, artifacts_path)
+
+# 6. 저장된 아티팩트를 불러와 Test 데이터에 최종 적용
+loaded = joblib.load(artifacts_path)
+test_sex_enc = pd.DataFrame(loaded["encoder"].transform(X_test_raw[["sex"]]),
+    columns=loaded["encoder"].get_feature_names_out(["sex"]), index=X_test_raw.index)
+test_num_scaled = pd.DataFrame(loaded["scaler"].transform(X_test_raw[["age", "fare"]]),
+    columns=["age_scaled", "fare_scaled"], index=X_test_raw.index)
+X_test_prepared = pd.concat([test_num_scaled, X_test_raw[["family_size"]], test_sex_enc], axis=1)
+X_test_pca = loaded["pca"].transform(X_test_prepared)
+y_test_pred = loaded["model"].predict(X_test_pca)
+print(classification_report(y_test, y_test_pred))`
+    ) +
+    buildExampleBlock(
+      "2. Penguins — KNNImputer·원핫인코딩·IQR상하한제거·RobustScaler",
+`import pandas as pd
+import seaborn as sns
+from sklearn.impute import KNNImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import RobustScaler
+
+df = sns.load_dataset('penguins')
+df = df.dropna(subset=['species'])
+df['target'] = (df['species'] == 'Adelie').astype(int)
+
+# 범주형 인코딩
+df = pd.get_dummies(df, columns=['island', 'sex'], drop_first=True)
+num_cols = ['bill_length_mm', 'bill_depth_mm', 'flipper_length_mm', 'body_mass_g']
+
+# 결측치: KNNImputer (비슷한 이웃 값들로 채움)
+imputer = KNNImputer(n_neighbors=5)
+df[num_cols] = imputer.fit_transform(df[num_cols])
+
+# 이상치: IQR 하한/상한 밖이면 제거
+for col in num_cols:
+    Q1, Q3 = df[col].quantile(0.25), df[col].quantile(0.75)
+    IQR = Q3 - Q1
+    df = df[(df[col] >= Q1 - 1.5 * IQR) & (df[col] <= Q3 + 1.5 * IQR)]
+
+X = df.drop(columns=['species', 'target'])
+y = df['target']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 스케일링: RobustScaler (이상치에 강함)
+scaler = RobustScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = LogisticRegression(max_iter=1000, solver='saga', l1_ratio=0.0, random_state=42)
+model.fit(X_train_scaled, y_train)
+print(classification_report(y_test, model.predict(X_test_scaled)))`
+    ) +
+    buildExampleBlock(
+      "3. Breast Cancer — 로그변환(왜도 완화)·SelectKBest·MinMaxScaler",
+`import numpy as np
+import pandas as pd
+from sklearn.datasets import load_breast_cancer
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+
+cancer = load_breast_cancer()
+X = pd.DataFrame(cancer.data, columns=cancer.feature_names)
+y = cancer.target
+
+# 왜도(skew)가 큰(치우친) 컬럼은 로그 변환으로 분포를 정상화
+skewed_cols = [c for c in X.columns if X[c].skew() > 1.0]
+for c in skewed_cols:
+    X[c] = np.log1p(X[c])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = MinMaxScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# 통계 검정으로 가장 유의미한 특징 10개만 선택
+selector = SelectKBest(score_func=f_classif, k=10)
+X_train_selected = selector.fit_transform(X_train_scaled, y_train)
+X_test_selected = selector.transform(X_test_scaled)
+
+model = LogisticRegression(max_iter=1000, solver='saga', l1_ratio=0.0, random_state=42)
+model.fit(X_train_selected, y_train)
+print(classification_report(y_test, model.predict(X_test_selected)))`
+    ) +
+    buildExampleBlock(
+      "4. Diamonds — 순서형 인코딩·제곱근 변환·다운샘플링",
+`import numpy as np
+import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OrdinalEncoder, StandardScaler
+
+df = sns.load_dataset('diamonds')
+
+# 데이터가 너무 많으니 5000개만 무작위로 샘플링 (다운샘플링)
+df = df.sample(n=5000, random_state=42)
+df['is_expensive'] = (df['price'] > 3000).astype(int)
+
+# cut/color/clarity처럼 순서가 있는 범주는 OrdinalEncoder로
+ordinal_cols = ['cut', 'color', 'clarity']
+encoder = OrdinalEncoder()
+df[ordinal_cols] = encoder.fit_transform(df[ordinal_cols])
+
+# 오른쪽으로 치우친 carat 분포를 제곱근 변환으로 완화
+df['carat_sqrt'] = np.sqrt(df['carat'])
+
+X = df.drop(columns=['price', 'is_expensive', 'carat'])
+y = df['is_expensive']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = LogisticRegression(max_iter=1000, solver='saga', l1_ratio=0.0, random_state=42)
+model.fit(X_train_scaled, y_train)
+print(classification_report(y_test, model.predict(X_test_scaled)))`
+    ) +
+    buildExampleBlock(
+      "5. Wine — SimpleImputer(평균 대체)·파생변수·RFE 특징선택",
+`import numpy as np
+import pandas as pd
+from sklearn.datasets import load_wine
+from sklearn.feature_selection import RFE
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+wine = load_wine()
+X = pd.DataFrame(wine.data, columns=wine.feature_names)
+y = (wine.target == 0).astype(int)
+
+# 실습용으로 결측치를 일부러 만든 뒤 평균으로 대체
+np.random.seed(42)
+X.iloc[0:10, 0] = np.nan
+imputer = SimpleImputer(strategy='mean')
+X_imputed = pd.DataFrame(imputer.fit_transform(X), columns=X.columns)
+
+# 파생 변수: 알코올 대비 플라보노이드 비율
+X_imputed['alc_flava_ratio'] = X_imputed['alcohol'] / (X_imputed['flavanoids'] + 1e-5)
+
+X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# RFE: 모델 성능을 보며 특징을 하나씩 재귀적으로 제거해 5개만 남김
+estimator = LogisticRegression(solver='saga', l1_ratio=0.0, random_state=42)
+selector = RFE(estimator, n_features_to_select=5)
+X_train_rfe = selector.fit_transform(X_train_scaled, y_train)
+X_test_rfe = selector.transform(X_test_scaled)
+
+model = LogisticRegression(max_iter=1000, solver='saga', l1_ratio=0.0, random_state=42)
+model.fit(X_train_rfe, y_train)
+print(classification_report(y_test, model.predict(X_test_rfe)))`
+    );
+
   /* ================= CURRICULUM MODULES (collection ~ visualization, feature selection) ================= */
   var MODULES_PRE = [
     { id:"collection", icon:"🌐", label:"데이터 수집", eyebrow:"0교시", eyebrowClass:"blue",
@@ -782,20 +1067,32 @@ rec = recall_score(y_test, y_pred)</div>
     },
     { id:"preprocess", icon:"🧹", label:"데이터 전처리", eyebrow:"0교시", eyebrowClass:"blue",
       title:"🧹 데이터 전처리 — 결측치·정규화·범주형·스케일링",
-      intro:"실제 데이터에는 빈 칸(결측치), 제각각인 단위, 문자로 된 범주가 뒤섞여 있어요. 모델이 이해할 수 있게 정리하는 과정이 전처리예요.",
+      intro:"실제 데이터에는 빈 칸(결측치), 제각각인 단위, 문자로 된 범주가 뒤섞여 있어요. 모델이 이해할 수 있게 정리하는 과정이 전처리이고, 크게 정제→통합→변환→축소→특징선택 5단계로 나눌 수 있어요.",
+      extraHtml: PREPROCESS_STAGES_HTML,
       concepts:[
         {term:"결측치 처리 전략", kid:"빠진 칸을 지울까, 채울까 정하는 규칙", formula:"dropna() / fillna(mean·median·mode) / ffill() / bfill()", def:"결측 비율이 낮으면 행 삭제, 수치형이면 평균·중앙값, 범주형이면 최빈값, 순서가 중요한 시계열이면 ffill/bfill을 주로 써요."},
         {term:"ffill vs bfill", kid:"앞 값을 그대로 끌어오기(ffill) vs 뒷 값을 앞으로 당겨오기(bfill)", formula:"df.ffill() / df.bfill()", def:"ffill은 결측값을 바로 앞의 값으로, bfill은 바로 뒤의 값으로 채워요. 시계열 데이터에서 자주 사용해요."},
         {term:"cut vs qcut", kid:"자로 잰 듯 같은 간격으로 나누기(cut) vs 인원수가 같도록 나누기(qcut)", formula:"pd.cut(age, bins=4) / pd.qcut(age, q=4)", def:"cut은 값의 범위를 균등하게, qcut은 데이터 개수(분위수)를 균등하게 나눠요."},
         {term:"인코딩 3형제", kid:"순서 없는 이름표(OneHot), 순서 있는 이름표(Ordinal), 그냥 번호표(Label)", formula:"OneHotEncoder / OrdinalEncoder / LabelEncoder", def:"OneHotEncoder는 카테고리마다 0/1 컬럼을 만들고, OrdinalEncoder는 순서를 매겨 숫자로, LabelEncoder는 정답(y)에 주로 써서 정수로 바꿔요."},
-        {term:"피처 스케일링", kid:"cm, kg처럼 서로 다른 단위를 같은 눈금으로 맞추는 것", formula:"StandardScaler / MinMaxScaler / RobustScaler", def:"StandardScaler는 평균0·표준편차1로, MinMaxScaler는 0~1 범위로, RobustScaler는 이상치에 강하게 중앙값·IQR 기준으로 맞춰요."}
+        {term:"피처 스케일링", kid:"cm, kg처럼 서로 다른 단위를 같은 눈금으로 맞추는 것", formula:"StandardScaler / MinMaxScaler / RobustScaler", def:"StandardScaler는 평균0·표준편차1로, MinMaxScaler는 0~1 범위로, RobustScaler는 이상치에 강하게 중앙값·IQR 기준으로 맞춰요."},
+        {term:"이상치 처리 (IQR)", kid:"다른 값들과 너무 동떨어진 값을 손보는 것", formula:"IQR=Q3-Q1, 상한=Q3+1.5·IQR, 하한=Q1-1.5·IQR", def:"박스플롯 기준으로 IQR을 벗어나면 이상치로 보고, 제거하거나 상/하한선으로 눌러주는(Clipping) 방법을 많이 써요."},
+        {term:"Train/Val/Test는 왜 나눌까", kid:"연습문제(Train)로 공부, 모의고사(Validation)로 점검, 진짜 시험(Test)은 딱 한 번만", formula:"60:20:20, fit()은 Train에서만!", def:"스케일러·인코더·PCA는 반드시 Train으로만 fit하고 Val/Test는 transform만 해야, 실제 배포 상황과 같은 조건으로 성능을 잴 수 있어요(Data Leakage 방지)."},
+        {term:"L1 vs L2 vs 엘라스틱넷", kid:"필요없는 건 완전히 버리기(L1) vs 다 조금씩 줄이기(L2) vs 둘의 장점만 섞기(엘라스틱넷)", formula:"L1: Σ|w| · L2: Σw² · ElasticNet: r·L1+(1-r)·L2", def:"L1(Lasso)은 가중치를 0으로 만들어 특징선택 효과, L2(Ridge)는 0에 가깝게만 줄여 다중공선성 완화, 엘라스틱넷은 상관관계 높은 변수 그룹을 함께 선택/축소해요."},
+        {term:"SelectKBest 고르는 기준", kid:"문제 유형(분류/회귀)과 데이터 종류에 맞는 통계 검정을 골라야 해요", formula:"분류: f_classif/chi2/mutual_info_classif · 회귀: f_regression/mutual_info_regression", def:"수치형+분류엔 f_classif, 빈도·카운트 데이터 분류엔 chi2, 비선형 관계면 mutual_info_*, 수치형+회귀엔 f_regression을 써요."}
       ],
       exercises:[
         {desc:"결측치 개수를 확인하고 평균으로 채우기", code:"print(df.{{1}}().sum())\ndf['age'] = df['age'].fillna(df['age'].{{2}}())", answers:{1:"isnull",2:"mean"}, note:"isnull().sum()으로 컬럼별 결측 개수를 세고, mean()으로 평균을 구해 채워요."},
         {desc:"나이를 4개 구간으로 균등하게(값 범위 기준) 나누기", code:"data['age_bin'] = pd.{{1}}(data['age'], bins=4, labels=False)", answers:{1:"cut"}, note:"cut()은 값의 범위를 기준으로 균등한 폭으로 나눠요."},
         {desc:"범주형 데이터를 원-핫 벡터로 변환하기", code:"encoder = {{1}}(sparse_output=False)\nX = encoder.fit_transform([[\"red\"], [\"blue\"], [\"green\"]])", answers:{1:"OneHotEncoder"}, note:"OneHotEncoder는 카테고리마다 0/1 컬럼을 만들어요."},
-        {desc:"평균 0, 표준편차 1로 스케일링하기", code:"scaler = {{1}}()\nX_scaled = scaler.fit_transform(X)", answers:{1:"StandardScaler"}, note:"StandardScaler는 Z-score 정규화(평균0, 표준편차1)를 해줘요."}
-      ]
+        {desc:"평균 0, 표준편차 1로 스케일링하기", code:"scaler = {{1}}()\nX_scaled = scaler.fit_transform(X)", answers:{1:"StandardScaler"}, note:"StandardScaler는 Z-score 정규화(평균0, 표준편차1)를 해줘요."},
+        {desc:"요금(fare)을 IQR 상/하한선으로 클리핑하기", code:"upper = q3 + 1.5 * iqr\nlower = q1 - 1.5 * iqr\ndf['fare'] = np.{{1}}(df['fare'], lower, upper)", answers:{1:"clip"}, note:"np.clip()은 값이 범위를 벗어나면 상/하한선 값으로 눌러줘요."},
+        {desc:"Train(60):Val(20):Test(20)로 2단계 분할하기", code:"X_tv, X_test, y_tv, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\nX_train, X_val, y_train, y_val = train_test_split(X_tv, y_tv, test_size={{1}}, random_state=42)", answers:{1:"0.25"}, note:"먼저 80:20으로 나눈 뒤, 80%를 다시 25% 떼어내면 전체의 20%가 되어 결과적으로 60:20:20이 돼요."},
+        {desc:"이웃 값들을 참고해 결측치를 채우기 (KNN)", code:"imputer = {{1}}(n_neighbors=5)\ndf[num_cols] = imputer.fit_transform(df[num_cols])", answers:{1:"KNNImputer"}, note:"KNNImputer는 비슷한(가까운) 데이터들의 값을 참고해서 결측치를 채워요."},
+        {desc:"통계 검정으로 가장 유의미한 특징 10개만 고르기", code:"selector = SelectKBest(score_func={{1}}, k=10)\nX_selected = selector.fit_transform(X_scaled, y_train)", answers:{1:"f_classif"}, note:"연속형 변수 + 분류 문제에서는 ANOVA F-검정인 f_classif를 가장 많이 써요."},
+        {desc:"모델 성능을 보며 특징을 하나씩 제거해 5개만 남기기", code:"selector = {{1}}(estimator, n_features_to_select=5)\nX_rfe = selector.fit_transform(X_train_scaled, y_train)", answers:{1:"RFE"}, note:"RFE(재귀적 특징 제거)는 중요도가 낮은 특징을 반복적으로 하나씩 제거해요."},
+        {desc:"학습된 전처리기와 모델을 한 파일에 저장하기", code:"artifacts = {'encoder': encoder, 'scaler': scaler, 'pca': pca, 'model': model}\njoblib.{{1}}(artifacts, 'model/pipeline.pkl')", answers:{1:"dump"}, note:"joblib.dump()로 여러 객체를 딕셔너리로 묶어 한 번에 저장하면, joblib.load()로 그대로 복원할 수 있어요."}
+      ],
+      examplesHtml: PREPROCESS_EXAMPLES_HTML
     },
     { id:"reshape", icon:"🔀", label:"데이터프레임 응용", eyebrow:"0교시", eyebrowClass:"blue",
       title:"🔀 데이터프레임 응용 — merge·pivot·groupby",
@@ -848,10 +1145,12 @@ rec = recall_score(y_test, y_pred)</div>
         '<span class="eyebrow '+mod.eyebrowClass+'">'+mod.eyebrow+'</span>' +
         '<h1>'+mod.title+'</h1>' +
         '<p class="module-intro">'+mod.intro+'</p>' +
+        (mod.extraHtml || '') +
         '<div class="section-heading"><span class="ico">📖</span><h2>개념 카드</h2></div>' +
         '<div class="glossary-grid" id="'+mod.id+'ConceptGrid"></div>' +
         '<div class="section-heading"><span class="ico">🧪</span><h2>코드 연습</h2></div>' +
         '<div id="'+mod.id+'Exercises"></div>' +
+        (mod.examplesHtml || '') +
       '</section>';
     return html;
   }
