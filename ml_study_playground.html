@@ -1032,6 +1032,88 @@ model.fit(X_train_rfe, y_train)
 print(classification_report(y_test, model.predict(X_test_rfe)))`
     );
 
+  /* ================= Pandas 모듈 참고자료: 개요 + 인덱서 비교표 + 실습 코드 ================= */
+  var PANDAS_INTRO_HTML =
+    '<div class="ref-block">' +
+      '<div class="note-box">' +
+        '💡 <b>Pandas란?</b> 2008년 금융 데이터 분석가 웨스 매키니(Wes McKinney)가 만든, 파이썬에서 가장 널리 쓰이는 표 데이터 처리 라이브러리예요. ' +
+        '서로 다른 형식의 데이터를 <b>공통의 표 포맷</b>으로 정리하는 게 목적이고, 내부적으로는 C 기반의 NumPy로 만들어져 있어요.' +
+      '</div>' +
+      '<h3>Pandas의 특징</h3>' +
+      '<ul class="stage-list">' +
+        '<li><b>강력한 읽기/쓰기</b>CSV, Excel, SQL, JSON, HTML 등 다양한 형식을 몇 줄로 읽고 저장해요.</li>' +
+        '<li><b>유연한 결측치 처리</b>빠진 값(NaN)을 찾아서 채우거나 지우는 게 쉬워요.</li>' +
+        '<li><b>직관적인 데이터 조작</b>행/열 추가·삭제·정렬, 조건에 맞는 데이터 필터링이 간단해요.</li>' +
+        '<li><b>인덱스 기반 자동 정렬</b>데이터의 축(라벨)을 자동으로 맞춰줘서 연산 실수를 줄여줘요.</li>' +
+        '<li><b>빠른 연산 성능</b>내부적으로 NumPy 기반이라 대용량 데이터도 빠르게 처리해요.</li>' +
+      '</ul>' +
+      '<h3>데이터 분석 흐름 속 Pandas의 역할</h3>' +
+      '<p style="font-size:.85rem; color:var(--ink-soft);">데이터 분석 시간의 70~80%를 차지한다는 \'데이터 정제\' 작업을 Pandas가 도맡아요.</p>' +
+      '<ul class="stage-list">' +
+        '<li><b>불러오기 (Load)</b>원시 데이터를 DataFrame으로 변환해요.</li>' +
+        '<li><b>정제 (Clean)</b>중복 제거, 타입 변경, 결측치 처리로 품질을 높여요.</li>' +
+        '<li><b>변환 (Transform)</b>피벗테이블·groupby로 데이터를 요약·집계해요.</li>' +
+        '<li><b>결합 (Merge/Join)</b>흩어진 여러 표를 공통 키로 하나로 합쳐요.</li>' +
+      '</ul>' +
+      '<h3>NumPy vs Pandas</h3>' +
+      '<div class="ref-table-wrap"><table class="ref-table"><thead><tr><th>구분</th><th>NumPy (ndarray)</th><th>Pandas (Series/DataFrame)</th></tr></thead><tbody>' +
+        '<tr><td>차원 구조</td><td>N차원 배열</td><td>1차원(Series), 2차원 표(DataFrame)</td></tr>' +
+        '<tr><td>데이터 타입</td><td>단일 타입만 허용</td><td>열마다 다른 타입 허용</td></tr>' +
+        '<tr><td>인덱싱</td><td>암묵적 위치(0,1,2…)</td><td>명시적 라벨(문자열·날짜 등)도 가능</td></tr>' +
+        '<tr><td>잘하는 일</td><td>고속 수치·행렬 연산, 대량 계산</td><td>결측치·그룹화·병합 같은 실데이터 정제</td></tr>' +
+        '<tr><td>장점</td><td>빠른 속도·적은 메모리, 고차원 지원</td><td>컬럼명 기반 접근, 강력한 전처리 API</td></tr>' +
+        '<tr><td>단점</td><td>열 이름 없음, 혼합 타입 불가</td><td>메모리 사용량 많음, 순수 연산은 다소 느림</td></tr>' +
+      '</tbody></table></div>' +
+      '<h3>df[ ] · loc · iloc · at · iat 한눈에 비교</h3>' +
+      '<div class="ref-table-wrap"><table class="ref-table"><thead><tr><th>방식</th><th>선택 기준</th><th>슬라이싱 끝</th><th>조건문(Boolean)</th><th>특징</th></tr></thead><tbody>' +
+        '<tr><td><code>df[ ]</code></td><td>열 이름 / 행 위치</td><td>미포함</td><td>가능</td><td>가장 기본적인 대괄호 선택, 조건 필터링에 자주 씀</td></tr>' +
+        '<tr><td><code>df.loc[ ]</code></td><td>이름(라벨)</td><td><b>포함</b></td><td>가능</td><td>라벨·조건문 모두 지원하는 만능 선택자</td></tr>' +
+        '<tr><td><code>df.iloc[ ]</code></td><td>정수 위치</td><td>미포함</td><td>불가능</td><td>파이썬 리스트 슬라이싱과 동일한 규칙</td></tr>' +
+        '<tr><td><code>df.at[ ]</code></td><td>이름(라벨)</td><td>슬라이싱 불가</td><td>불가능</td><td>값 1개만 초고속으로 읽기/수정</td></tr>' +
+        '<tr><td><code>df.iat[ ]</code></td><td>정수 위치</td><td>슬라이싱 불가</td><td>불가능</td><td>값 1개만 초고속으로 읽기/수정 (위치 기준)</td></tr>' +
+      '</tbody></table></div>' +
+      '<div class="note-box">⚠️ 가장 헷갈리는 포인트: <b>loc은 끝 번호를 포함</b>하고(<code>df.loc[0:2]</code> → 0,1,2번 3개), <b>iloc은 끝 번호를 포함하지 않아요</b>(<code>df.iloc[0:2]</code> → 0,1번 2개).</div>' +
+    '</div>';
+
+  var PANDAS_EXAMPLES_HTML =
+    '<div class="section-heading"><span class="ico">🧪</span><h2>인덱서 실습 코드</h2></div>' +
+    '<p class="module-intro">df[ ], loc, iloc, at, iat을 같은 데이터로 비교해보는 예제예요.</p>' +
+    buildExampleBlock(
+      "1. 문자 인덱스 DataFrame으로 loc/iloc/at/iat 비교",
+`import pandas as pd
+
+df = pd.DataFrame({'val': [10, 20, 30, 40, 50, 60]}, index=['a', 'b', 'c', 'd', 'e', 'f'])
+
+print(df[:5])          # 위치 기준 슬라이싱, 끝(5번째) 미포함 → a~e (5개)
+print(df[:'e'])         # 라벨 기준 슬라이싱, 끝('e') 포함 → a~e (5개, 결과는 같지만 기준이 다름)
+
+print(df.loc['a', 'val'])          # 라벨로 값 하나
+print(df.loc[['a', 'c'], 'val'])   # 라벨 여러 개 (fancy indexing)
+
+print(df.iloc[1, 0])               # 위치로 값 하나 (1번째 행, 0번째 열)
+print(df.iloc[[1, 3, 4], 0])       # 위치 여러 개
+
+print(df.at['a', 'val'])           # 라벨 기준 스칼라 값, 초고속
+print(df.iat[1, 0])                # 위치 기준 스칼라 값, 초고속`
+    ) +
+    buildExampleBlock(
+      "2. 직원 표에서 loc vs iloc 슬라이싱·조건 필터링 비교",
+`import pandas as pd
+
+df = pd.DataFrame({
+    '이름': ['철수', '영희', '민수', '지현'],
+    '부서': ['영업', '개발', '영업', '마케팅'],
+    '월급(만원)': [350, 480, 310, 420]
+})
+
+# loc: 라벨 슬라이싱은 끝을 포함하고, 조건문을 함께 쓸 수 있음
+print(df.loc[0:2, ['이름', '부서']])                          # 0~2번 행 (3개) + 두 컬럼
+print(df.loc[df['월급(만원)'] >= 400, ['이름', '월급(만원)']])  # 조건 필터링
+
+# iloc: 위치 슬라이싱은 끝을 포함하지 않고, 조건문은 사용 불가
+print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
+    );
+
   /* ================= CURRICULUM MODULES (collection ~ visualization, feature selection) ================= */
   var MODULES_PRE = [
     { id:"collection", icon:"🌐", label:"데이터 수집", eyebrow:"0교시", eyebrowClass:"blue",
@@ -1052,18 +1134,33 @@ print(classification_report(y_test, model.predict(X_test_rfe)))`
     { id:"pandas", icon:"🐼", label:"Pandas 기초", eyebrow:"0교시", eyebrowClass:"blue",
       title:"🐼 Pandas 기초 — Series와 DataFrame",
       intro:"Pandas는 표(엑셀 같은) 형태의 데이터를 다루는 파이썬 도구예요. 한 줄짜리 Series와 여러 줄·여러 컬럼의 DataFrame이 기본 단위예요.",
+      extraHtml: PANDAS_INTRO_HTML,
       concepts:[
         {term:"Series vs DataFrame", kid:"이름표가 붙은 한 줄(Series) vs 여러 줄·여러 칸으로 된 표 전체(DataFrame)", formula:"pd.Series([...]) / pd.DataFrame({...})", def:"Series는 1차원 배열에 인덱스가 붙은 것이고, DataFrame은 여러 개의 Series(컬럼)가 모인 2차원 표예요."},
         {term:"index vs columns", kid:"표의 왼쪽 이름표(index) vs 위쪽 이름표(columns)", formula:"df.index / df.columns", def:"index는 행(row)을 구분하는 이름표, columns는 열(column)을 구분하는 이름표예요."},
         {term:"loc vs iloc", kid:"이름으로 찾기(loc) vs 순서(번호)로 찾기(iloc)", formula:"df.loc[0:2, ['tip','day']] / df.iloc[0]", def:"loc은 라벨(이름) 기준, iloc은 정수 위치(0부터) 기준으로 행/열을 선택해요."},
-        {term:"read_csv의 header 옵션", kid:"파일 첫 줄이 제목인지 아닌지 알려주는 표시", formula:"pd.read_csv(path, header=None)", def:"header='infer'(기본)는 첫 줄을 컬럼명으로 쓰고, header=None은 첫 줄도 데이터로 취급해요."}
+        {term:"read_csv의 header 옵션", kid:"파일 첫 줄이 제목인지 아닌지 알려주는 표시", formula:"pd.read_csv(path, header=None)", def:"header='infer'(기본)는 첫 줄을 컬럼명으로 쓰고, header=None은 첫 줄도 데이터로 취급해요."},
+        {term:"Pandas란", kid:"파이썬으로 엑셀처럼 표 데이터를 다루게 해주는 도구", formula:"2008년 웨스 매키니 개발, NumPy 기반", def:"행과 열로 이루어진 표 데이터를 다루는 데 특화된 라이브러리로, CSV·Excel·SQL·JSON 등 다양한 형식을 읽고 쓸 수 있어요."},
+        {term:"NumPy vs Pandas", kid:"숫자 계산에 최적화된 도구(NumPy) vs 표 데이터 정리에 최적화된 도구(Pandas)", formula:"ndarray(단일 타입) ↔ Series/DataFrame(열마다 다른 타입)", def:"NumPy는 빠른 수치 연산에, Pandas는 결측치 처리·그룹화·병합 같은 실데이터 정제에 강해요. Pandas는 내부적으로 NumPy 기반이에요."},
+        {term:"Index(인덱스)란", kid:"데이터마다 붙는 '주소표' — 탐색·정렬·결합의 기준", formula:"정수형 위치 인덱스 / 이름(라벨) 인덱스", def:"Index는 Series·DataFrame의 행(또는 열) 이름을 저장하는 메타데이터로, 잘 활용하면 데이터를 훨씬 쉽게 탐색·정렬·결합할 수 있어요."},
+        {term:"df[] vs at/iat", kid:"열 이름으로 쓱(df[]) vs 딱 한 칸만 초고속으로(at/iat)", formula:"df['col'] / df.at[행,열] / df.iat[행,열]", def:"df[]는 기본 열선택+행 위치슬라이싱, at/iat은 값 하나만 아주 빠르게 읽거나 고치는 전용 접근자예요 (슬라이싱·조건문 둘 다 불가능)."},
+        {term:"슬라이싱 끝 포함 여부", kid:"loc은 끝까지 포함, iloc은 끝 하나 전까지만", formula:"df.loc[0:2] → 3개 / df.iloc[0:2] → 2개", def:"라벨 기반(loc)은 끝 값을 포함하고, 위치 기반(iloc)은 일반 파이썬 슬라이싱처럼 끝 값을 포함하지 않아요. 가장 헷갈리는 포인트!"},
+        {term:"인코딩·구분자 지정", kid:"한글이 깨지거나 구분 기호가 쉼표가 아닐 때 알려주는 옵션", formula:"encoding='cp949' / sep='\\t'", def:"한글 윈도우에서 만든 CSV는 encoding='cp949'나 'euc-kr'로, 쉼표가 아닌 탭으로 구분된 TSV는 sep='\\t'로 읽어요."}
       ],
       exercises:[
         {desc:"도시 인구를 Series로 만들기", code:"population = pd.{{1}}([940, 330, 290], index=['서울', '부산', '인천'])", answers:{1:"Series"}, note:"pd.Series()는 인덱스가 붙은 1차원 데이터를 만들어요."},
         {desc:"DataFrame의 행 인덱스와 열 이름 확인하기", code:"print(df.{{1}})   # 행 인덱스\nprint(df.{{2}})   # 열 이름", answers:{1:"index",2:"columns"}, note:"df.index는 행 이름표, df.columns는 열 이름표예요."},
         {desc:"헤더 없는 텍스트 파일 읽기", code:"data = pd.read_csv('./source/num.txt', header={{1}})", answers:{1:"None"}, note:"header=None을 쓰면 첫 줄도 데이터로 읽어요."},
-        {desc:"팁이 3.0 이상인 행만 조건 검색하기", code:"cond_loc = df.{{1}}[df['tip'] >= 3, ['tip', 'total_bill']]", answers:{1:"loc"}, note:"loc은 라벨 기반 인덱싱이면서 불리언 조건도 함께 쓸 수 있어요."}
-      ]
+        {desc:"팁이 3.0 이상인 행만 조건 검색하기", code:"cond_loc = df.{{1}}[df['tip'] >= 3, ['tip', 'total_bill']]", answers:{1:"loc"}, note:"loc은 라벨 기반 인덱싱이면서 불리언 조건도 함께 쓸 수 있어요."},
+        {desc:"판다스 버전 확인하기", code:"import pandas as pd\nprint(pd.{{1}})", answers:{1:"__version__"}, note:"pd.__version__으로 설치된 판다스 버전을 확인할 수 있어요."},
+        {desc:"딕셔너리를 DataFrame으로 변환하기", code:"dict_data = {'c0':[1,2,3], 'c1':[4,5,6]}\ndf = pd.{{1}}(dict_data)", answers:{1:"DataFrame"}, note:"딕셔너리의 키는 열 이름, 값(리스트)은 각 열의 데이터가 돼요."},
+        {desc:"컬럼 이름을 한번에 여러 개 바꾸기", code:"df = df.{{1}}(columns={'나이':'연령', '성별':'남녀'})", answers:{1:"rename"}, note:"rename(columns={...})으로 딕셔너리 형태로 여러 컬럼명을 한 번에 바꿀 수 있어요."},
+        {desc:"라벨 기준 0~2번 행까지 (끝 포함) 슬라이싱", code:"slice_rows = df.{{1}}[0:2]  # 0,1,2번 행 모두 포함(3개)", answers:{1:"loc"}, note:"loc의 슬라이싱은 끝 번호까지 포함해요."},
+        {desc:"위치 기준 0~1번 행까지 (끝 미포함) 슬라이싱", code:"pos_slice = df.{{1}}[0:2]  # 0,1번 행만 포함(2개)", answers:{1:"iloc"}, note:"iloc의 슬라이싱은 파이썬 리스트처럼 끝 번호를 포함하지 않아요."},
+        {desc:"한 칸(스칼라 값)만 초고속으로 읽기 — 라벨 기준", code:"value = df.{{1}}[0, 'day']", answers:{1:"at"}, note:"at은 슬라이싱·조건문 없이 값 1개만 라벨 기준으로 빠르게 읽어요."},
+        {desc:"한글이 깨질 때 인코딩 지정해서 CSV 읽기", code:"df = pd.read_csv('data.csv', encoding='{{1}}')", answers:{1:["cp949","euc-kr"]}, note:"한글 윈도우에서 만든 파일이 깨지면 encoding='cp949' 또는 'euc-kr'을 시도해보세요."}
+      ],
+      examplesHtml: PANDAS_EXAMPLES_HTML
     },
     { id:"preprocess", icon:"🧹", label:"데이터 전처리", eyebrow:"0교시", eyebrowClass:"blue",
       title:"🧹 데이터 전처리 — 결측치·정규화·범주형·스케일링",
