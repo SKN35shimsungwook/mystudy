@@ -585,6 +585,19 @@ r2 = r2_score(y_test, y_pred)              <span class="c"># 1에 가까울수�
         <div id="polyResult" style="margin-top:8px;"></div>
       </div>
 
+      <div class="section-heading" style="margin-top:24px;"><span class="ico">📚</span><h2>회귀 알고리즘 8종 한눈에 비교</h2></div>
+      <div class="note-box">선형회귀 말고도 회귀 문제를 푸는 방법은 여러 가지예요. 데이터 모양과 상황에 따라 골라 써요 (당뇨병 진행도 예측 데이터로 실습한 결과 기준).</div>
+      <div class="ref-table-wrap"><table class="ref-table"><thead><tr><th>알고리즘</th><th>한 줄 설명</th><th>핵심 파라미터</th></tr></thead><tbody>
+        <tr><td>LinearRegression</td><td>가장 단순한 직선 회귀</td><td>fit_intercept</td></tr>
+        <tr><td>Ridge (L2)</td><td>계수를 0에 가깝게 줄여 과적합 방지</td><td>alpha (클수록 규제 강함)</td></tr>
+        <tr><td>Lasso (L1)</td><td>불필요한 계수를 0으로 만들어 특징 선택 효과</td><td>alpha</td></tr>
+        <tr><td>ElasticNet</td><td>L1+L2를 섞어서 사용</td><td>alpha, l1_ratio</td></tr>
+        <tr><td>Polynomial</td><td>곡선 관계를 다항식으로 표현</td><td>degree</td></tr>
+        <tr><td>DecisionTree Regressor</td><td>조건으로 나눠 구간별 평균값 예측</td><td>max_depth, min_samples_leaf</td></tr>
+        <tr><td>SVR (서포트벡터회귀)</td><td>마진 안의 오차는 무시, 이상치에 강건</td><td>kernel, C, epsilon</td></tr>
+        <tr><td>MLP Regressor</td><td>신경망으로 복잡한 비선형 관계 학습</td><td>hidden_layer_sizes, activation</td></tr>
+      </tbody></table></div>
+
       <div class="section-heading"><span class="ico">🧪</span><h2>코드 연습</h2></div>
       <div id="regExercises"></div>
     </section>
@@ -1188,6 +1201,13 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
         '<button class="btn btn-ghost" id="selectorSelectBtn" style="flex:1;">select()</button>' +
       '</div>' +
       '<div id="selectorResult" style="margin-top:10px;"></div>' +
+    '</div>' +
+    '<div class="section-heading" style="margin-top:22px;"><span class="ico">🤖</span><h2>규칙기반 vs 머신러닝 챗봇 놀이터</h2></div>' +
+    '<div class="playground" id="chatbotPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">고객센터 챗봇에게 메시지를 보내보세요. "배송"처럼 정확한 키워드가 있으면 둘 다 답하지만, "배쏭 언제옴"처럼 오타가 있으면 규칙기반은 못 알아듣고 머신러닝은 그래도 맞춰봐요.</p>' +
+      '<input type="text" id="chatbotInput" value="배쏭 언제옴" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--paper-line); background:var(--card-bg); color:var(--ink);">' +
+      '<button class="btn btn-primary" id="chatbotSendBtn" style="margin-top:8px;">전송</button>' +
+      '<div id="chatbotResult" style="margin-top:10px;"></div>' +
     '</div>';
 
   var PANDAS_INDEXER_PLAYGROUND_HTML =
@@ -1378,12 +1398,15 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
         {term:"API vs 크롤링", kid:"가게 주인이 포장해서 주는 물건(API) vs 진열대에서 내가 직접 골라 담는 것(크롤링)", formula:"requests.get(API_URL) ↔ requests.get(page_URL)+BeautifulSoup", def:"API는 제공자가 정해진 형식(JSON/XML)으로 데이터를 내려주고, 크롤링은 HTML 페이지를 받아 필요한 태그를 직접 찾아 추출해요."},
         {term:"정적 크롤링 vs 동적 크롤링", kid:"이미 인쇄된 책을 읽기(정적) vs 화면이 스스로 움직이는 걸 실시간으로 지켜보기(동적)", formula:"requests+BeautifulSoup ↔ Selenium", def:"정적 페이지는 requests로 HTML을 한 번에 받아오면 끝이지만, 자바스크립트가 나중에 내용을 채우는 동적 페이지는 실제 브라우저를 흉내내는 Selenium이 필요해요."},
         {term:"find vs select", kid:"태그 이름으로 찾기(find) vs CSS 선택자로 콕 집기(select)", formula:"soup.find('tbody') ↔ soup.select_one('table.tb_store tbody')", def:"find/find_all은 태그명·속성으로 검색하고, select/select_one은 CSS 선택자 문법을 그대로 쓸 수 있어 더 정교하게 찾을 수 있어요."},
-        {term:"JSON vs XML", kid:"딕셔너리처럼 생긴 포장지(JSON) vs 태그로 감싼 편지봉투(XML)", formula:"json.loads() / xmltodict.parse()", def:"둘 다 데이터를 구조화해 주고받는 포맷이에요. JSON은 파이썬 dict/list와 거의 비슷하고, XML은 태그로 감싼 형식이라 xmltodict로 딕셔너리로 바꿔서 다뤄요."}
+        {term:"JSON vs XML", kid:"딕셔너리처럼 생긴 포장지(JSON) vs 태그로 감싼 편지봉투(XML)", formula:"json.loads() / xmltodict.parse()", def:"둘 다 데이터를 구조화해 주고받는 포맷이에요. JSON은 파이썬 dict/list와 거의 비슷하고, XML은 태그로 감싼 형식이라 xmltodict로 딕셔너리로 바꿔서 다뤄요."},
+        {term:"규칙기반 AI vs 머신러닝 AI", kid:"사람이 정한 IF-THEN 규칙표를 따라가기(규칙기반) vs 예시 문장들을 학습해서 스스로 의도를 추측하기(머신러닝)", formula:"if 키워드 in 문장: 답변 ↔ TfidfVectorizer + MultinomialNB", def:"규칙기반은 정해진 키워드가 정확히 있어야 답하고 오타·표현 차이에 약해요. 머신러닝은 학습 데이터의 패턴을 익혀서 오타나 새로운 표현에도 어느 정도 대응할 수 있어요."},
+        {term:"지오코딩(Geocoding)", kid:"글자 주소를 지도 위 좌표(위도·경도)로 바꾸는 것", formula:"카카오 주소검색 API → (위도, 경도)", def:"'서울시 강남구...' 같은 주소를 지도에 표시하거나 거리를 계산하려면, API로 좌표(위도/경도)로 바꿔야 해요. 실패하면 키워드 검색으로 한 번 더 시도하는 방식도 자주 써요."}
       ],
       exercises:[
         {desc:"할리스 매장 페이지를 요청하고 파싱하기", code:"res = {{1}}.get(url)\nsoup = BeautifulSoup(res.text, '{{2}}')\ntag_table = soup.{{3}}('table.tb_store tbody')", answers:{1:"requests",2:"html.parser",3:"select_one"}, note:"requests.get()으로 페이지를 받고, BeautifulSoup으로 파싱한 뒤 select_one()으로 원하는 태그를 찾아요."},
         {desc:"공공 API 응답(JSON)에서 item 리스트 꺼내기", code:"data = response.{{1}}()\nitems = data['items']['{{2}}']", answers:{1:"json",2:"item"}, note:"response.json()으로 딕셔너리로 변환한 뒤, 실제 데이터가 들어있는 'item' 키에 접근해요."},
-        {desc:"수집한 결과를 CSV 파일로 저장하기", code:"import csv\nwith open('./hollys_store_page.csv', 'w') as f:\n    writer = csv.{{1}}(f)\n    writer.writerow(fields)\n    writer.{{2}}(result)", answers:{1:"writer",2:"writerows"}, note:"csv.writer()로 writer 객체를 만들고, writerow()는 한 줄, writerows()는 여러 줄을 한 번에 씁니다."}
+        {desc:"수집한 결과를 CSV 파일로 저장하기", code:"import csv\nwith open('./hollys_store_page.csv', 'w') as f:\n    writer = csv.{{1}}(f)\n    writer.writerow(fields)\n    writer.{{2}}(result)", answers:{1:"writer",2:"writerows"}, note:"csv.writer()로 writer 객체를 만들고, writerow()는 한 줄, writerows()는 여러 줄을 한 번에 씁니다."},
+        {desc:"문의 문장을 TF-IDF로 벡터화해서 의도를 분류하기", code:"vectorizer = {{1}}(analyzer='char_wb', ngram_range=(2,3))\nX_train = vectorizer.fit_transform(questions)\nmodel = MultinomialNB()\nmodel.fit(X_train, labels)", answers:{1:"TfidfVectorizer"}, note:"analyzer='char_wb'로 글자 단위로 쪼개면 오타에도 어느 정도 강해져요."}
       ]
     },
     { id:"pandas", icon:"🐼", label:"Pandas 기초", eyebrow:"0교시", eyebrowClass:"blue",
@@ -1400,7 +1423,11 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
         {term:"Index(인덱스)란", kid:"데이터마다 붙는 '주소표' — 탐색·정렬·결합의 기준", formula:"정수형 위치 인덱스 / 이름(라벨) 인덱스", def:"Index는 Series·DataFrame의 행(또는 열) 이름을 저장하는 메타데이터로, 잘 활용하면 데이터를 훨씬 쉽게 탐색·정렬·결합할 수 있음."},
         {term:"df[] vs at/iat", kid:"열 이름으로 쓱(df[]) vs 딱 한 칸만 초고속으로(at/iat)", formula:"df['col'] / df.at[행,열] / df.iat[행,열]", def:"df[]는 기본 열선택+행 위치슬라이싱, at/iat은 값 하나만 아주 빠르게 읽거나 고치는 전용 접근자임 (슬라이싱·조건문 둘 다 불가능)."},
         {term:"슬라이싱 끝 포함 여부", kid:"loc은 끝까지 포함, iloc은 끝 하나 전까지만", formula:"df.loc[0:2] → 3개 / df.iloc[0:2] → 2개", def:"라벨 기반(loc)은 끝 값을 포함하고, 위치 기반(iloc)은 일반 파이썬 슬라이싱처럼 끝 값을 포함 안 함. 가장 헷갈리는 포인트!"},
-        {term:"인코딩·구분자 지정", kid:"한글이 깨지거나 구분 기호가 쉼표가 아닐 때 알려주는 옵션", formula:"encoding='cp949' / sep='\\t'", def:"한글 윈도우에서 만든 CSV는 encoding='cp949'나 'euc-kr'로, 쉼표가 아닌 탭으로 구분된 TSV는 sep='\\t'로 읽음."}
+        {term:"인코딩·구분자 지정", kid:"한글이 깨지거나 구분 기호가 쉼표가 아닐 때 알려주는 옵션", formula:"encoding='cp949' / sep='\\t'", def:"한글 윈도우에서 만든 CSV는 encoding='cp949'나 'euc-kr'로, 쉼표가 아닌 탭으로 구분된 TSV는 sep='\\t'로 읽음."},
+        {term:"unique() vs value_counts()", kid:"어떤 값들이 있는지만 보기(unique) vs 각 값이 몇 번씩 나왔는지도 보기(value_counts)", formula:"df['col'].unique() / df['col'].value_counts()", def:"unique()는 중복 없는 값 목록만, value_counts()는 각 값의 등장 횟수까지 세어서 많은 순서로 보여줌. 범주형 데이터 탐색에 자주 씀."},
+        {term:"isin() — 여러 값 중 하나인지 검사", kid:"'이 리스트 안에 있는 값인가요?'를 한 번에 물어보는 것", formula:"df[df['도시'].isin(['서울','부산'])]", def:"여러 개의 OR 조건(도시=='서울' or 도시=='부산' ...)을 리스트 하나로 간단하게 검사할 수 있음."},
+        {term:"query() — 조건을 문자열로 쓰기", kid:"df[조건] 대신 문장처럼 조건을 쓰는 방법", formula:"df.query('tip >= 3 and day == \\'Sun\\'')", def:"컬럼명을 따옴표 없이 쓸 수 있어서, 조건이 복잡할 때 df[...] 대괄호 방식보다 훨씬 읽기 쉬움."},
+        {term:"타이디 데이터(Tidy Data)", kid:"① 각 변수는 하나의 열 ② 각 관측치는 하나의 행 ③ 각 값은 하나의 칸 — 이 3가지 규칙을 지킨 표", formula:"1변수=1열, 1관측=1행, 1값=1칸", def:"이 규칙을 지키면 groupby·merge·시각화 같은 pandas 작업이 훨씬 쉬워짐. 안 지켜진 표는 보통 melt/pivot으로 정리함."}
       ],
       exercises:[
         {desc:"도시 인구를 Series로 만들기", code:"population = pd.{{1}}([940, 330, 290], index=['서울', '부산', '인천'])", answers:{1:"Series"}, note:"pd.Series()는 인덱스가 붙은 1차원 데이터를 만듦."},
@@ -1413,7 +1440,10 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
         {desc:"라벨 기준 0~2번 행까지 (끝 포함) 슬라이싱", code:"slice_rows = df.{{1}}[0:2]  # 0,1,2번 행 모두 포함(3개)", answers:{1:"loc"}, note:"loc의 슬라이싱은 끝 번호까지 포함함."},
         {desc:"위치 기준 0~1번 행까지 (끝 미포함) 슬라이싱", code:"pos_slice = df.{{1}}[0:2]  # 0,1번 행만 포함(2개)", answers:{1:"iloc"}, note:"iloc의 슬라이싱은 파이썬 리스트처럼 끝 번호를 포함 안 함."},
         {desc:"한 칸(스칼라 값)만 초고속으로 읽기 — 라벨 기준", code:"value = df.{{1}}[0, 'day']", answers:{1:"at"}, note:"at은 슬라이싱·조건문 없이 값 1개만 라벨 기준으로 빠르게 읽음."},
-        {desc:"한글이 깨질 때 인코딩 지정해서 CSV 읽기", code:"df = pd.read_csv('data.csv', encoding='{{1}}')", answers:{1:["cp949","euc-kr"]}, note:"한글 윈도우에서 만든 파일이 깨지면 encoding='cp949' 또는 'euc-kr'을 시도해볼 것."}
+        {desc:"한글이 깨질 때 인코딩 지정해서 CSV 읽기", code:"df = pd.read_csv('data.csv', encoding='{{1}}')", answers:{1:["cp949","euc-kr"]}, note:"한글 윈도우에서 만든 파일이 깨지면 encoding='cp949' 또는 'euc-kr'을 시도해볼 것."},
+        {desc:"성별 컬럼에 어떤 값이 몇 번씩 있는지 세기", code:"print(df['성별'].{{1}}())", answers:{1:"value_counts"}, note:"value_counts()는 각 값의 등장 횟수를 많은 순서로 보여줌."},
+        {desc:"서울 또는 부산인 행만 골라내기", code:"result = df[df['도시'].{{1}}(['서울','부산'])]", answers:{1:"isin"}, note:"isin()에 리스트를 넘기면 그 안에 포함된 값인지 검사함."},
+        {desc:"query()로 팁이 3 이상인 행 조건 검색하기", code:"result = df.{{1}}('tip >= 3')", answers:{1:"query"}, note:"query()는 조건을 문자열로 써서 df[...] 대괄호보다 간결하게 표현 가능."}
       ],
       examplesHtml: PANDAS_EXAMPLES_HTML
     },
@@ -1430,7 +1460,11 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
         {term:"이상치 처리 (IQR)", kid:"다른 값들과 너무 동떨어진 값을 손보는 것", formula:"IQR=Q3-Q1, 상한=Q3+1.5·IQR, 하한=Q1-1.5·IQR", def:"박스플롯 기준으로 IQR을 벗어나면 이상치로 보고, 제거하거나 상/하한선으로 눌러주는(Clipping) 방법을 많이 써요."},
         {term:"Train/Val/Test는 왜 나눌까", kid:"연습문제(Train)로 공부, 모의고사(Validation)로 점검, 진짜 시험(Test)은 딱 한 번만", formula:"60:20:20, fit()은 Train에서만!", def:"스케일러·인코더·PCA는 반드시 Train으로만 fit하고 Val/Test는 transform만 해야, 실제 배포 상황과 같은 조건으로 성능을 잴 수 있어요(Data Leakage 방지)."},
         {term:"L1 vs L2 vs 엘라스틱넷", kid:"필요없는 건 완전히 버리기(L1) vs 다 조금씩 줄이기(L2) vs 둘의 장점만 섞기(엘라스틱넷)", formula:"L1: Σ|w| · L2: Σw² · ElasticNet: r·L1+(1-r)·L2", def:"L1(Lasso)은 가중치를 0으로 만들어 특징선택 효과, L2(Ridge)는 0에 가깝게만 줄여 다중공선성 완화, 엘라스틱넷은 상관관계 높은 변수 그룹을 함께 선택/축소해요."},
-        {term:"SelectKBest 고르는 기준", kid:"문제 유형(분류/회귀)과 데이터 종류에 맞는 통계 검정을 골라야 해요", formula:"분류: f_classif/chi2/mutual_info_classif · 회귀: f_regression/mutual_info_regression", def:"수치형+분류엔 f_classif, 빈도·카운트 데이터 분류엔 chi2, 비선형 관계면 mutual_info_*, 수치형+회귀엔 f_regression을 써요."}
+        {term:"SelectKBest 고르는 기준", kid:"문제 유형(분류/회귀)과 데이터 종류에 맞는 통계 검정을 골라야 해요", formula:"분류: f_classif/chi2/mutual_info_classif · 회귀: f_regression/mutual_info_regression", def:"수치형+분류엔 f_classif, 빈도·카운트 데이터 분류엔 chi2, 비선형 관계면 mutual_info_*, 수치형+회귀엔 f_regression을 써요."},
+        {term:"Timestamp vs Period", kid:"콕 찍은 순간(Timestamp) vs 기간 하나(Period)", formula:"pd.to_datetime('2025-01-01') / pd.Period('2025-01', freq='M')", def:"Timestamp는 특정 시각 하나를 가리키고(예: 2025-01-01 12:00), Period는 '2025년 1월' 같은 구간 자체를 나타내요. 회계·통계 집계엔 Period가 더 자연스러워요."},
+        {term:"date_range로 날짜 시리즈 만들기", kid:"시작일부터 며칠치 달력을 자동으로 쭉 뽑아주는 것", formula:"pd.date_range(start='2025-01-01', periods=10, freq='D')", def:"freq='D'(일), 'M'(월말), 'W'(주) 등으로 원하는 간격의 날짜 목록을 한 번에 만들 수 있어요."},
+        {term:".dt 접근자로 날짜 정보 꺼내기", kid:"날짜 컬럼에서 연/월/일/요일만 콕 집어서 꺼내는 도구", formula:"df['date'].dt.year / .dt.month / .dt.day_name()", def:"datetime 타입 컬럼에 .dt를 붙이면 연도·월·일·요일 등을 새 컬럼으로 쉽게 뽑아낼 수 있어요."},
+        {term:"resample — 시간 단위로 다시 묶기", kid:"매일 기록된 데이터를 주별·월별로 다시 묶어서 평균/합계 내기", formula:"df.resample('W').mean() / df.resample('Q').sum()", def:"groupby가 값 기준으로 묶는다면, resample은 '시간 간격' 기준으로 묶어요. 날짜가 인덱스로 설정돼 있어야 써요."}
       ],
       exercises:[
         {desc:"결측치 개수를 확인하고 평균으로 채우기", code:"print(df.{{1}}().sum())\ndf['age'] = df['age'].fillna(df['age'].{{2}}())", answers:{1:"isnull",2:"mean"}, note:"isnull().sum()으로 컬럼별 결측 개수를 세고, mean()으로 평균을 구해 채워요."},
@@ -1442,7 +1476,10 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
         {desc:"이웃 값들을 참고해 결측치를 채우기 (KNN)", code:"imputer = {{1}}(n_neighbors=5)\ndf[num_cols] = imputer.fit_transform(df[num_cols])", answers:{1:"KNNImputer"}, note:"KNNImputer는 비슷한(가까운) 데이터들의 값을 참고해서 결측치를 채워요."},
         {desc:"통계 검정으로 가장 유의미한 특징 10개만 고르기", code:"selector = SelectKBest(score_func={{1}}, k=10)\nX_selected = selector.fit_transform(X_scaled, y_train)", answers:{1:"f_classif"}, note:"연속형 변수 + 분류 문제에서는 ANOVA F-검정인 f_classif를 가장 많이 써요."},
         {desc:"모델 성능을 보며 특징을 하나씩 제거해 5개만 남기기", code:"selector = {{1}}(estimator, n_features_to_select=5)\nX_rfe = selector.fit_transform(X_train_scaled, y_train)", answers:{1:"RFE"}, note:"RFE(재귀적 특징 제거)는 중요도가 낮은 특징을 반복적으로 하나씩 제거해요."},
-        {desc:"학습된 전처리기와 모델을 한 파일에 저장하기", code:"artifacts = {'encoder': encoder, 'scaler': scaler, 'pca': pca, 'model': model}\njoblib.{{1}}(artifacts, 'model/pipeline.pkl')", answers:{1:"dump"}, note:"joblib.dump()로 여러 객체를 딕셔너리로 묶어 한 번에 저장하면, joblib.load()로 그대로 복원할 수 있어요."}
+        {desc:"학습된 전처리기와 모델을 한 파일에 저장하기", code:"artifacts = {'encoder': encoder, 'scaler': scaler, 'pca': pca, 'model': model}\njoblib.{{1}}(artifacts, 'model/pipeline.pkl')", answers:{1:"dump"}, note:"joblib.dump()로 여러 객체를 딕셔너리로 묶어 한 번에 저장하면, joblib.load()로 그대로 복원할 수 있어요."},
+        {desc:"문자열 날짜를 진짜 날짜 타입으로 바꾸기", code:"df['date'] = pd.{{1}}(df['date'])", answers:{1:"to_datetime"}, note:"to_datetime()으로 바꿔야 .dt 접근자와 날짜 연산을 쓸 수 있어요."},
+        {desc:"날짜 컬럼에서 요일 이름 뽑아내기", code:"df['weekday'] = df['date'].{{1}}.day_name()", answers:{1:"dt"}, note:".dt 접근자를 붙여야 연/월/일/요일 등을 꺼낼 수 있어요."},
+        {desc:"날짜를 인덱스로 만들고 주 단위로 평균 리샘플링하기", code:"df = df.set_index('date')\ndf_weekly = df.{{1}}('W').mean()", answers:{1:"resample"}, note:"resample은 시간 간격 기준으로 데이터를 다시 묶어 집계해요."}
       ],
       examplesHtml: PREPROCESS_EXAMPLES_HTML
     },
@@ -1469,12 +1506,14 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
       concepts:[
         {term:"matplotlib vs seaborn", kid:"기본 도화지와 붓(matplotlib) vs 통계 그림을 미리 세팅해주는 색연필 세트(seaborn)", formula:"plt.plot(...) / sns.barplot(...)", def:"seaborn은 matplotlib을 기반으로 만들어져서, 통계적인 그래프(회귀선, 상관관계 등)를 훨씬 적은 코드로 예쁘게 그릴 수 있어요."},
         {term:"scatter vs regplot", kid:"점만 찍기(scatter) vs 점 찍고 추세선까지(regplot)", formula:"plt.scatter(x,y) / sns.regplot(x='x',y='y',data=df)", def:"regplot은 산점도 위에 회귀선을 자동으로 그려줘서 두 변수의 관계를 한눈에 보여줘요."},
-        {term:"barplot vs heatmap", kid:"막대로 비교하기(barplot) vs 색깔로 비교하기(heatmap)", formula:"sns.barplot(x=,y=) / sns.heatmap(corr_matrix, annot=True)", def:"barplot은 카테고리별 값을 막대 높이로, heatmap은 여러 변수 간 상관관계를 색의 진하기로 한눈에 보여줘요."}
+        {term:"barplot vs heatmap", kid:"막대로 비교하기(barplot) vs 색깔로 비교하기(heatmap)", formula:"sns.barplot(x=,y=) / sns.heatmap(corr_matrix, annot=True)", def:"barplot은 카테고리별 값을 막대 높이로, heatmap은 여러 변수 간 상관관계를 색의 진하기로 한눈에 보여줘요."},
+        {term:"Choropleth 지도(folium)", kid:"지역별 수치를 색깔 진하기로 칠한 지도", formula:"folium.Choropleth(geo_data=geojson, data=df, columns=['시도','값'])", def:"시도·구별 경계 데이터(GeoJSON)와 수치 데이터를 합쳐서, 값이 클수록 진한 색으로 칠해진 지도를 그려요. '어느 지역이 높은가'를 한눈에 보여줄 때 강력해요."}
       ],
       exercises:[
         {desc:"성별에 따른 생존율을 막대그래프로 그리기", code:"sns.{{1}}(data=titanic, x='sex', y='survived')", answers:{1:"barplot"}, note:"barplot은 카테고리별 평균값을 막대로 보여줘요."},
         {desc:"산점도에 회귀선까지 함께 그리기", code:"sns.{{1}}(x='x', y='y', data=pd_df, line_kws={'color': 'red'})", answers:{1:"regplot"}, note:"regplot은 산점도+회귀선을 한 번에 그려줘요."},
-        {desc:"변수들 간 상관관계를 색으로 표현하기", code:"corr_matrix = df.corr()\nsns.{{1}}(data=corr_matrix, annot=True)", answers:{1:"heatmap"}, note:"heatmap은 표 형태 데이터를 색의 진하기로 보여줘요."}
+        {desc:"변수들 간 상관관계를 색으로 표현하기", code:"corr_matrix = df.corr()\nsns.{{1}}(data=corr_matrix, annot=True)", answers:{1:"heatmap"}, note:"heatmap은 표 형태 데이터를 색의 진하기로 보여줘요."},
+        {desc:"시도별 값으로 색칠한 지도를 만들고 저장하기", code:"m = folium.Map(location=[35.9, 127.8], zoom_start=7)\nfolium.{{1}}(geo_data=geo, data=df, columns=['시도','값'], key_on='feature.properties.name').add_to(m)\nm.save('map.html')", answers:{1:"Choropleth"}, note:"Choropleth는 GeoJSON 경계와 값을 매칭해서 지역별로 색칠해요."}
       ]
     },
     { id:"pytuple", icon:"🐍", label:"파이썬 기초(튜플)", eyebrow:"0교시", eyebrowClass:"blue",
@@ -1625,6 +1664,14 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
       '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">K=1~6까지 실제로 군집화를 돌려서 inertia(응집도)와 실루엣 점수(분리 품질)를 계산해봐요. 실루엣 점수가 가장 높은 K가 이 데이터에 가장 알맞아요.</p>' +
       '<button class="btn btn-primary" id="kmeansElbowBtn">K=1~6 전부 계산하기</button>' +
       '<div id="kmeansElbowResult" style="margin-top:12px;"></div>' +
+    '</div>' +
+    '<div class="section-heading" style="margin-top:22px;"><span class="ico">🔵</span><h2>DBSCAN 놀이터 — 밀도로 무리와 노이즈 찾기</h2></div>' +
+    '<div class="playground" id="dbscanPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">커피 매장 위치처럼, 촘촘하게 모인 곳은 하나의 무리로 묶고 외딴 점은 노이즈(✕)로 표시해요. K를 미리 정하지 않아도 돼요! 반경(eps)을 조절해보세요.</p>' +
+      '<input type="range" id="dbscanEpsSlider" min="20" max="80" step="5" value="35" style="width:100%;">' +
+      '<div style="text-align:center; font-size:.85rem; color:var(--ink-soft);">반경(eps): <b id="dbscanEpsVal">35</b>px, 최소이웃수(min_samples)=3</div>' +
+      '<canvas id="dbscanCanvas" width="380" height="280" style="width:100%; max-width:380px; margin-top:10px; border-radius:10px; border:1px solid var(--paper-line);"></canvas>' +
+      '<div id="dbscanResult" style="margin-top:8px;"></div>' +
     '</div>';
 
   var MOMENTS_EXTRA_HTML =
@@ -1766,7 +1813,9 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
         {term:"K-means 속성(attributes)", kid:"학습이 끝난 뒤 결과를 확인할 수 있는 이름표들", formula:".labels_ / .cluster_centers_ / .inertia_ / .n_iter_", def:".labels_는 각 샘플의 군집 번호, .cluster_centers_는 중심점 좌표, .inertia_는 군집 내 거리제곱합(SSE), .n_iter_는 수렴까지 걸린 반복 횟수예요."},
         {term:"K 값 정하기 — 엘보우 방법", kid:"K를 1,2,3...으로 늘려가며 그래프를 그리면 팔꿈치처럼 꺾이는 지점이 있어요, 거기가 적당한 K", formula:"inertia_ (각 점과 중심점 거리 제곱의 합)", def:"K가 늘어날수록 inertia는 계속 줄어들지만, 어느 순간부터 줄어드는 속도가 확 느려져요(팔꿈치). 그 지점을 적당한 K로 골라요. 단, inertia만으로는 확신할 수 없어서 실루엣 점수와 같이 봐요."},
         {term:"실루엣 점수(Silhouette Score)", kid:"내가 속한 무리 친구들과는 가깝고, 다른 무리와는 멀리 떨어져 있는 정도를 매기는 성적표", formula:"silhouette_score(X, labels)  # -1~1, 1에 가까울수록 좋음", def:"같은 군집끼리는 얼마나 가까운지, 다른 군집과는 얼마나 멀리 분리됐는지를 종합해서 -1~1 점수로 매겨요. 보통 0.5 이상이면 군집이 잘 나뉜 거예요."},
-        {term:"초기 중심점의 함정", kid:"처음에 중심점을 어디 찍느냐에 따라 결과가 달라질 수 있어요", formula:"KMeans(n_clusters=K, n_init=10)", def:"운 나쁘게 중심점을 이상하게 찍으면 이상한 군집이 나올 수 있어서, 보통 여러 번(n_init) 다르게 시도해 가장 좋은 결과를 골라요."}
+        {term:"초기 중심점의 함정", kid:"처음에 중심점을 어디 찍느냐에 따라 결과가 달라질 수 있어요", formula:"KMeans(n_clusters=K, n_init=10)", def:"운 나쁘게 중심점을 이상하게 찍으면 이상한 군집이 나올 수 있어서, 보통 여러 번(n_init) 다르게 시도해 가장 좋은 결과를 골라요."},
+        {term:"DBSCAN — 밀도 기반 군집화", kid:"K-means처럼 개수를 미리 안 정해도, 촘촘하게 모인 곳끼리 저절로 무리를 찾아주는 방법", formula:"DBSCAN(eps=반경, min_samples=최소이웃수)", def:"반경(eps) 안에 이웃이 min_samples개 이상이면 같은 무리로 묶고, 어디에도 안 끼는 외딴 점은 노이즈(-1)로 표시해요. 커피매장 위치처럼 밀집 지역을 찾을 때 유용해요."},
+        {term:"K-means vs DBSCAN", kid:"모양이 둥근 무리를 K개로 딱 나누기(K-means) vs 개수 정하지 않고 촘촘한 곳끼리 자유롭게 묶기(DBSCAN)", formula:"K-means: 중심점 기반, K 필요 · DBSCAN: 밀도 기반, K 불필요", def:"K-means는 모든 점을 억지로 K개 무리 중 하나에 넣지만, DBSCAN은 애매한 점을 '노이즈'로 남겨둘 수 있고 울퉁불퉁한 모양의 무리도 잘 찾아요."}
       ],
       exercises:[
         {desc:"K=3인 K-means 모델 만들고 학습하기", code:"from sklearn.cluster import {{1}}\nkm = KMeans(n_clusters=3, random_state=42)\nkm.{{2}}(X)", answers:{1:"KMeans",2:"fit"}, note:"n_clusters로 몇 개의 무리로 나눌지 정해요."},
@@ -1775,7 +1824,8 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
         {desc:"거리 기반 알고리즘이니 학습 전 스케일링하기", code:"scaler = {{1}}()\nX_scaled = scaler.fit_transform(X)\nkm.fit(X_scaled)", answers:{1:"StandardScaler"}, note:"K-means는 거리로 계산하기 때문에 단위가 다르면 결과가 왜곡돼요. 반드시 스케일링부터!"},
         {desc:"군집 내 거리제곱합(SSE)으로 응집도 확인하기", code:"print(km.{{1}}_)  # 낮을수록 응집력 높은 군집", answers:{1:"inertia"}, note:"inertia_는 엘보우 방법에서 최적 K를 찾을 때 주로 사용해요."},
         {desc:"실루엣 점수로 군집화 품질 평가하기", code:"from sklearn.metrics import {{1}}\nscore = silhouette_score(X_scaled, labels)", answers:{1:"silhouette_score"}, note:"1에 가까울수록 군집이 잘 분리되고 응집돼 있다는 뜻이에요."},
-        {desc:"안정적인 초기 중심점 방식 지정하기", code:"km = KMeans(n_clusters=3, init='{{1}}', n_init=10)", answers:{1:"k-means++"}, note:"k-means++는 초기 중심점을 서로 멀리 떨어지게 골라 더 안정적으로 수렴해요."}
+        {desc:"안정적인 초기 중심점 방식 지정하기", code:"km = KMeans(n_clusters=3, init='{{1}}', n_init=10)", answers:{1:"k-means++"}, note:"k-means++는 초기 중심점을 서로 멀리 떨어지게 골라 더 안정적으로 수렴해요."},
+        {desc:"밀도 기반으로 군집화하고 노이즈 확인하기", code:"from sklearn.cluster import {{1}}\ndb = DBSCAN(eps=0.5, min_samples=5)\nlabels = db.fit_predict(X_scaled)\nprint((labels == -1).sum())  # 노이즈 개수", answers:{1:"DBSCAN"}, note:"DBSCAN 결과에서 labels가 -1인 점은 어느 무리에도 속하지 않는 노이즈예요."}
       ]
     },
     { id:"moments", icon:"📐", label:"분포의 모양(적률)", eyebrow:"8교시", eyebrowClass:"yellow",
@@ -2240,6 +2290,98 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
     });
   }
   initKmeansElbowPlayground();
+
+  /* ---- DBSCAN 놀이터 (data46/종합.ipynb의 매장 위치 밀도 군집화 반영) ---- */
+  var DBSCAN_POINTS = [
+    [80,80],[95,90],[70,100],[100,70],[85,110],[110,95],[75,75],
+    [270,190],[290,200],[260,220],[300,180],[280,230],[310,210],[265,205],
+    [200,30],[30,250],[350,70]
+  ];
+
+  function dbscanCluster(points, eps, minPts){
+    var n = points.length;
+    var labels = new Array(n).fill(undefined);
+    var visited = new Array(n).fill(false);
+    var clusterId = 0;
+    function regionQuery(idx){
+      var neighbors = [];
+      points.forEach(function(p,i){
+        var d = Math.sqrt((p[0]-points[idx][0])*(p[0]-points[idx][0]) + (p[1]-points[idx][1])*(p[1]-points[idx][1]));
+        if (d<=eps) neighbors.push(i);
+      });
+      return neighbors;
+    }
+    for (var i=0;i<n;i++){
+      if (visited[i]) continue;
+      visited[i] = true;
+      var neighbors = regionQuery(i);
+      if (neighbors.length < minPts){
+        labels[i] = -1;
+        continue;
+      }
+      labels[i] = clusterId;
+      var seeds = neighbors.slice();
+      var k = 0;
+      while (k < seeds.length){
+        var j = seeds[k];
+        if (!visited[j]){
+          visited[j] = true;
+          var jNeighbors = regionQuery(j);
+          if (jNeighbors.length >= minPts) seeds = seeds.concat(jNeighbors);
+        }
+        if (labels[j]===undefined || labels[j]===-1) labels[j] = clusterId;
+        k++;
+      }
+      clusterId++;
+    }
+    return labels;
+  }
+
+  function drawDbscan(labels){
+    var canvas = document.getElementById("dbscanCanvas");
+    if (!canvas) return;
+    var ctx16 = canvas.getContext("2d");
+    var w=canvas.width, h=canvas.height;
+    ctx16.clearRect(0,0,w,h);
+    var dark = isDark();
+    var palette = dark ? ["#6FC1EA","#FF8A73","#7BD79A","#E0C46C"] : ["#1D5C8A","#C1443C","#3F8F5F","#B08900"];
+    var noiseColor = dark ? "rgba(236,231,216,0.5)" : "rgba(36,39,43,0.4)";
+    DBSCAN_POINTS.forEach(function(p,i){
+      var lbl = labels[i];
+      if (lbl===-1){
+        ctx16.strokeStyle = noiseColor;
+        ctx16.lineWidth = 2;
+        ctx16.beginPath();
+        ctx16.moveTo(p[0]-5,p[1]-5); ctx16.lineTo(p[0]+5,p[1]+5);
+        ctx16.moveTo(p[0]+5,p[1]-5); ctx16.lineTo(p[0]-5,p[1]+5);
+        ctx16.stroke();
+      } else {
+        ctx16.fillStyle = palette[lbl % palette.length];
+        ctx16.beginPath();
+        ctx16.arc(p[0],p[1],6,0,Math.PI*2);
+        ctx16.fill();
+      }
+    });
+  }
+
+  function initDbscanPlayground(){
+    var slider = document.getElementById("dbscanEpsSlider");
+    if (!slider) return;
+    function update(){
+      var eps = Number(slider.value);
+      document.getElementById("dbscanEpsVal").textContent = eps;
+      var labels = dbscanCluster(DBSCAN_POINTS, eps, 3);
+      drawDbscan(labels);
+      var nClusters = new Set(labels.filter(function(l){ return l!==-1; })).size;
+      var nNoise = labels.filter(function(l){ return l===-1; }).length;
+      document.getElementById("dbscanResult").innerHTML =
+        '<pre class="code-block" style="font-size:.8rem;">'+escapeHtml("DBSCAN(eps="+eps+", min_samples=3).fit_predict(X)")+'</pre>' +
+        '<div class="note-box" style="margin-top:6px;">무리(cluster) '+nClusters+'개 발견, 노이즈(✕ 표시) '+nNoise+'개 — eps를 줄이면 더 엄격하게, 늘리면 더 관대하게 묶여요.</div>';
+    }
+    slider.addEventListener("input", update);
+    update();
+  }
+  initDbscanPlayground();
 
   /* ================= 적률(MOMENTS) PLAYGROUND ================= */
   function boxMullerNormal(mean, sd){
@@ -2806,6 +2948,81 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
     show("find");
   }
   initSelectorPlayground();
+
+  /* ---- 규칙기반 vs 머신러닝 챗봇 놀이터 (data21 반영, 문자 n-gram 유사도로 TF-IDF 근사) ---- */
+  var CHATBOT_INTENTS = {
+    delivery: ["배송 언제 되나요","택배 언제 와요","배송일 조회","언제 출고되나요","배송","택배","택배 언제","언제와요","언제와","물건 언제 도착하나요","배송 상태","출고 완료","언제 보내주나요"],
+    refund: ["환불하고 싶어요","반품 처리 해주세요","돈 돌려받나요","취소 가능한가요","환불","반품","취소","환불해줘","반품할래요","결제 취소"],
+    hours: ["몇 시까지 하나요","운영시간 알려줘","영업시간 궁금해요","언제 문 여나요","운영시간","영업시간","몇시까지","오픈 시간","마감 시간"],
+    location: ["어디에 있나요","위치가 어디죠","매장 주소 알려주세요","찾아가는 길","위치","주소","매장","어디에요"]
+  };
+  var CHATBOT_RESPONSES = {
+    delivery: "🚚 배송은 영업일 기준 2~3일이 소요됩니다.",
+    refund: "💵 환불은 상품 수거 완료 후 3일 이내에 처리됩니다.",
+    hours: "⏰ 고객센터 운영 시간은 평일 오전 9시~오후 6시입니다.",
+    location: "📍 저희 매장은 서울시 영등포구에 위치해 있습니다."
+  };
+  var CHATBOT_RULES = { "배송":"delivery", "택배":"delivery", "환불":"refund", "반품":"refund", "취소":"refund", "운영시간":"hours", "영업시간":"hours", "위치":"location", "주소":"location", "매장":"location" };
+
+  function ruleBasedRespond(msg){
+    var clean = msg.replace(/\s+/g,"");
+    for (var kw in CHATBOT_RULES){
+      if (clean.indexOf(kw)>=0) return CHATBOT_RESPONSES[CHATBOT_RULES[kw]];
+    }
+    return null;
+  }
+
+  function charNgrams(text, nMin, nMax){
+    var grams = {};
+    var padded = " "+text.replace(/\s+/g,"")+" ";
+    for (var n=nMin;n<=nMax;n++){
+      for (var i=0;i+n<=padded.length;i++){
+        var g = padded.slice(i,i+n);
+        grams[g] = (grams[g]||0)+1;
+      }
+    }
+    return grams;
+  }
+
+  function ngramSimilarity(a, b){
+    var ga = charNgrams(a,2,3), gb = charNgrams(b,2,3);
+    var dot=0, na=0, nb=0;
+    Object.keys(ga).forEach(function(k){ na += ga[k]*ga[k]; if (gb[k]) dot += ga[k]*gb[k]; });
+    Object.keys(gb).forEach(function(k){ nb += gb[k]*gb[k]; });
+    if (na===0||nb===0) return 0;
+    return dot/Math.sqrt(na*nb);
+  }
+
+  function mlRespond(msg){
+    var bestIntent=null, bestScore=0;
+    Object.keys(CHATBOT_INTENTS).forEach(function(intent){
+      var combined = CHATBOT_INTENTS[intent].join(" ");
+      var score = ngramSimilarity(msg, combined);
+      if (score>bestScore){ bestScore=score; bestIntent=intent; }
+    });
+    if (bestIntent && bestScore>0.08) return { text: CHATBOT_RESPONSES[bestIntent], score: bestScore };
+    return null;
+  }
+
+  function initChatbotPlayground(){
+    var input = document.getElementById("chatbotInput");
+    var btn = document.getElementById("chatbotSendBtn");
+    var resultEl = document.getElementById("chatbotResult");
+    if (!btn) return;
+    btn.addEventListener("click", function(){
+      var msg = input.value.trim();
+      if (!msg) return;
+      var ruleReply = ruleBasedRespond(msg);
+      var mlReply = mlRespond(msg);
+      resultEl.innerHTML =
+        '<div class="formula-grid">' +
+          '<div class="formula-card"><h4>🔧 규칙기반</h4><div style="font-size:.85rem; margin-top:6px;">'+(ruleReply ? ruleReply : '❓ 키워드를 못 찾았어요.')+'</div></div>' +
+          '<div class="formula-card"><h4>🧠 머신러닝(TF-IDF+NB 근사)</h4><div style="font-size:.85rem; margin-top:6px;">'+(mlReply ? mlReply.text+' <span style="color:var(--ink-soft); font-size:.75rem;">(유사도 '+mlReply.score.toFixed(2)+')</span>' : '❓ 확신이 낮아 답을 못 했어요.')+'</div></div>' +
+        '</div>';
+    });
+    btn.click();
+  }
+  initChatbotPlayground();
 
   /* ================= Pandas: Series/DataFrame, read_csv 놀이터 ================= */
   function initSeriesDfPlayground(){
@@ -4018,7 +4235,9 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
   /* ================= REGRESSION / CLASSIFICATION CODE EXERCISES ================= */
   buildExercisesInto("regExercises", [
     {desc:"선형회귀 모델을 학습하고 예측하기", code:"model = {{1}}()\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)\nmse = {{2}}(y_test, y_pred)", answers:{1:"LinearRegression",2:"mean_squared_error"}, note:"LinearRegression으로 학습하고, mean_squared_error로 MSE를 계산해요."},
-    {desc:"결정계수(R²)로 모델 성능 확인하기", code:"r2 = {{1}}(y_test, y_pred)", answers:{1:"r2_score"}, note:"r2_score는 1에 가까울수록 모델이 데이터를 잘 설명한다는 뜻이에요."}
+    {desc:"결정계수(R²)로 모델 성능 확인하기", code:"r2 = {{1}}(y_test, y_pred)", answers:{1:"r2_score"}, note:"r2_score는 1에 가까울수록 모델이 데이터를 잘 설명한다는 뜻이에요."},
+    {desc:"L2 규제로 과적합을 줄이는 릿지 회귀 만들기", code:"ridge = {{1}}(alpha=1.0)\nridge.fit(X_train, y_train)", answers:{1:"Ridge"}, note:"alpha가 클수록 규제가 강해져서 계수가 작아져요."},
+    {desc:"RBF 커널로 서포트벡터 회귀 만들기", code:"svr = SVR(kernel='{{1}}', C=10.0, epsilon=0.2)\nsvr.fit(X_train_scaled, y_train)", answers:{1:"rbf"}, note:"SVR은 거리 기반이라 학습 전 반드시 스케일링이 필요해요."}
   ]);
   buildExercisesInto("clsExercises", [
     {desc:"로지스틱 회귀 모델 학습과 혼동행렬 만들기", code:"model = {{1}}(max_iter=10000)\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)\ncm = {{2}}(y_test, y_pred)", answers:{1:"LogisticRegression",2:"confusion_matrix"}, note:"LogisticRegression으로 분류 모델을 학습하고, confusion_matrix로 예측 결과를 표로 정리해요."},
@@ -4179,6 +4398,7 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
     if (document.getElementById("chartTypeCanvas")) drawChartType(chartTypeCurrentMode);
     if (document.getElementById("binSlider")) drawBinHistogram(Number(document.getElementById("binSlider").value));
     if (document.getElementById("explainedVarSlider")) drawExplainedVar(Number(document.getElementById("explainedVarSlider").value));
+    if (document.getElementById("dbscanEpsSlider")) drawDbscan(dbscanCluster(DBSCAN_POINTS, Number(document.getElementById("dbscanEpsSlider").value), 3));
   }
   if (window.matchMedia){
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redrawAllCanvases);
