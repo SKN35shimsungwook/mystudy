@@ -1114,11 +1114,92 @@ print(df.loc[df['월급(만원)'] >= 400, ['이름', '월급(만원)']])  # 조�
 print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
     );
 
+  /* ================= 추가 놀이터 HTML (모든 탭에 실습 시뮬레이터 채우기) ================= */
+  var COLLECTION_EXTRA_HTML =
+    '<div class="section-heading" style="margin-top:6px;"><span class="ico">🌐</span><h2>정적 vs 동적 크롤링 시뮬레이터</h2></div>' +
+    '<div class="playground" id="collectPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">한 쇼핑몰 페이지를 가져온다고 해봐요. 어떤 정보는 페이지가 열리자마자 바로 보이고(정적), 어떤 정보는 자바스크립트가 실행된 후에야 나타나요(동적). 두 방법을 눌러 차이를 확인해보세요.</p>' +
+      '<div class="guess-row">' +
+        '<button class="btn btn-primary" id="collectStaticBtn" style="flex:1;">📄 정적 크롤링 (requests)</button>' +
+        '<button class="btn btn-ghost" id="collectDynamicBtn" style="flex:1;">🌀 동적 크롤링 (Selenium)</button>' +
+      '</div>' +
+      '<div id="collectResult" style="margin-top:14px;"></div>' +
+    '</div>';
+
+  var PANDAS_INDEXER_PLAYGROUND_HTML =
+    '<div class="section-heading" style="margin-top:22px;"><span class="ico">🎯</span><h2>loc vs iloc 놀이터 — 범위를 직접 조절해보기</h2></div>' +
+    '<div class="playground" id="indexerPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">인덱스 라벨이 a~e인 학생 성적표예요. 시작·끝 값을 바꾸고 loc/iloc을 선택해서 "끝 번호 포함 여부"가 어떻게 다른지 확인해보세요.</p>' +
+      '<div style="overflow-x:auto;"><table class="ref-table" id="indexerTable"></table></div>' +
+      '<div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-top:12px;">' +
+        '<label style="font-size:.85rem;">시작 <select id="indexerStart" style="margin-left:4px;"></select></label>' +
+        '<label style="font-size:.85rem;">끝 <select id="indexerEnd" style="margin-left:4px;"></select></label>' +
+        '<div class="guess-row" style="margin-top:0;">' +
+          '<button class="btn btn-primary" id="indexerLocBtn">df.loc[ ]</button>' +
+          '<button class="btn btn-ghost" id="indexerIlocBtn">df.iloc[ ]</button>' +
+        '</div>' +
+      '</div>' +
+      '<div id="indexerResult" style="margin-top:10px;"></div>' +
+    '</div>';
+
+  var PREPROCESS_SCALING_PLAYGROUND_HTML =
+    '<div class="section-heading" style="margin-top:22px;"><span class="ico">📏</span><h2>스케일링 비교 놀이터 — 이상치를 조절하며 차이 보기</h2></div>' +
+    '<div class="playground" id="scalingPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">기본 데이터 [10, 11, 12, 12, 13]에 이상치 하나를 슬라이더로 더해봐요. StandardScaler·MinMaxScaler·RobustScaler가 이상치에 얼마나 흔들리는지 비교해보세요.</p>' +
+      '<input type="range" id="scalingSlider" min="15" max="300" step="5" value="15" style="width:100%;">' +
+      '<div style="text-align:center; font-size:.85rem; color:var(--ink-soft);">이상치 값: <b id="scalingOutlierVal">15</b></div>' +
+      '<div id="scalingBars" style="margin-top:14px;"></div>' +
+    '</div>';
+
+  var RESHAPE_EXTRA_HTML =
+    '<div class="section-heading" style="margin-top:6px;"><span class="ico">🔀</span><h2>Wide ↔ Long 변신 놀이터</h2></div>' +
+    '<div class="playground" id="reshapePlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">같은 성적 데이터를 두 가지 모양으로 볼 수 있어요. 버튼을 눌러 표가 어떻게 바뀌는지 확인해보세요. 담긴 정보는 똑같아요!</p>' +
+      '<div class="guess-row">' +
+        '<button class="btn btn-primary" id="reshapeWideBtn" style="flex:1;">📐 Wide 형태</button>' +
+        '<button class="btn btn-ghost" id="reshapeLongBtn" style="flex:1;">📏 Long 형태 (melt)</button>' +
+      '</div>' +
+      '<div style="overflow-x:auto; margin-top:12px;"><table class="ref-table" id="reshapeTable"></table></div>' +
+      '<div id="reshapeCode" style="margin-top:8px;"></div>' +
+    '</div>';
+
+  var VIZ_EXTRA_HTML =
+    '<div class="section-heading" style="margin-top:6px;"><span class="ico">📈</span><h2>상관관계 놀이터 — 슬라이더로 산점도 모양 바꾸기</h2></div>' +
+    '<div class="playground" id="corrPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">상관계수(r)가 -1~1 사이에서 바뀌면 산점도 모양이 어떻게 달라질까요? 슬라이더를 움직여서 확인하고, 실제로 계산된 상관계수와 비교해보세요.</p>' +
+      '<input type="range" id="corrSlider" min="-10" max="10" step="1" value="7" style="width:100%;">' +
+      '<div style="text-align:center; font-size:.85rem; color:var(--ink-soft);">목표 상관계수: <b id="corrTargetVal">0.7</b></div>' +
+      '<canvas id="corrCanvas" width="380" height="260" style="width:100%; max-width:380px; display:block; margin:10px auto 0;"></canvas>' +
+      '<div style="text-align:center; font-size:.85rem;">실제 계산된 상관계수: <b id="corrActualVal">-</b></div>' +
+    '</div>';
+
+  var FEATURE_EXTRA_HTML =
+    '<div class="section-heading" style="margin-top:6px;"><span class="ico">🧭</span><h2>PCA 방향 찾기 놀이터 — 각도를 돌려가며 분산이 가장 큰 방향 찾기</h2></div>' +
+    '<div class="playground" id="pcaPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">비스듬히 퍼진 점들이 있어요. 각도 슬라이더로 기준선을 돌려가며, 그 방향으로 점들을 눌러 찍었을 때(투영) 분산이 가장 커지는 각도를 직접 찾아보세요. 그게 바로 PCA가 찾는 방향이에요!</p>' +
+      '<input type="range" id="pcaAngleSlider" min="0" max="179" step="1" value="0" style="width:100%;">' +
+      '<div style="text-align:center; font-size:.85rem; color:var(--ink-soft);">내가 고른 각도: <b id="pcaAngleVal">0</b>°</div>' +
+      '<canvas id="pcaCanvas" width="360" height="300" style="width:100%; max-width:360px; display:block; margin:10px auto 0;"></canvas>' +
+      '<div id="pcaResult" style="margin-top:8px;"></div>' +
+    '</div>';
+
+  var PYTUPLE_EXTRA_HTML =
+    '<div class="section-heading" style="margin-top:6px;"><span class="ico">🔒</span><h2>불변성 실험기 — 리스트 vs 튜플 수정해보기</h2></div>' +
+    '<div class="playground" id="tupleExpPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">같은 방식으로 리스트와 튜플의 값을 바꿔보려고 하면 어떤 일이 벌어질까요? 버튼을 눌러 직접 확인해보세요.</p>' +
+      '<div class="guess-row">' +
+        '<button class="btn btn-primary" id="tupleExpListBtn" style="flex:1;">📝 리스트 수정 시도</button>' +
+        '<button class="btn btn-ghost" id="tupleExpTupleBtn" style="flex:1;">🔒 튜플 수정 시도</button>' +
+      '</div>' +
+      '<div id="tupleExpResult" style="margin-top:12px;"></div>' +
+    '</div>';
+
   /* ================= CURRICULUM MODULES (collection ~ visualization, feature selection) ================= */
   var MODULES_PRE = [
     { id:"collection", icon:"🌐", label:"데이터 수집", eyebrow:"0교시", eyebrowClass:"blue",
       title:"🌐 데이터 수집 — API와 크롤링",
       intro:"데이터 분석의 첫 단계는 데이터를 모으는 것이에요. 공개된 창구(API)에서 정리된 데이터를 받아오거나, 웹페이지를 직접 뒤져서(크롤링) 필요한 정보를 오려내요.",
+      extraHtml: COLLECTION_EXTRA_HTML,
       concepts:[
         {term:"API vs 크롤링", kid:"가게 주인이 포장해서 주는 물건(API) vs 진열대에서 내가 직접 골라 담는 것(크롤링)", formula:"requests.get(API_URL) ↔ requests.get(page_URL)+BeautifulSoup", def:"API는 제공자가 정해진 형식(JSON/XML)으로 데이터를 내려주고, 크롤링은 HTML 페이지를 받아 필요한 태그를 직접 찾아 추출해요."},
         {term:"정적 크롤링 vs 동적 크롤링", kid:"이미 인쇄된 책을 읽기(정적) vs 화면이 스스로 움직이는 걸 실시간으로 지켜보기(동적)", formula:"requests+BeautifulSoup ↔ Selenium", def:"정적 페이지는 requests로 HTML을 한 번에 받아오면 끝이지만, 자바스크립트가 나중에 내용을 채우는 동적 페이지는 실제 브라우저를 흉내내는 Selenium이 필요해요."},
@@ -1134,7 +1215,7 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
     { id:"pandas", icon:"🐼", label:"Pandas 기초", eyebrow:"0교시", eyebrowClass:"blue",
       title:"🐼 Pandas 기초 — Series와 DataFrame",
       intro:"Pandas는 표(엑셀 같은) 형태의 데이터를 다루는 파이썬 도구임. 한 줄짜리 Series와 여러 줄·여러 컬럼의 DataFrame이 기본 단위임.",
-      extraHtml: PANDAS_INTRO_HTML,
+      extraHtml: PANDAS_INTRO_HTML + PANDAS_INDEXER_PLAYGROUND_HTML,
       concepts:[
         {term:"Series vs DataFrame", kid:"이름표가 붙은 한 줄(Series) vs 여러 줄·여러 칸으로 된 표 전체(DataFrame)", formula:"pd.Series([...]) / pd.DataFrame({...})", def:"Series는 1차원 배열에 인덱스가 붙은 것이고, DataFrame은 여러 개의 Series(컬럼)가 모인 2차원 표임."},
         {term:"index vs columns", kid:"표의 왼쪽 이름표(index) vs 위쪽 이름표(columns)", formula:"df.index / df.columns", def:"index는 행(row)을 구분하는 이름표, columns는 열(column)을 구분하는 이름표임."},
@@ -1165,7 +1246,7 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
     { id:"preprocess", icon:"🧹", label:"데이터 전처리", eyebrow:"0교시", eyebrowClass:"blue",
       title:"🧹 데이터 전처리 — 결측치·정규화·범주형·스케일링",
       intro:"실제 데이터에는 빈 칸(결측치), 제각각인 단위, 문자로 된 범주가 뒤섞여 있어요. 모델이 이해할 수 있게 정리하는 과정이 전처리이고, 크게 정제→통합→변환→축소→특징선택 5단계로 나눌 수 있어요.",
-      extraHtml: PREPROCESS_STAGES_HTML,
+      extraHtml: PREPROCESS_STAGES_HTML + PREPROCESS_SCALING_PLAYGROUND_HTML,
       concepts:[
         {term:"결측치 처리 전략", kid:"빠진 칸을 지울까, 채울까 정하는 규칙", formula:"dropna() / fillna(mean·median·mode) / ffill() / bfill()", def:"결측 비율이 낮으면 행 삭제, 수치형이면 평균·중앙값, 범주형이면 최빈값, 순서가 중요한 시계열이면 ffill/bfill을 주로 써요."},
         {term:"ffill vs bfill", kid:"앞 값을 그대로 끌어오기(ffill) vs 뒷 값을 앞으로 당겨오기(bfill)", formula:"df.ffill() / df.bfill()", def:"ffill은 결측값을 바로 앞의 값으로, bfill은 바로 뒤의 값으로 채워요. 시계열 데이터에서 자주 사용해요."},
@@ -1194,6 +1275,7 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
     { id:"reshape", icon:"🔀", label:"데이터프레임 응용", eyebrow:"0교시", eyebrowClass:"blue",
       title:"🔀 데이터프레임 응용 — merge·pivot·groupby",
       intro:"여러 표를 합치거나(merge, concat), 표의 모양을 바꾸거나(pivot, melt), 그룹별로 계산(groupby)하는 건 데이터 분석에서 가장 많이 쓰는 기술이에요.",
+      extraHtml: RESHAPE_EXTRA_HTML,
       concepts:[
         {term:"concat vs merge vs join", kid:"그냥 이어붙이기(concat) vs 공통 열 기준으로 짝짓기(merge) vs 인덱스 기준으로 짝짓기(join)", formula:"pd.concat([df1,df2]) / pd.merge(df1,df2,on=...) / df1.join(df2)", def:"concat은 SQL의 UNION처럼 단순 연결, merge는 SQL JOIN처럼 키 값으로 병합, join은 merge의 인덱스 기반 축소판이에요."},
         {term:"pivot vs pivot_table vs melt", kid:"표 펼치기(pivot류) vs 표 눕히기(melt)", formula:"df.pivot(index,columns,values) / df.pivot_table(...,aggfunc='mean') / df.melt(id_vars=...)", def:"pivot은 중복 없는 데이터를 넓게 펼치고, pivot_table은 중복을 집계까지 해주고, melt는 반대로 여러 컬럼을 한 컬럼으로 눕혀요(wide→long)."},
@@ -1209,6 +1291,7 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
     { id:"viz", icon:"📊", label:"시각화", eyebrow:"0교시", eyebrowClass:"blue",
       title:"📊 시각화 — matplotlib과 seaborn",
       intro:"숫자만 보는 것보다 그래프로 보면 패턴이 훨씬 잘 보여요. matplotlib은 기본 도구, seaborn은 matplotlib 위에서 더 예쁘고 통계적인 그래프를 그려주는 도구예요.",
+      extraHtml: VIZ_EXTRA_HTML,
       concepts:[
         {term:"matplotlib vs seaborn", kid:"기본 도화지와 붓(matplotlib) vs 통계 그림을 미리 세팅해주는 색연필 세트(seaborn)", formula:"plt.plot(...) / sns.barplot(...)", def:"seaborn은 matplotlib을 기반으로 만들어져서, 통계적인 그래프(회귀선, 상관관계 등)를 훨씬 적은 코드로 예쁘게 그릴 수 있어요."},
         {term:"scatter vs regplot", kid:"점만 찍기(scatter) vs 점 찍고 추세선까지(regplot)", formula:"plt.scatter(x,y) / sns.regplot(x='x',y='y',data=df)", def:"regplot은 산점도 위에 회귀선을 자동으로 그려줘서 두 변수의 관계를 한눈에 보여줘요."},
@@ -1219,19 +1302,246 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
         {desc:"산점도에 회귀선까지 함께 그리기", code:"sns.{{1}}(x='x', y='y', data=pd_df, line_kws={'color': 'red'})", answers:{1:"regplot"}, note:"regplot은 산점도+회귀선을 한 번에 그려줘요."},
         {desc:"변수들 간 상관관계를 색으로 표현하기", code:"corr_matrix = df.corr()\nsns.{{1}}(data=corr_matrix, annot=True)", answers:{1:"heatmap"}, note:"heatmap은 표 형태 데이터를 색의 진하기로 보여줘요."}
       ]
+    },
+    { id:"pytuple", icon:"🐍", label:"파이썬 기초(튜플)", eyebrow:"0교시", eyebrowClass:"blue",
+      title:"🐍 파이썬 기초 — 튜플(tuple)",
+      intro:"데이터 분석을 하다 보면 튜플을 자주 만나요. 리스트와 비슷하게 생겼지만 '한 번 만들면 절대 못 바꾸는' 특별한 성질이 있어요.",
+      extraHtml: PYTUPLE_EXTRA_HTML,
+      concepts:[
+        {term:"튜플이란?", kid:"한 번 포장하면 다시는 못 여는 선물상자", formula:"t = (1, 2, 3)", def:"튜플은 리스트처럼 여러 값을 순서대로 저장하지만, 리스트와 달리 만든 후에는 값을 추가·삭제·수정할 수 없는(불변, immutable) 자료형이에요."},
+        {term:"콤마가 튜플을 만든다", kid:"괄호가 아니라 사실은 콤마(,)가 튜플을 만드는 진짜 주인공이에요", formula:"t = 1, 2, 3  # 괄호 없어도 튜플!", def:"괄호 없이 콤마로만 값을 나열해도 파이썬은 이를 튜플로 인식해요. 괄호는 튜플을 더 명확하게 보이게 해주는 역할일 뿐이에요."},
+        {term:"단일요소 튜플의 함정", kid:"값이 하나뿐인 튜플을 만들 때는 뒤에 콤마를 꼭 붙여야 해요", formula:"(1,) → 튜플 / (1) → 그냥 정수 1", def:"괄호 안에 값이 하나뿐이면 파이썬은 그냥 괄호로 감싼 값(정수 등)으로 봐요. 콤마를 꼭 붙여야 '요소가 1개인 튜플'이 돼요."},
+        {term:"튜플 언패킹(Unpacking)", kid:"튜플 속 값들을 순서대로 여러 변수에 한 번에 나눠 담는 것", formula:"a, b, c = (1, 2, 3)", def:"튜플의 요소 개수와 받는 변수의 개수가 같아야 해요. 변수 여러 개를 한 줄로 깔끔하게 만들 수 있어요."}
+      ],
+      exercises:[
+        {desc:"비어있는 튜플 만들기", code:"my_variable = {{1}}", answers:{1:["()","tuple()"]}, note:"빈 괄호 () 또는 tuple()로 빈 튜플을 만들 수 있어요."},
+        {desc:"영화 제목 3개를 튜플로 저장하기", code:"movie_rank = ('닥터 스트레인지', '스플릿', {{1}})", answers:{1:["'럭키'",'"럭키"']}, note:"콤마로 구분된 값들을 괄호로 묶으면 튜플이 돼요."},
+        {desc:"숫자 1이 저장된 튜플(단일요소) 만들기", code:"t = (1{{1}})", answers:{1:[",",", "]}, note:"콤마 없이 (1)만 쓰면 튜플이 아니라 그냥 정수 1이 돼요! 반드시 (1,)처럼 콤마를 붙여야 해요."},
+        {desc:"튜플을 리스트로 변환하기", code:"interest = ('삼성전자', 'LG전자')\ninterest = {{1}}(interest)", answers:{1:"list"}, note:"list() 함수로 튜플을 리스트로 바꿀 수 있어요(이제 수정 가능!)."},
+        {desc:"리스트를 다시 튜플로 변환하기", code:"interest = ['삼성전자', 'LG전자']\ninterest = {{1}}(interest)", answers:{1:"tuple"}, note:"tuple() 함수로 리스트를 튜플로(수정 불가능하게) 바꿀 수 있어요."},
+        {desc:"튜플 언패킹으로 변수 3개에 한 번에 값 담기", code:"temp = ('apple', 'banana', 'cake')\na, b, c = {{1}}", answers:{1:"temp"}, note:"튜플의 요소 개수(3개)와 변수 개수(a,b,c=3개)가 같아야 언패킹이 돼요."},
+        {desc:"1~99 중 짝수만 담긴 튜플 만들기", code:"even_numbers = tuple(range(2, 100, {{1}}))", answers:{1:"2"}, note:"range(시작,끝,증가폭)에서 증가폭을 2로 주면 짝수만 뽑을 수 있어요."}
+      ]
     }
   ];
+
+  var ENSEMBLE_EXTRA_HTML =
+    '<div class="note-box">' +
+      '분류 문제를 푸는 방법은 한 가지가 아니에요! 알고리즘마다 "어떻게 나눌지"를 다르게 생각해요. 아래 표로 8가지를 한눈에 비교하고, 그 중 결정트리가 <b>첫 질문을 고르는 원리</b>를 직접 계산기로 체험해봐요.' +
+    '</div>' +
+    '<div class="ref-table-wrap"><table class="ref-table"><thead><tr><th>알고리즘</th><th>한 줄 설명</th><th>특징</th></tr></thead><tbody>' +
+      '<tr><td>로지스틱 회귀</td><td>직선(또는 곡선)으로 두 그룹을 가르는 확률 계산기</td><td>빠르고 해석 쉬움, 선형 경계에 강함</td></tr>' +
+      '<tr><td>KNN</td><td>가까운 이웃 K명의 다수결로 결정</td><td>학습 없이 예측 시 계산(게으른 학습), 스케일링 필수</td></tr>' +
+      '<tr><td>결정트리</td><td>스무고개처럼 질문을 반복해서 좁혀감</td><td>해석 쉬움, 과적합 잘 됨 → 가지치기 필요</td></tr>' +
+      '<tr><td>랜덤포레스트</td><td>결정트리 여러 개를 모아 다수결</td><td>트리 하나보다 안정적, 느리지만 성능 좋음</td></tr>' +
+      '<tr><td>SVM</td><td>두 그룹 사이 가장 넓은 길(마진)을 찾는 경계선</td><td>커널로 곡선 경계도 가능, 고차원에 강함</td></tr>' +
+      '<tr><td>나이브 베이즈</td><td>베이즈 정리로 확률을 빠르게 계산</td><td>텍스트 분류에 강함, 특징끼리 독립 가정</td></tr>' +
+      '<tr><td>신경망(MLP)</td><td>여러 층을 거치며 패턴을 스스로 학습</td><td>복잡한 패턴에 강함, 데이터·시간 많이 필요</td></tr>' +
+      '<tr><td>보팅(앙상블)</td><td>여러 모델의 의견을 투표로 합침</td><td>모델 각각의 장점을 골고루 활용</td></tr>' +
+    '</tbody></table></div>' +
+    '<div class="section-heading" style="margin-top:22px;"><span class="ico">🧮</span><h2>지니 불순도 계산기 — 나무는 첫 질문을 어떻게 고를까?</h2></div>' +
+    '<div class="playground" id="giniPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">스팸 메일 10통이 있어요. "free라는 단어가 있나?", "win이 있나?", "call이 있나?" 세 가지 질문 중에 어떤 질문이 스팸을 가장 잘 구분해낼까요? 버튼을 눌러 비교해보세요. <b>막대가 높을수록(정보이득이 클수록)</b> 나무가 그 질문을 첫 번째로 골라요.</p>' +
+      '<div class="guess-row">' +
+        '<button class="btn btn-primary" id="giniBtnFree" style="flex:1;">🆓 free 있나?</button>' +
+        '<button class="btn btn-ghost" id="giniBtnWin" style="flex:1;">🏆 win 있나?</button>' +
+        '<button class="btn btn-ghost" id="giniBtnCall" style="flex:1;">📞 call 있나?</button>' +
+      '</div>' +
+      '<canvas id="giniChart" width="500" height="150" style="width:100%; max-width:500px; margin-top:14px;"></canvas>' +
+      '<div id="giniCardArea" style="margin-top:10px;"></div>' +
+    '</div>';
+
+  var RESAMPLE_EXTRA_HTML =
+    '<div class="note-box">' +
+      '스팸 필터를 만든다고 해봐요. 메일 20통 중 스팸이 4통뿐이면, "무조건 정상"이라고만 찍어도 정확도가 80%가 나와요! 이런 <b>불균형 데이터</b>는 소수 클래스를 늘리거나(오버샘플링) 다수 클래스를 줄여서(언더샘플링) 균형을 맞춰야 해요.' +
+    '</div>' +
+    '<div class="ref-table-wrap"><table class="ref-table"><thead><tr><th>기법</th><th>구분</th><th>원리</th><th>주의점</th></tr></thead><tbody>' +
+      '<tr><td>SMOTE</td><td>오버샘플링</td><td>소수 클래스 데이터 사이를 선으로 이어 그 위에 새 점을 생성</td><td>단순 복제보다 낫지만 잡음 생길 수 있음</td></tr>' +
+      '<tr><td>RandomOverSampler</td><td>오버샘플링</td><td>소수 클래스를 무작위로 복제</td><td>단순·빠름, 과적합 위험 큼</td></tr>' +
+      '<tr><td>RandomUnderSampler</td><td>언더샘플링</td><td>다수 클래스를 무작위로 제거</td><td>빠르지만 정보 손실 위험</td></tr>' +
+      '<tr><td>NearMiss</td><td>언더샘플링</td><td>소수 클래스와 가까운 다수 클래스만 남김</td><td>경계는 뚜렷해지지만 과도한 제거 가능</td></tr>' +
+      '<tr><td>TomekLinks</td><td>클렌징</td><td>서로 다른 클래스의 애매한 경계 쌍을 제거</td><td>단독으로는 불균형 해소 효과 제한적</td></tr>' +
+    '</tbody></table></div>' +
+    '<div class="note-box">⚠️ 리샘플링은 반드시 <b>Train 데이터에만</b> 적용해요! Test 데이터까지 부풀리면 실제로는 없는 정보로 시험을 보는 셈(Data Leakage)이라 성능이 뻥튀기돼요.</div>' +
+    '<div class="section-heading" style="margin-top:22px;"><span class="ico">⚖️</span><h2>리샘플링 시뮬레이터 — 눌러서 데이터 개수 변화를 보기</h2></div>' +
+    '<div class="playground" id="resamplePlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">스팸메일 20통 중 진짜 스팸은 4통뿐이에요(20% 불균형). 버튼을 눌러 오버샘플링·언더샘플링 후 클래스별 개수가 어떻게 바뀌는지 확인해보세요.</p>' +
+      '<div class="guess-row">' +
+        '<button class="btn btn-primary" id="resampleOrigBtn" style="flex:1;">📭 원본 (20개)</button>' +
+        '<button class="btn btn-ghost" id="resampleOverBtn" style="flex:1;">⬆️ 오버샘플링</button>' +
+        '<button class="btn btn-ghost" id="resampleUnderBtn" style="flex:1;">⬇️ 언더샘플링</button>' +
+      '</div>' +
+      '<canvas id="resampleChart" width="460" height="150" style="width:100%; max-width:460px; margin-top:14px;"></canvas>' +
+      '<div id="resampleDots" style="margin-top:10px; line-height:2.3;"></div>' +
+      '<div id="resampleNote" style="margin-top:8px;"></div>' +
+    '</div>';
+
+  var KMEANS_EXTRA_HTML =
+    '<div class="note-box">' +
+      'K-means는 정답(label)이 없는 데이터를 <b>비슷한 것끼리 K개의 무리로 자동으로 묶어주는</b> 비지도학습이에요. "중심점을 찍고 → 가까운 점을 모으고 → 중심점을 다시 옮기고"를 계속 반복해요.' +
+    '</div>' +
+    '<div class="section-heading" style="margin-top:22px;"><span class="ico">🎯</span><h2>K-means 놀이터 — K를 바꿔가며 군집화 실행하기</h2></div>' +
+    '<div class="playground" id="kmeansPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">화면 위 18개의 점을 몇 개의 무리로 나눠볼까요? K를 고르고 "군집화 실행"을 누르면 중심점이 점점 이동하면서 무리가 나뉘는 걸 볼 수 있어요.</p>' +
+      '<div class="guess-row">' +
+        '<button class="btn btn-primary" id="kmeansK2" style="flex:1;">K=2</button>' +
+        '<button class="btn btn-ghost" id="kmeansK3" style="flex:1;">K=3</button>' +
+        '<button class="btn btn-ghost" id="kmeansK4" style="flex:1;">K=4</button>' +
+      '</div>' +
+      '<canvas id="kmeansCanvas" width="460" height="300" style="width:100%; max-width:460px; margin-top:12px; border-radius:10px; border:1px solid var(--paper-line);"></canvas>' +
+      '<div style="display:flex; gap:10px; margin-top:10px; align-items:center; flex-wrap:wrap;">' +
+        '<button class="btn btn-primary" id="kmeansRunBtn">▶ 군집화 실행</button>' +
+        '<span id="kmeansStatus" style="font-size:.85rem; color:var(--ink-soft);">K=2로 시작해볼까요? 실행 버튼을 눌러보세요.</span>' +
+      '</div>' +
+    '</div>';
+
+  var MOMENTS_EXTRA_HTML =
+    '<div class="note-box">' +
+      '데이터를 4가지 숫자로 요약할 수 있어요: <b>평균</b>(어디 있나), <b>분산</b>(얼마나 퍼졌나), <b>왜도</b>(어느 쪽으로 기울었나), <b>첨도</b>(얼마나 뾰족한가/꼬리가 두꺼운가). 이걸 통계학에서 "적률(moment)"이라고 해요.' +
+    '</div>' +
+    '<div class="ref-table-wrap"><table class="ref-table"><thead><tr><th>차수</th><th>이름</th><th>의미</th><th>해석</th></tr></thead><tbody>' +
+      '<tr><td>1차</td><td>평균(Mean)</td><td>분포의 중심 위치</td><td>데이터가 대체로 어디 모여있나</td></tr>' +
+      '<tr><td>2차</td><td>분산(Variance)</td><td>퍼짐 정도</td><td>클수록 데이터가 넓게 흩어짐</td></tr>' +
+      '<tr><td>3차</td><td>왜도(Skewness)</td><td>좌우 비대칭도</td><td>0이면 대칭, 양수면 오른쪽 꼬리, 음수면 왼쪽 꼬리</td></tr>' +
+      '<tr><td>4차</td><td>첨도(Kurtosis)</td><td>뾰족함·꼬리 두께</td><td>0이면 정규분포와 비슷, 양수면 더 뾰족하고 꼬리가 두꺼움</td></tr>' +
+    '</tbody></table></div>' +
+    '<div class="section-heading" style="margin-top:22px;"><span class="ico">📐</span><h2>분포 모양 슬라이더 — 꼬리를 늘려가며 왜도·첨도 변화 보기</h2></div>' +
+    '<div class="playground" id="momentsPlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">슬라이더를 오른쪽으로 옮기면 대칭형(정규분포) 데이터가 점점 오른쪽으로 긴 꼬리를 가진 데이터로 바뀌어요. 히스토그램과 숫자가 실시간으로 바뀌는 걸 확인해보세요.</p>' +
+      '<input type="range" id="momentsSlider" min="0" max="100" step="10" value="0" style="width:100%;">' +
+      '<div style="display:flex; justify-content:space-between; font-size:.78rem; color:var(--ink-soft); margin-top:2px;"><span>◀ 대칭형(정규분포)</span><span>오른쪽 꼬리형(지수분포) ▶</span></div>' +
+      '<canvas id="momentsCanvas" width="460" height="170" style="width:100%; max-width:460px; margin-top:12px;"></canvas>' +
+      '<div class="formula-grid" id="momentsStats" style="margin-top:10px;"></div>' +
+    '</div>';
+
+  var MOVIE_EXTRA_HTML =
+    '<div class="note-box">' +
+      '넷플릭스가 "이 영화도 좋아하실 거예요!"라고 추천하는 원리 중 하나가 <b>협업 필터링(Collaborative Filtering)</b>이에요. "나랑 취향이 비슷한 사람들이 재밌게 본 영화 중에 내가 아직 안 본 영화"를 찾아 추천해요.' +
+    '</div>' +
+    '<div class="section-heading" style="margin-top:22px;"><span class="ico">🎬</span><h2>영화 추천 놀이터 — 취향 비슷한 친구 찾아 추천받기</h2></div>' +
+    '<div class="playground" id="moviePlayground">' +
+      '<p style="font-size:.88rem; color:var(--ink-soft); margin-top:0;">6명의 친구가 6개 영화에 매긴 평점표가 있어요(0=안 봄). "나"를 고르고 이웃 수(N)를 정하면, 상관계수로 취향이 가장 비슷한 친구를 찾아 그 친구가 5점 준 영화 중 내가 안 본 영화를 추천해줘요.' +
+    '</p>' +
+      '<div style="margin-bottom:8px;"><b style="font-size:.85rem;">나는 누구?</b></div>' +
+      '<div class="guess-row">' +
+        '<button class="btn btn-primary" id="movieUserChulsoo" style="flex:1;">철수</button>' +
+        '<button class="btn btn-ghost" id="movieUserYounghee" style="flex:1;">영희</button>' +
+      '</div>' +
+      '<div style="margin:12px 0 8px;"><b style="font-size:.85rem;">이웃 수(N)</b></div>' +
+      '<div class="guess-row">' +
+        '<button class="btn btn-ghost" id="movieN1" style="flex:1;">N=1</button>' +
+        '<button class="btn btn-primary" id="movieN2" style="flex:1;">N=2</button>' +
+        '<button class="btn btn-ghost" id="movieN3" style="flex:1;">N=3</button>' +
+      '</div>' +
+      '<div id="movieResult" style="margin-top:14px;"></div>' +
+    '</div>';
 
   var MODULES_POST = [
     { id:"feature", icon:"🧬", label:"특징선택·차원축소", eyebrow:"4교시", eyebrowClass:"yellow",
       title:"🧬 특징 선택과 차원 축소",
       intro:"변수가 너무 많으면 모델이 헷갈리고 느려져요. 필요한 변수만 고르거나(특징 선택), 여러 변수를 합쳐 새 변수를 만드는(차원 축소) 방법으로 줄일 수 있어요.",
+      extraHtml: FEATURE_EXTRA_HTML,
       concepts:[
         {term:"특징 선택 vs 차원 축소", kid:"필요한 야채만 고르기(특징선택) vs 갈아서 주스 만들기(차원축소)", formula:"SelectKBest, RFE ↔ PCA, LDA", def:"특징 선택은 원본 변수 일부를 그대로 남기고 해석이 쉬워요. 차원 축소는 변수를 조합해 새 변수를 만들어 정보는 많이 보존하지만 해석은 어려워요."},
         {term:"PCA (주성분분석)", kid:"여러 방향에서 찍은 사진 중 데이터가 가장 넓게 퍼져 보이는 각도를 찾는 것", formula:"PCA(n_components=2).fit_transform(X)", def:"데이터의 분산(퍼짐 정도)이 가장 큰 방향을 순서대로 찾아 새로운 축(주성분)으로 데이터를 표현해요. 차원을 줄이면서 정보 손실은 최소화해요."}
       ],
       exercises:[
         {desc:"PCA로 30개 특징을 2개로 줄이기", code:"from sklearn.decomposition import {{1}}\npca = PCA(n_components=2)\nX_reduced = pca.{{2}}(X)", answers:{1:"PCA",2:"fit_transform"}, note:"PCA 객체를 만들고 fit_transform()으로 학습과 변환을 한 번에 해요."}
+      ]
+    },
+    { id:"ensemble", icon:"🌳", label:"분류 알고리즘·앙상블", eyebrow:"5교시", eyebrowClass:"red",
+      title:"🌳 분류 알고리즘 한눈에 보기 & 앙상블",
+      intro:"분류 문제를 푸는 방법은 KNN, 결정트리, SVM처럼 여러 가지가 있어요. 이번 시간엔 대표 알고리즘들을 비교하고, 여러 모델을 합쳐 더 똑똑하게 만드는 앙상블(랜덤포레스트·보팅)까지 알아봐요.",
+      extraHtml: ENSEMBLE_EXTRA_HTML,
+      concepts:[
+        {term:"KNN (K-최근접 이웃)", kid:"새로 온 친구가 어떤 무리에 속할지, 가장 가까운 이웃 K명한테 물어보고 다수결로 정하는 것", formula:"KNeighborsClassifier(n_neighbors=K)", def:"거리(주로 유클리디안)가 가까운 K개의 데이터를 찾아 다수결로 클래스를 정해요. 학습은 안 하고 예측할 때마다 계산하는 '게으른 학습(Lazy Learning)'이에요."},
+        {term:"결정트리 - 지니·엔트로피", kid:"스무고개처럼 질문을 던져서 점점 답을 좁혀가는 것", formula:"Gini = 1-(p²+(1-p)²)  /  정보이득 = 부모지니 - 가중지니", def:"불순도(지니 또는 엔트로피)를 가장 많이 줄여주는 질문을 찾아 반복적으로 나무를 뻗어가며 분류해요."},
+        {term:"랜덤포레스트", kid:"여러 명의 나무 박사님한테 각각 물어보고 다수결로 정하는 것", formula:"RandomForestClassifier(n_estimators=100)", def:"서로 다른 데이터 샘플로 학습한 여러 개의 결정트리를 모아(앙상블) 다수결로 예측해요. 트리 하나보다 훨씬 안정적이에요."},
+        {term:"SVM (서포트벡터머신)", kid:"두 그룹을 가장 넓은 길(마진)로 딱 갈라놓는 선을 찾는 것", formula:"SVC(kernel='linear' 또는 'rbf', C=1.0)", def:"결정 경계와 가장 가까운 데이터(서포트 벡터) 사이의 거리(마진)를 최대화하는 경계를 찾아요. 커널 트릭을 쓰면 휘어진 경계도 그릴 수 있어요."},
+        {term:"보팅(Voting) 앙상블", kid:"여러 친구들의 의견을 모아서 다수결(또는 확률 평균)로 최종 결정하는 것", formula:"VotingClassifier(estimators=[...], voting='hard' 또는 'soft')", def:"hard는 각 모델의 예측 클래스로 다수결, soft는 예측 확률의 평균이 가장 높은 클래스를 선택해요. 보통 soft가 더 성능이 좋아요."},
+        {term:"나이브 베이즈", kid:"이 특징이 나올 확률을 미리 계산해뒀다가 베이즈 정리로 빠르게 판단하는 것", formula:"P(정답|특징) = P(특징|정답)·P(정답) / P(특징)", def:"특징들이 서로 독립이라고(순진하게) 가정하고 베이즈 정리로 클래스별 확률을 계산해요. 텍스트 분류(스팸 필터 등)에 특히 강해요."},
+        {term:"거리 척도(Distance Metric)", kid:"두 점이 얼마나 멀리 떨어져 있는지 재는 자", formula:"유클리디안: √Σ(xᵢ-yᵢ)²  /  맨하탄: Σ|xᵢ-yᵢ|", def:"KNN·SVM처럼 거리를 쓰는 알고리즘은 어떤 자(거리 척도)를 쓰느냐에 따라 결과가 달라져요. 유클리디안이 가장 흔히 쓰여요."},
+        {term:"하이퍼파라미터 튜닝", kid:"여러 설정 조합을 다 시도해보고 성적이 제일 좋은 설정을 찾는 것", formula:"GridSearchCV(estimator, param_grid, cv=5)", def:"사람이 정해야 하는 값(하이퍼파라미터)의 여러 조합을 교차검증(cv)하며 모두 테스트해서 가장 좋은 조합을 자동으로 찾아줘요."}
+      ],
+      exercises:[
+        {desc:"KNN 분류기를 K=5로 만들기", code:"knn = {{1}}(n_neighbors=5)\nknn.fit(X_train, y_train)", answers:{1:"KNeighborsClassifier"}, note:"K값(이웃 수)을 정해서 KNeighborsClassifier를 만들어요."},
+        {desc:"지니 불순도 기준으로 결정트리 만들기", code:"clf = DecisionTreeClassifier(criterion='{{1}}', max_depth=4)", answers:{1:"gini"}, note:"criterion을 'gini' 또는 'entropy'로 지정해요. 기본값은 gini예요."},
+        {desc:"트리 100개짜리 랜덤포레스트 만들기", code:"rf = {{1}}(n_estimators=100, random_state=42)", answers:{1:"RandomForestClassifier"}, note:"n_estimators는 몇 개의 나무를 만들지 정하는 값이에요."},
+        {desc:"RBF 커널로 SVM 분류기 만들기", code:"model = SVC(kernel='{{1}}', C=1.0)", answers:{1:"rbf"}, note:"kernel='rbf'는 휘어진(비선형) 경계를 그릴 수 있는 커널이에요."},
+        {desc:"세 모델의 확률 평균으로 투표하는 보팅 모델 만들기", code:"voting = VotingClassifier(estimators=[('LR', lr), ('DT', dt), ('KNN', knn)], voting='{{1}}')", answers:{1:"soft"}, note:"soft는 확률 평균, hard는 다수결로 최종 클래스를 정해요."},
+        {desc:"5겹 교차검증으로 최적 하이퍼파라미터 찾기", code:"grid = {{1}}(model, param_grid, cv=5)\ngrid.fit(X_train, y_train)", answers:{1:"GridSearchCV"}, note:"GridSearchCV는 param_grid에 적은 모든 조합을 교차검증하며 테스트해요."},
+        {desc:"거리 기반 모델은 스케일링을 먼저! 어느 데이터 기준으로 fit할까?", code:"scaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)  # {{1}} 데이터 기준으로만 fit", answers:{1:["Train","train","훈련"]}, note:"스케일러는 Train 데이터로만 fit하고, Test에는 transform만 적용해요 (Data Leakage 방지)."},
+        {desc:"GridSearchCV로 찾은 최적 조합 확인하기", code:"print(grid.best_{{1}}_)", answers:{1:"params"}, note:"grid.best_params_로 가장 성능이 좋았던 하이퍼파라미터 조합을 확인할 수 있어요."}
+      ]
+    },
+    { id:"resample", icon:"⚖️", label:"불균형 데이터 처리", eyebrow:"6교시", eyebrowClass:"red",
+      title:"⚖️ 불균형 데이터 처리 — 오버샘플링·언더샘플링",
+      intro:"스팸메일처럼 한쪽 클래스가 훨씬 적은 '불균형 데이터'는 그냥 학습시키면 모델이 다수 클래스만 찍고도 정확도가 높게 나와요. 소수 클래스를 늘리거나(오버샘플링) 다수 클래스를 줄여서(언더샘플링) 균형을 맞춰줘야 해요.",
+      extraHtml: RESAMPLE_EXTRA_HTML,
+      concepts:[
+        {term:"오버샘플링 vs 언더샘플링", kid:"적은 쪽을 늘리기(오버) vs 많은 쪽을 줄이기(언더)", formula:"RandomOverSampler ↔ RandomUnderSampler", def:"오버샘플링은 데이터 손실 없이 소수 클래스를 늘려요(과적합 위험). 언더샘플링은 다수 클래스를 줄여 빠르지만 정보를 잃을 수 있어요."},
+        {term:"SMOTE", kid:"소수 클래스 데이터 두 개를 선으로 잇고 그 선 위에 새로운 가상의 점을 만드는 것", formula:"SMOTE().fit_resample(X, y)", def:"단순 복제(RandomOverSampler)와 달리 기존 데이터 사이를 보간해 새로운 데이터를 생성해서 과적합을 줄여줘요."},
+        {term:"NearMiss / TomekLinks", kid:"소수 클래스 근처의 다수 클래스만 남기기(NearMiss) / 경계에서 애매한 쌍 지우기(TomekLinks)", formula:"NearMiss(version=1) / TomekLinks()", def:"둘 다 언더샘플링 계열이지만, 무작위가 아니라 '경계 근처' 데이터를 기준으로 더 똑똑하게 제거해요."},
+        {term:"불균형 데이터의 평가지표", kid:"정확도만 보면 안 되고, 소수 클래스를 얼마나 잘 잡아내는지 따로 봐야 해요", formula:"Recall, Precision, F1-score, ROC-AUC", def:"클래스 0이 90%인 데이터는 그냥 다 0이라고 찍어도 정확도 90%예요. 그래서 소수 클래스(1) 기준 Recall·F1·ROC-AUC로 성능을 평가해요."},
+        {term:"imblearn Pipeline", kid:"전처리→리샘플링→모델학습을 한 줄로 이어붙이는 도구", formula:"from imblearn.pipeline import Pipeline", def:"sklearn 기본 Pipeline은 SMOTE 같은 리샘플러를 못 넣어요. imblearn의 Pipeline을 써야 스케일링·리샘플링·모델학습을 안전하게 연결할 수 있어요."}
+      ],
+      exercises:[
+        {desc:"SMOTE로 소수 클래스를 다수 클래스만큼 늘리기", code:"from imblearn.over_sampling import {{1}}\nsmote = SMOTE(random_state=42)\nX_res, y_res = smote.{{2}}(X_train, y_train)", answers:{1:"SMOTE",2:"fit_resample"}, note:"fit_resample()은 fit과 resample을 한 번에 해줘요."},
+        {desc:"다수 클래스를 무작위로 줄이는 언더샘플링", code:"from imblearn.under_sampling import {{1}}\nrus = RandomUnderSampler(random_state=42)\nX_res, y_res = rus.fit_resample(X_train, y_train)", answers:{1:"RandomUnderSampler"}, note:"RandomUnderSampler는 다수 클래스를 무작위로 제거해요."},
+        {desc:"스케일링·SMOTE·모델을 하나의 파이프라인으로 연결하기", code:"from imblearn.pipeline import Pipeline\npipe = Pipeline([('scaler', StandardScaler()), ('sampler', SMOTE()), ('classifier', {{1}}())])", answers:{1:"RandomForestClassifier"}, note:"imblearn Pipeline은 sklearn 모델과 SMOTE 같은 리샘플러를 함께 넣을 수 있어요."},
+        {desc:"불균형 데이터는 클래스 비율을 유지하며 train/test 나누기", code:"X_train, X_test, y_train, y_test = train_test_split(X, y, {{1}}=y, test_size=0.3)", answers:{1:"stratify"}, note:"stratify=y로 나누면 train/test 모두 원래 클래스 비율을 유지해요."},
+        {desc:"소수 클래스(1) 기준으로 F1-score 확인하기", code:"from sklearn.metrics import f1_score\nscore = f1_score(y_test, y_pred, pos_label={{1}})", answers:{1:"1"}, note:"불균형 데이터는 정확도 대신 소수 클래스 기준 F1-score를 자주 봐요."}
+      ]
+    },
+    { id:"kmeans", icon:"🎯", label:"군집화(K-means)", eyebrow:"7교시", eyebrowClass:"blue",
+      title:"🎯 군집화 — K-means로 비슷한 것끼리 묶기",
+      intro:"지금까지는 정답(label)이 있는 데이터로 배웠어요. K-means는 정답 없이도 '비슷한 데이터끼리' 스스로 무리를 찾아내는 비지도학습(Unsupervised Learning)이에요.",
+      extraHtml: KMEANS_EXTRA_HTML,
+      concepts:[
+        {term:"군집화(Clustering)란", kid:"과일 바구니를 색깔·모양별로 저절로 무리 지어 나누는 것", formula:"비지도학습(Unsupervised Learning)", def:"정답 라벨 없이 데이터끼리의 거리(유사도)만으로 비슷한 것들을 그룹으로 묶어요. 분류(Classification)와 달리 정답을 미리 알려주지 않아요."},
+        {term:"K-means 알고리즘 원리", kid:"① 중심점 K개를 아무데나 찍고 → ② 가까운 점들을 모으고 → ③ 모인 점들의 평균으로 중심점을 옮기고 → ①~③ 반복", formula:"KMeans(n_clusters=K).fit(X)", def:"중심점(centroid) 위치와 점들의 소속(cluster)이 더 이상 바뀌지 않을 때까지(수렴할 때까지) 배정과 이동을 반복해요."},
+        {term:"K 값 정하기 — 엘보우 방법", kid:"K를 1,2,3...으로 늘려가며 그래프를 그리면 팔꿈치처럼 꺾이는 지점이 있어요, 거기가 적당한 K", formula:"inertia_ (각 점과 중심점 거리 제곱의 합)", def:"K가 늘어날수록 inertia는 계속 줄어들지만, 어느 순간부터 줄어드는 속도가 확 느려져요(팔꿈치). 그 지점을 적당한 K로 골라요."},
+        {term:"초기 중심점의 함정", kid:"처음에 중심점을 어디 찍느냐에 따라 결과가 달라질 수 있어요", formula:"KMeans(n_clusters=K, n_init=10)", def:"운 나쁘게 중심점을 이상하게 찍으면 이상한 군집이 나올 수 있어서, 보통 여러 번(n_init) 다르게 시도해 가장 좋은 결과를 골라요."}
+      ],
+      exercises:[
+        {desc:"K=3인 K-means 모델 만들고 학습하기", code:"from sklearn.cluster import {{1}}\nkm = KMeans(n_clusters=3, random_state=42)\nkm.{{2}}(X)", answers:{1:"KMeans",2:"fit"}, note:"n_clusters로 몇 개의 무리로 나눌지 정해요."},
+        {desc:"학습과 동시에 각 점이 어느 군집인지 바로 받기", code:"labels = km.{{1}}(X)", answers:{1:"fit_predict"}, note:"fit_predict()은 학습(fit)과 군집 배정(predict)을 한 번에 해줘요."},
+        {desc:"각 군집의 중심점 좌표 확인하기", code:"centers = km.{{1}}_", answers:{1:"cluster_centers"}, note:"cluster_centers_ 속성에 각 군집의 중심점 좌표가 저장돼요."},
+        {desc:"거리 기반 알고리즘이니 학습 전 스케일링하기", code:"scaler = {{1}}()\nX_scaled = scaler.fit_transform(X)\nkm.fit(X_scaled)", answers:{1:"StandardScaler"}, note:"K-means는 거리로 계산하기 때문에 단위가 다르면 결과가 왜곡돼요. 반드시 스케일링부터!"}
+      ]
+    },
+    { id:"moments", icon:"📐", label:"분포의 모양(적률)", eyebrow:"8교시", eyebrowClass:"yellow",
+      title:"📐 통계로 데이터 모양 읽기 — 평균·분산·왜도·첨도",
+      intro:"데이터가 어떤 모양으로 퍼져있는지 그래프 없이도 숫자 4개(평균·분산·왜도·첨도)로 알 수 있어요. 이 4가지를 통틀어 '적률(Moment)'이라고 불러요.",
+      extraHtml: MOMENTS_EXTRA_HTML,
+      concepts:[
+        {term:"1차 적률 — 평균(Mean)", kid:"데이터들이 대체로 모여있는 위치", formula:"np.mean(data)", def:"모든 값을 더해서 개수로 나눈 값이에요. 분포의 '무게중심'이라고 생각하면 돼요."},
+        {term:"2차 적률 — 분산(Variance)", kid:"데이터가 평균에서 얼마나 멀리 흩어져 있는지", formula:"np.var(data)", def:"각 값이 평균에서 떨어진 정도(편차)를 제곱해서 평균낸 값이에요. 클수록 데이터가 넓게 퍼져있어요."},
+        {term:"3차 적률 — 왜도(Skewness)", kid:"분포가 한쪽으로 얼마나 기울어졌는지", formula:"scipy.stats.skew(data)", def:"0이면 좌우대칭, 양수면 오른쪽으로 긴 꼬리(값이 큰 쪽에 이상치), 음수면 왼쪽으로 긴 꼬리예요."},
+        {term:"4차 적률 — 첨도(Kurtosis)", kid:"분포가 얼마나 뾰족하고 꼬리가 두꺼운지", formula:"scipy.stats.kurtosis(data)  # 기본은 초과첨도(excess)", def:"0이면 정규분포와 비슷한 뾰족함, 양수면 더 뾰족하고 꼬리가 두꺼워(극단값이 많아) 음수면 완만하고 꼬리가 얇아요."}
+      ],
+      exercises:[
+        {desc:"평균과 분산 계산하기", code:"mean = np.{{1}}(data)\nvar = np.{{2}}(data)", answers:{1:"mean",2:"var"}, note:"np.mean()은 1차 적률(평균), np.var()는 2차 적률(분산)이에요."},
+        {desc:"왜도 계산해서 좌우 대칭인지 확인하기", code:"from scipy import stats\nskewness = stats.{{1}}(data)", answers:{1:"skew"}, note:"0에 가까우면 대칭, 양수면 오른쪽 꼬리예요."},
+        {desc:"첨도 계산해서 꼬리 두께 확인하기", code:"kurt = stats.{{1}}(data)", answers:{1:"kurtosis"}, note:"scipy는 기본적으로 정규분포 기준(0)으로 뺀 초과첨도를 계산해요."},
+        {desc:"데이터의 요약 통계를 한 번에 확인하기", code:"df['score'].{{1}}()", answers:{1:"describe"}, note:"describe()는 개수·평균·표준편차·최소·최대·사분위수를 한 번에 보여줘요."}
+      ]
+    },
+    { id:"movie", icon:"🎬", label:"영화 추천 시스템", eyebrow:"9교시", eyebrowClass:"red",
+      title:"🎬 영화 추천 시스템 — 협업 필터링",
+      intro:"넷플릭스나 왓챠가 영화를 추천해주는 원리 중 하나! '나랑 취향이 비슷한 사람이 재밌게 본 영화'를 찾아 추천해주는 협업 필터링(Collaborative Filtering)을 직접 만들어봐요.",
+      extraHtml: MOVIE_EXTRA_HTML,
+      concepts:[
+        {term:"협업 필터링(Collaborative Filtering)", kid:"나랑 취향 비슷한 친구가 좋아한 걸 나도 좋아할 거라고 추측하는 것", formula:"유저 x 영화 평점표 → 유사도 계산 → 추천", def:"내용(장르·배우)을 몰라도, 사람들의 평점 패턴만으로 추천할 수 있어요. '협업'은 여러 사람의 평점 데이터를 함께 이용한다는 뜻이에요."},
+        {term:"pivot으로 평점표 만들기", kid:"긴 줄글 형태 평점 기록을, 유저를 행으로 영화를 열로 하는 표로 펼치는 것", formula:"df.pivot(index='UserID', columns='MovieID', values='Rating')", def:"원래 (유저,영화,평점) 한 줄씩 있던 데이터를 유저x영화 형태의 넓은 표로 바꿔야 유사도 계산이 쉬워져요. 안 본 영화는 결측치라 0으로 채워요."},
+        {term:"상관계수로 취향 유사도 재기", kid:"두 사람의 평점 패턴이 같이 오르고 같이 내리면(비슷하면) 상관계수가 1에 가까워요", formula:"pivot.corr()  # 또는 두 벡터의 피어슨 상관계수", def:"두 유저의 평점 벡터 사이 피어슨 상관계수를 구해서, 값이 높은(취향이 비슷한) 유저를 이웃으로 골라요."},
+        {term:"Cold Start 문제", kid:"방금 가입한 신규 유저는 평점 기록이 없어서 추천을 못 해주는 문제", formula:"신규 유저/신규 영화 문제", def:"협업 필터링은 기존 평점 데이터에 의존하기 때문에, 데이터가 없는 신규 유저·신규 영화에는 잘 작동하지 않아요. 이럴 땐 인기순위 등으로 보완해요."}
+      ],
+      exercises:[
+        {desc:"유저x영화 평점 피벗 테이블 만들기", code:"pivot = ratings.{{1}}(index='UserID', columns='MovieID', values='Rating')", answers:{1:"pivot"}, note:"pivot()으로 긴 형태 데이터를 유저x영화 넓은 표로 바꿔요."},
+        {desc:"안 본 영화(결측치)는 0으로 채우기", code:"pivot.{{1}}(0, inplace=True)", answers:{1:"fillna"}, note:"평점이 없는 칸(NaN)은 '0점'으로 채워서 계산 가능하게 만들어요."},
+        {desc:"유저들 간의 상관계수(유사도) 행렬 구하기", code:"sim_matrix = pivot.T.{{1}}()", answers:{1:"corr"}, note:"corr()는 각 컬럼(유저) 쌍마다 피어슨 상관계수를 계산해줘요."},
+        {desc:"이웃이 본 영화 중 내가 안 본 영화만 추천 목록으로 남기기", code:"unseen = set(neighbor_movies) - set(my_movies)\nresult = movies[movies['MovieID'].{{1}}(unseen)]", answers:{1:"isin"}, note:"집합 차집합(-)으로 '이웃은 봤지만 나는 안 본' 영화만 골라내요."}
       ]
     }
   ];
@@ -1267,6 +1577,825 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
 
   mountModules(MODULES_PRE, "preModulesNavAnchor", "preModulesAnchor");
   mountModules(MODULES_POST, "postModulesNavAnchor", "postModulesAnchor");
+
+  /* ================= GINI CALCULATOR PLAYGROUND ================= */
+  var GINI_DATA = {
+    free: [1,1,1,1,0,0,0,1,0,1],
+    win:  [1,0,0,0,0,0,0,0,0,1],
+    call: [1,1,1,0,0,0,0,0,1,1],
+    label:[1,1,1,1,0,0,0,0,0,1]
+  };
+  function giniOf(labels){
+    if (!labels.length) return 0;
+    var p = labels.reduce(function(a,b){ return a+b; },0)/labels.length;
+    return 1 - (p*p + (1-p)*(1-p));
+  }
+  function computeGiniSplit(feature){
+    var arr = GINI_DATA[feature];
+    var left = [], right = [];
+    arr.forEach(function(v,i){ (v===1?left:right).push(GINI_DATA.label[i]); });
+    var n = arr.length;
+    var giniL = giniOf(left), giniR = giniOf(right);
+    var weighted = (left.length/n)*giniL + (right.length/n)*giniR;
+    var parentGini = giniOf(GINI_DATA.label);
+    return { left:left, right:right, giniL:giniL, giniR:giniR, weighted:weighted, ig:parentGini-weighted, parentGini:parentGini };
+  }
+  var GINI_RESULTS = { free:computeGiniSplit("free"), win:computeGiniSplit("win"), call:computeGiniSplit("call") };
+  var giniSelected = "free";
+
+  function buildGiniCards(feature){
+    var r = GINI_RESULTS[feature];
+    var arr = GINI_DATA[feature];
+    var leftChips = "", rightChips = "";
+    arr.forEach(function(v,i){
+      var isSpam = GINI_DATA.label[i]===1;
+      var chip = '<span style="display:inline-block; margin:3px; padding:4px 8px; border-radius:8px; font-size:.78rem; font-weight:700; background:'+(isSpam?"var(--red-soft)":"var(--green-soft)")+'; color:'+(isSpam?"var(--red)":"var(--green)")+';">'+(isSpam?"📧 스팸":"✅ 정상")+"</span>";
+      if (v===1) leftChips += chip; else rightChips += chip;
+    });
+    return (
+      '<div class="formula-grid">' +
+        '<div class="formula-card"><h4>'+feature+' 있음 ('+r.left.length+'통)</h4><div style="margin:6px 0;">'+leftChips+'</div><div class="result">지니 '+r.giniL.toFixed(3)+'</div></div>' +
+        '<div class="formula-card"><h4>'+feature+' 없음 ('+r.right.length+'통)</h4><div style="margin:6px 0;">'+rightChips+'</div><div class="result">지니 '+r.giniR.toFixed(3)+'</div></div>' +
+      '</div>' +
+      '<div class="note-box">부모 지니 <b>'+r.parentGini.toFixed(3)+'</b> → 분할 후 가중 지니 <b>'+r.weighted.toFixed(3)+'</b> = 정보이득 <b style="color:var(--blue);">'+r.ig.toFixed(3)+'</b>' +
+        (r.ig === Math.max(GINI_RESULTS.free.ig, GINI_RESULTS.win.ig, GINI_RESULTS.call.ig) ? ' 🏆 지금까지 중 가장 좋은 질문이에요!' : '') +
+      '</div>'
+    );
+  }
+
+  function drawGiniChart(selected){
+    var canvas = document.getElementById("giniChart");
+    if (!canvas) return;
+    var ctx2 = canvas.getContext("2d");
+    var w = canvas.width, h = canvas.height;
+    ctx2.clearRect(0,0,w,h);
+    var dark = isDark();
+    var axisColor = dark ? "rgba(236,231,216,0.35)" : "rgba(36,39,43,0.35)";
+    var barNormal = dark ? "rgba(111,193,234,0.5)" : "rgba(29,92,138,0.35)";
+    var barHi = dark ? "#6FC1EA" : "#1D5C8A";
+    var feats = ["free","win","call"];
+    var maxIG = Math.max(GINI_RESULTS.free.ig, GINI_RESULTS.win.ig, GINI_RESULTS.call.ig, 0.05);
+    var padL2 = 40, padB2 = 26, padT2 = 16;
+    var plotH2 = h - padT2 - padB2;
+    var barW = 60, gap = 50, startX = 60;
+    ctx2.strokeStyle = axisColor;
+    ctx2.beginPath();
+    ctx2.moveTo(padL2, padT2); ctx2.lineTo(padL2, h-padB2); ctx2.lineTo(w-10, h-padB2);
+    ctx2.stroke();
+    feats.forEach(function(f,i){
+      var val = GINI_RESULTS[f].ig;
+      var barH = (val/maxIG)*plotH2;
+      var x = startX + i*(barW+gap);
+      var y = h - padB2 - barH;
+      ctx2.fillStyle = (f===selected) ? barHi : barNormal;
+      ctx2.fillRect(x, y, barW, barH);
+      ctx2.fillStyle = axisColor;
+      ctx2.font = "12px sans-serif";
+      ctx2.fillText(f, x+barW/2-10, h-padB2+16);
+      ctx2.fillText(val.toFixed(3), x+barW/2-16, y-4);
+    });
+  }
+
+  function initGiniPlayground(){
+    var btns = {
+      free: document.getElementById("giniBtnFree"),
+      win: document.getElementById("giniBtnWin"),
+      call: document.getElementById("giniBtnCall")
+    };
+    if (!btns.free) return;
+    function select(f){
+      giniSelected = f;
+      Object.keys(btns).forEach(function(k){
+        btns[k].className = (k===f) ? "btn btn-primary" : "btn btn-ghost";
+        btns[k].style.flex = "1";
+      });
+      document.getElementById("giniCardArea").innerHTML = buildGiniCards(f);
+      drawGiniChart(f);
+    }
+    btns.free.addEventListener("click", function(){ select("free"); });
+    btns.win.addEventListener("click", function(){ select("win"); });
+    btns.call.addEventListener("click", function(){ select("call"); });
+    select("free");
+  }
+  initGiniPlayground();
+
+  /* ================= RESAMPLE (오버/언더샘플링) PLAYGROUND ================= */
+  var RESAMPLE_MAJ = 16, RESAMPLE_MIN = 4;
+  var resampleSelected = "orig";
+
+  function resampleCounts(mode){
+    if (mode==="over") return { maj: RESAMPLE_MAJ, min: RESAMPLE_MAJ };
+    if (mode==="under") return { maj: RESAMPLE_MIN, min: RESAMPLE_MIN };
+    return { maj: RESAMPLE_MAJ, min: RESAMPLE_MIN };
+  }
+
+  function drawResampleChart(mode){
+    var canvas = document.getElementById("resampleChart");
+    if (!canvas) return;
+    var ctx3 = canvas.getContext("2d");
+    var w = canvas.width, h = canvas.height;
+    ctx3.clearRect(0,0,w,h);
+    var dark = isDark();
+    var axisColor = dark ? "rgba(236,231,216,0.35)" : "rgba(36,39,43,0.35)";
+    var majColor = dark ? "#6FC1EA" : "#1D5C8A";
+    var minColor = dark ? "#FF8A73" : "#C1443C";
+    var counts = resampleCounts(mode);
+    var maxVal = 20;
+    var padL3=40, padB3=26, padT3=16;
+    var plotH3 = h-padT3-padB3;
+    var barW=70, gap=60, startX=70;
+    ctx3.strokeStyle=axisColor;
+    ctx3.beginPath(); ctx3.moveTo(padL3,padT3); ctx3.lineTo(padL3,h-padB3); ctx3.lineTo(w-10,h-padB3); ctx3.stroke();
+    [["정상(다수)",counts.maj,majColor],["스팸(소수)",counts.min,minColor]].forEach(function(item,i){
+      var val=item[1];
+      var barH=(val/maxVal)*plotH3;
+      var x=startX+i*(barW+gap);
+      var y=h-padB3-barH;
+      ctx3.fillStyle=item[2];
+      ctx3.fillRect(x,y,barW,barH);
+      ctx3.fillStyle=axisColor;
+      ctx3.font="12px sans-serif";
+      ctx3.fillText(item[0], x+barW/2-28, h-padB3+16);
+      ctx3.fillText(val+"개", x+barW/2-12, y-4);
+    });
+  }
+
+  function buildResampleDots(mode){
+    var counts = resampleCounts(mode);
+    var chips = "";
+    for (var i=0;i<counts.maj;i++){
+      chips += '<span style="display:inline-block; width:14px;height:14px;border-radius:50%; margin:2px; background:var(--blue);"></span>';
+    }
+    for (var j=0;j<counts.min;j++){
+      var isSynthetic = (mode==="over" && j>=RESAMPLE_MIN);
+      chips += '<span style="display:inline-block; width:14px;height:14px;border-radius:50%; margin:2px; background:var(--red); '+(isSynthetic?'opacity:.55; border:2px dashed var(--red);':'')+'"></span>';
+    }
+    return chips;
+  }
+
+  function resampleNoteText(mode){
+    if (mode==="over") return '<div class="note-box">오버샘플링 후: 정상 16개, 스팸 16개(진짜 4개 + <b style="color:var(--red);">테두리 점선으로 표시된 가상 12개</b>) — 데이터 손실은 없지만 가상 데이터가 늘어나요.</div>';
+    if (mode==="under") return '<div class="note-box">언더샘플링 후: 정상 4개(원래 16개 중 12개 제거), 스팸 4개 — 균형은 맞지만 정상 메일 정보를 많이 잃었어요.</div>';
+    return '<div class="note-box">원본: 정상 16개, 스팸 4개 (80:20 불균형) — 이대로 학습하면 모델이 "전부 정상"이라고만 찍어도 정확도 80%가 나와요.</div>';
+  }
+
+  function initResamplePlayground(){
+    var btns = { orig: document.getElementById("resampleOrigBtn"), over: document.getElementById("resampleOverBtn"), under: document.getElementById("resampleUnderBtn") };
+    if (!btns.orig) return;
+    function select(m){
+      resampleSelected = m;
+      Object.keys(btns).forEach(function(k){ btns[k].className = (k===m) ? "btn btn-primary" : "btn btn-ghost"; btns[k].style.flex="1"; });
+      document.getElementById("resampleDots").innerHTML = buildResampleDots(m);
+      document.getElementById("resampleNote").innerHTML = resampleNoteText(m);
+      drawResampleChart(m);
+    }
+    btns.orig.addEventListener("click", function(){ select("orig"); });
+    btns.over.addEventListener("click", function(){ select("over"); });
+    btns.under.addEventListener("click", function(){ select("under"); });
+    select("orig");
+  }
+  initResamplePlayground();
+
+  /* ================= K-MEANS PLAYGROUND ================= */
+  var KMEANS_POINTS = [
+    [70,70],[95,75],[80,95],[100,90],[60,85],[88,58],
+    [340,90],[365,100],[350,120],[375,80],[330,110],[360,65],
+    [200,230],[220,245],[180,250],[230,210],[210,260],[195,205]
+  ];
+  var KMEANS_COLORS = ["#1D5C8A","#C1443C","#3F8F5F","#B08900"];
+  var kmeansState = { k:2, centroids:null, assign:null, running:false, iter:0, timer:null };
+
+  function kmeansInitCentroids(k){
+    var idxs;
+    if (k===2) idxs=[0,6];
+    else if (k===3) idxs=[0,6,12];
+    else idxs=[0,6,12,3];
+    return idxs.slice(0,k).map(function(i){ return KMEANS_POINTS[i].slice(); });
+  }
+
+  function kmeansStep(points, centroids){
+    var assign = points.map(function(p){
+      var best=0, bestD=Infinity;
+      centroids.forEach(function(c,i){
+        var d=(p[0]-c[0])*(p[0]-c[0])+(p[1]-c[1])*(p[1]-c[1]);
+        if (d<bestD){ bestD=d; best=i; }
+      });
+      return best;
+    });
+    var newC = centroids.map(function(c,i){
+      var pts = points.filter(function(p,j){ return assign[j]===i; });
+      if (!pts.length) return c;
+      var sx=0, sy=0;
+      pts.forEach(function(p){ sx+=p[0]; sy+=p[1]; });
+      return [sx/pts.length, sy/pts.length];
+    });
+    return { assign: assign, centroids: newC };
+  }
+
+  function drawKmeans(){
+    var canvas = document.getElementById("kmeansCanvas");
+    if (!canvas) return;
+    var ctx4 = canvas.getContext("2d");
+    var w=canvas.width, h=canvas.height;
+    ctx4.clearRect(0,0,w,h);
+    var dark = isDark();
+    var dotColor = dark ? "rgba(236,231,216,0.55)" : "rgba(36,39,43,0.55)";
+    KMEANS_POINTS.forEach(function(p,i){
+      var col = (kmeansState.assign) ? KMEANS_COLORS[kmeansState.assign[i]] : dotColor;
+      ctx4.fillStyle = col;
+      ctx4.beginPath();
+      ctx4.arc(p[0], p[1], 7, 0, Math.PI*2);
+      ctx4.fill();
+    });
+    if (kmeansState.centroids){
+      kmeansState.centroids.forEach(function(c,i){
+        ctx4.fillStyle = KMEANS_COLORS[i];
+        ctx4.strokeStyle = dark ? "#fff" : "#1a1a1a";
+        ctx4.lineWidth=2;
+        ctx4.beginPath();
+        ctx4.moveTo(c[0]-9,c[1]); ctx4.lineTo(c[0]+9,c[1]);
+        ctx4.moveTo(c[0],c[1]-9); ctx4.lineTo(c[0],c[1]+9);
+        ctx4.stroke();
+        ctx4.beginPath();
+        ctx4.arc(c[0], c[1], 5, 0, Math.PI*2);
+        ctx4.fill();
+      });
+    }
+  }
+
+  function kmeansRun(){
+    if (kmeansState.running) return;
+    kmeansState.running = true;
+    kmeansState.centroids = kmeansInitCentroids(kmeansState.k);
+    kmeansState.assign = null;
+    kmeansState.iter = 0;
+    var statusEl = document.getElementById("kmeansStatus");
+    var runBtn = document.getElementById("kmeansRunBtn");
+    runBtn.disabled = true;
+    var prevAssign = null;
+    drawKmeans();
+    kmeansState.timer = setInterval(function(){
+      var res = kmeansStep(KMEANS_POINTS, kmeansState.centroids);
+      kmeansState.assign = res.assign;
+      var converged = prevAssign && JSON.stringify(prevAssign)===JSON.stringify(res.assign);
+      kmeansState.centroids = res.centroids;
+      kmeansState.iter++;
+      drawKmeans();
+      statusEl.textContent = "반복 "+kmeansState.iter+"회째...";
+      if (converged || kmeansState.iter>=8){
+        clearInterval(kmeansState.timer);
+        kmeansState.running = false;
+        runBtn.disabled = false;
+        statusEl.textContent = "✅ "+kmeansState.iter+"번 만에 수렴했어요! 점들이 "+kmeansState.k+"개 무리로 나뉘었어요.";
+      }
+      prevAssign = res.assign;
+    }, 550);
+  }
+
+  function initKmeansPlayground(){
+    var kBtns = { 2: document.getElementById("kmeansK2"), 3: document.getElementById("kmeansK3"), 4: document.getElementById("kmeansK4") };
+    var runBtn = document.getElementById("kmeansRunBtn");
+    if (!runBtn) return;
+    function selectK(k){
+      if (kmeansState.timer) clearInterval(kmeansState.timer);
+      kmeansState.running=false;
+      kmeansState.k = k;
+      kmeansState.centroids = null;
+      kmeansState.assign = null;
+      kmeansState.iter = 0;
+      runBtn.disabled = false;
+      Object.keys(kBtns).forEach(function(kk){ kBtns[kk].className = (Number(kk)===k) ? "btn btn-primary" : "btn btn-ghost"; kBtns[kk].style.flex="1"; });
+      document.getElementById("kmeansStatus").textContent = "K="+k+"로 시작해볼까요? 실행 버튼을 눌러보세요.";
+      drawKmeans();
+    }
+    kBtns[2].addEventListener("click", function(){ selectK(2); });
+    kBtns[3].addEventListener("click", function(){ selectK(3); });
+    kBtns[4].addEventListener("click", function(){ selectK(4); });
+    runBtn.addEventListener("click", kmeansRun);
+    selectK(2);
+  }
+  initKmeansPlayground();
+
+  /* ================= 적률(MOMENTS) PLAYGROUND ================= */
+  function boxMullerNormal(mean, sd){
+    var u = Math.random() || 1e-9;
+    var v = Math.random();
+    var z = Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+    return mean + z*sd;
+  }
+  var MOMENTS_NORMAL = [];
+  var MOMENTS_SKEWED = [];
+  (function(){
+    for (var i=0;i<40;i++){
+      MOMENTS_NORMAL.push(Math.max(2, boxMullerNormal(45, 12)));
+      MOMENTS_SKEWED.push(Math.max(2, 10 + (-22*Math.log(1-Math.random()*0.999))));
+    }
+  })();
+  var momentsCurrentPct = 0;
+
+  function momentStats(arr){
+    var n = arr.length;
+    var mean = arr.reduce(function(a,b){return a+b;},0)/n;
+    var m2=0,m3=0,m4=0;
+    arr.forEach(function(v){
+      var d=v-mean;
+      m2+=d*d; m3+=d*d*d; m4+=d*d*d*d;
+    });
+    m2/=n; m3/=n; m4/=n;
+    var skew = m2>0 ? m3/Math.pow(m2,1.5) : 0;
+    var kurt = m2>0 ? m4/Math.pow(m2,2)-3 : 0;
+    return { mean:mean, variance:m2, skew:skew, kurt:kurt };
+  }
+
+  function momentsMerge(pct){
+    var nSkew = Math.round(40*pct/100);
+    return MOMENTS_SKEWED.slice(0,nSkew).concat(MOMENTS_NORMAL.slice(0,40-nSkew));
+  }
+
+  function drawMomentsHistogram(arr){
+    var canvas = document.getElementById("momentsCanvas");
+    if (!canvas) return;
+    var ctx5 = canvas.getContext("2d");
+    var w=canvas.width, h=canvas.height;
+    ctx5.clearRect(0,0,w,h);
+    var dark = isDark();
+    var axisColor = dark ? "rgba(236,231,216,0.35)" : "rgba(36,39,43,0.35)";
+    var barColor = dark ? "#6FC1EA" : "#1D5C8A";
+    var minV=0, maxV=140, bins=12;
+    var binW=(maxV-minV)/bins;
+    var counts = new Array(bins).fill(0);
+    arr.forEach(function(v){
+      var idx = Math.min(bins-1, Math.max(0, Math.floor((v-minV)/binW)));
+      counts[idx]++;
+    });
+    var maxCount = Math.max.apply(null, counts.concat([1]));
+    var padL5=30, padB5=22, padT5=10;
+    var plotH5=h-padT5-padB5;
+    var plotW5=w-padL5-15;
+    var barW5=plotW5/bins;
+    ctx5.strokeStyle=axisColor;
+    ctx5.beginPath(); ctx5.moveTo(padL5,padT5); ctx5.lineTo(padL5,h-padB5); ctx5.lineTo(w-10,h-padB5); ctx5.stroke();
+    counts.forEach(function(c,i){
+      var barH=(c/maxCount)*plotH5;
+      var x=padL5+i*barW5;
+      var y=h-padB5-barH;
+      ctx5.fillStyle=barColor;
+      ctx5.fillRect(x+1,y,barW5-2,barH);
+    });
+  }
+
+  function renderMomentsStats(stats){
+    function interp(skew){
+      if (skew>0.3) return "오른쪽 꼬리 (양의 왜도)";
+      if (skew<-0.3) return "왼쪽 꼬리 (음의 왜도)";
+      return "거의 대칭";
+    }
+    return (
+      '<div class="formula-card"><h4>평균</h4><div class="result">'+stats.mean.toFixed(1)+'</div></div>' +
+      '<div class="formula-card"><h4>분산</h4><div class="result">'+stats.variance.toFixed(1)+'</div></div>' +
+      '<div class="formula-card"><h4>왜도</h4><div class="result">'+stats.skew.toFixed(2)+'</div><div style="font-size:.78rem; color:var(--ink-soft);">'+interp(stats.skew)+'</div></div>' +
+      '<div class="formula-card"><h4>첨도</h4><div class="result">'+stats.kurt.toFixed(2)+'</div></div>'
+    );
+  }
+
+  function updateMoments(pct){
+    momentsCurrentPct = pct;
+    var merged = momentsMerge(pct);
+    var stats = momentStats(merged);
+    drawMomentsHistogram(merged);
+    var statsEl = document.getElementById("momentsStats");
+    if (statsEl) statsEl.innerHTML = renderMomentsStats(stats);
+  }
+
+  function initMomentsPlayground(){
+    var slider = document.getElementById("momentsSlider");
+    if (!slider) return;
+    slider.addEventListener("input", function(){ updateMoments(Number(slider.value)); });
+    updateMoments(0);
+  }
+  initMomentsPlayground();
+
+  /* ================= 영화 추천 PLAYGROUND ================= */
+  var MOVIE_USERS = ["철수","민수","현우","영희","지은","수아"];
+  var MOVIE_TITLES = ["어벤져스","타이타닉","인터스텔라","라라랜드","기생충","인사이드아웃"];
+  var MOVIE_RATINGS = {
+    "철수":[5,0,5,0,4,0],
+    "민수":[5,0,4,5,5,0],
+    "현우":[4,0,5,0,4,0],
+    "영희":[0,5,0,5,0,4],
+    "지은":[0,4,0,5,5,5],
+    "수아":[0,5,0,4,0,5]
+  };
+  var movieState = { user:"철수", n:2 };
+
+  function pearsonCorr(a,b){
+    var n=a.length;
+    var ma=a.reduce(function(s,v){return s+v;},0)/n;
+    var mb=b.reduce(function(s,v){return s+v;},0)/n;
+    var num=0, da=0, db=0;
+    for (var i=0;i<n;i++){
+      num += (a[i]-ma)*(b[i]-mb);
+      da += (a[i]-ma)*(a[i]-ma);
+      db += (b[i]-mb)*(b[i]-mb);
+    }
+    return (da===0||db===0) ? 0 : num/Math.sqrt(da*db);
+  }
+
+  function movieRecommend(user, n){
+    var target = MOVIE_RATINGS[user];
+    var sims = MOVIE_USERS.filter(function(u){ return u!==user; }).map(function(u){
+      return { user:u, sim: pearsonCorr(target, MOVIE_RATINGS[u]) };
+    }).sort(function(a,b){ return b.sim-a.sim; });
+    var neighbors = sims.slice(0,n);
+    var unseenIdx = [];
+    target.forEach(function(v,i){ if (v===0) unseenIdx.push(i); });
+    var recSet = {};
+    neighbors.forEach(function(nb){
+      unseenIdx.forEach(function(i){
+        if (MOVIE_RATINGS[nb.user][i]===5) recSet[i]=true;
+      });
+    });
+    var recTitles = Object.keys(recSet).map(function(i){ return MOVIE_TITLES[Number(i)]; });
+    return { sims:sims, neighbors:neighbors, recTitles:recTitles };
+  }
+
+  function renderMovieResult(){
+    var result = movieRecommend(movieState.user, movieState.n);
+    var simRows = result.sims.map(function(s){
+      var isNeighbor = result.neighbors.some(function(nb){ return nb.user===s.user; });
+      return '<tr'+(isNeighbor?' style="background:var(--green-soft);"':'')+'><td>'+s.user+(isNeighbor?' ⭐':'')+'</td><td>'+s.sim.toFixed(3)+'</td></tr>';
+    }).join("");
+    var recHtml = result.recTitles.length
+      ? result.recTitles.map(function(t){ return '<span style="display:inline-block; margin:4px; padding:6px 12px; border-radius:20px; background:var(--blue); color:#fff; font-weight:700; font-size:.85rem;">🎬 '+t+'</span>'; }).join("")
+      : '<span style="color:var(--ink-soft); font-size:.85rem;">추천할 영화가 없어요 (이웃들도 아직 안 본 영화가 없어요)</span>';
+    var resultEl = document.getElementById("movieResult");
+    if (!resultEl) return;
+    resultEl.innerHTML =
+      '<div class="ref-table-wrap"><table class="ref-table"><thead><tr><th>친구</th><th>취향 유사도(상관계수)</th></tr></thead><tbody>'+simRows+'</tbody></table></div>' +
+      '<div class="note-box" style="margin-top:10px;"><b>'+movieState.user+'</b>님을 위한 추천 (이웃 '+movieState.n+'명 기준):</div>' +
+      '<div style="margin-top:8px;">'+recHtml+'</div>';
+  }
+
+  function initMoviePlayground(){
+    var userBtns = { "철수": document.getElementById("movieUserChulsoo"), "영희": document.getElementById("movieUserYounghee") };
+    var nBtns = { 1: document.getElementById("movieN1"), 2: document.getElementById("movieN2"), 3: document.getElementById("movieN3") };
+    if (!userBtns["철수"]) return;
+    function refreshButtons(){
+      Object.keys(userBtns).forEach(function(u){ userBtns[u].className = (u===movieState.user) ? "btn btn-primary" : "btn btn-ghost"; userBtns[u].style.flex="1"; });
+      Object.keys(nBtns).forEach(function(k){ nBtns[k].className = (Number(k)===movieState.n) ? "btn btn-primary" : "btn btn-ghost"; nBtns[k].style.flex="1"; });
+    }
+    Object.keys(userBtns).forEach(function(u){
+      userBtns[u].addEventListener("click", function(){ movieState.user=u; refreshButtons(); renderMovieResult(); });
+    });
+    Object.keys(nBtns).forEach(function(k){
+      nBtns[k].addEventListener("click", function(){ movieState.n=Number(k); refreshButtons(); renderMovieResult(); });
+    });
+    refreshButtons();
+    renderMovieResult();
+  }
+  initMoviePlayground();
+
+  /* ================= 데이터수집: 정적/동적 크롤링 PLAYGROUND ================= */
+  var COLLECT_STATIC_ITEMS = ["☕ 아메리카노 4,500원", "🥐 크루아상 3,800원", "🍰 치즈케이크 6,000원"];
+  var COLLECT_DYNAMIC_EXTRA = ["⭐ 실시간 리뷰 평점 4.8 (JS로 나중에 로딩됨)", "📦 오늘의 재고: 12개 남음 (JS로 나중에 로딩됨)"];
+
+  function renderCollectItems(items, note){
+    var html = items.map(function(t){ return '<div style="padding:8px 12px; margin:4px 0; background:var(--card-bg); border:1px solid var(--paper-line); border-radius:8px; font-size:.85rem;">'+t+'</div>'; }).join("");
+    return html + '<div class="note-box" style="margin-top:8px;">'+note+'</div>';
+  }
+
+  function initCollectPlayground(){
+    var staticBtn = document.getElementById("collectStaticBtn");
+    var dynamicBtn = document.getElementById("collectDynamicBtn");
+    var resultEl = document.getElementById("collectResult");
+    if (!staticBtn) return;
+    staticBtn.addEventListener("click", function(){
+      staticBtn.className="btn btn-primary"; dynamicBtn.className="btn btn-ghost";
+      staticBtn.style.flex="1"; dynamicBtn.style.flex="1";
+      resultEl.innerHTML = renderCollectItems(COLLECT_STATIC_ITEMS, "requests.get()으로 즉시 3개 정보를 받았어요! 이 페이지는 HTML에 데이터가 이미 다 들어있는 '정적' 페이지예요.");
+    });
+    dynamicBtn.addEventListener("click", function(){
+      staticBtn.className="btn btn-ghost"; dynamicBtn.className="btn btn-primary";
+      staticBtn.style.flex="1"; dynamicBtn.style.flex="1";
+      resultEl.innerHTML = '<div class="note-box">⏳ 브라우저가 자바스크립트를 실행하는 중... (Selenium이 실제 브라우저를 켜고 기다리는 중이에요)</div>';
+      setTimeout(function(){
+        resultEl.innerHTML = renderCollectItems(COLLECT_STATIC_ITEMS.concat(COLLECT_DYNAMIC_EXTRA), "Selenium으로 기다렸더니 리뷰·재고 같은 자바스크립트 데이터까지 2개 더 나타났어요! requests만 썼다면 이 정보는 가져오지 못했을 거예요.");
+      }, 1100);
+    });
+    staticBtn.click();
+  }
+  initCollectPlayground();
+
+  /* ================= Pandas: loc vs iloc PLAYGROUND ================= */
+  var INDEXER_ROWS = [
+    {label:"a", name:"철수", score:88}, {label:"b", name:"영희", score:92}, {label:"c", name:"민수", score:75},
+    {label:"d", name:"지은", score:81}, {label:"e", name:"현우", score:69}
+  ];
+
+  function renderIndexerTable(highlightSet){
+    var rows = INDEXER_ROWS.map(function(r,i){
+      var hl = highlightSet.has(i);
+      return '<tr'+(hl?' style="background:var(--green-soft); font-weight:700;"':'')+'><td>'+r.label+'</td><td>'+r.name+'</td><td>'+r.score+'</td></tr>';
+    }).join("");
+    return '<thead><tr><th>인덱스</th><th>이름</th><th>점수</th></tr></thead><tbody>'+rows+'</tbody>';
+  }
+
+  function initIndexerPlayground(){
+    var table = document.getElementById("indexerTable");
+    if (!table) return;
+    var startSel = document.getElementById("indexerStart");
+    var endSel = document.getElementById("indexerEnd");
+    INDEXER_ROWS.forEach(function(r,i){
+      startSel.insertAdjacentHTML("beforeend", '<option value="'+i+'"'+(i===0?' selected':'')+'>'+i+' ('+r.label+')</option>');
+      endSel.insertAdjacentHTML("beforeend", '<option value="'+i+'"'+(i===2?' selected':'')+'>'+i+' ('+r.label+')</option>');
+    });
+    var mode = "loc";
+    var locBtn = document.getElementById("indexerLocBtn");
+    var ilocBtn = document.getElementById("indexerIlocBtn");
+    function update(){
+      var start = Number(startSel.value), end = Number(endSel.value);
+      var idxs = [];
+      if (mode==="loc"){
+        for (var i=start;i<=end;i++) idxs.push(i);
+      } else {
+        for (var i=start;i<end;i++) idxs.push(i);
+      }
+      table.innerHTML = renderIndexerTable(new Set(idxs));
+      var code = mode==="loc" ? "df.loc["+INDEXER_ROWS[start].label+":"+INDEXER_ROWS[end].label+"]" : "df.iloc["+start+":"+end+"]";
+      document.getElementById("indexerResult").innerHTML = '<div class="note-box"><code>'+code+'</code> → <b>'+idxs.length+'개</b> 행 선택됨 ('+(mode==="loc"?"끝 포함":"끝 미포함")+')</div>';
+    }
+    locBtn.addEventListener("click", function(){ mode="loc"; locBtn.className="btn btn-primary"; ilocBtn.className="btn btn-ghost"; update(); });
+    ilocBtn.addEventListener("click", function(){ mode="iloc"; ilocBtn.className="btn btn-primary"; locBtn.className="btn btn-ghost"; update(); });
+    startSel.addEventListener("change", update);
+    endSel.addEventListener("change", update);
+    update();
+  }
+  initIndexerPlayground();
+
+  /* ================= 전처리: 스케일링 비교 PLAYGROUND ================= */
+  function renderScaleRow(label, values){
+    var minV = Math.min.apply(null, values), maxV = Math.max.apply(null, values);
+    var range = (maxV-minV) || 1;
+    var dots = values.map(function(v,i){
+      var pct = ((v-minV)/range)*100;
+      var isOutlier = i===values.length-1;
+      return '<div style="position:absolute; left:'+pct+'%; top:0; transform:translateX(-50%);">' +
+        '<div style="width:12px;height:12px;border-radius:50%; background:'+(isOutlier?"var(--red)":"var(--blue)")+'; margin:0 auto;"></div>' +
+        '<div style="font-size:.65rem; text-align:center; margin-top:2px; color:var(--ink-soft); white-space:nowrap;">'+v.toFixed(2)+'</div>' +
+      '</div>';
+    }).join("");
+    return '<div style="margin-bottom:22px;"><div style="font-size:.8rem; font-weight:700; margin-bottom:6px;">'+label+'</div>' +
+      '<div style="position:relative; height:34px; border-bottom:2px solid var(--paper-line);">'+dots+'</div></div>';
+  }
+
+  function computeScales(outlier){
+    var base = [10,11,12,12,13];
+    var full = base.concat([outlier]);
+    var n = full.length;
+    var mean = full.reduce(function(a,b){return a+b;},0)/n;
+    var variance = full.reduce(function(a,b){return a+(b-mean)*(b-mean);},0)/n;
+    var std = Math.sqrt(variance) || 1;
+    var standardScaled = full.map(function(v){ return (v-mean)/std; });
+
+    var minV = Math.min.apply(null, full), maxV = Math.max.apply(null, full);
+    var rangeV = (maxV-minV) || 1;
+    var minmaxScaled = full.map(function(v){ return (v-minV)/rangeV; });
+
+    var sorted = full.slice().sort(function(a,b){ return a-b; });
+    function percentile(p){
+      var idx=(sorted.length-1)*p, lo=Math.floor(idx), hi=Math.ceil(idx);
+      if (lo===hi) return sorted[lo];
+      return sorted[lo]+(sorted[hi]-sorted[lo])*(idx-lo);
+    }
+    var median = percentile(0.5), q1=percentile(0.25), q3=percentile(0.75);
+    var iqr = (q3-q1) || 1;
+    var robustScaled = full.map(function(v){ return (v-median)/iqr; });
+
+    return { standard:standardScaled, minmax:minmaxScaled, robust:robustScaled };
+  }
+
+  function updateScaling(outlier){
+    var r = computeScales(outlier);
+    document.getElementById("scalingOutlierVal").textContent = outlier;
+    document.getElementById("scalingBars").innerHTML =
+      renderScaleRow("StandardScaler (평균0, 표준편차1)", r.standard) +
+      renderScaleRow("MinMaxScaler (0~1)", r.minmax) +
+      renderScaleRow("RobustScaler (중앙값·IQR 기준)", r.robust) +
+      '<div class="note-box">🔴 빨간 점이 이상치예요. 이상치가 커질수록 StandardScaler·MinMaxScaler에서는 나머지 5개 점(파란색)이 한쪽으로 뭉쳐버리지만(구분이 안 됨), RobustScaler는 상대적으로 안정적이에요.</div>';
+  }
+
+  function initScalingPlayground(){
+    var slider = document.getElementById("scalingSlider");
+    if (!slider) return;
+    slider.addEventListener("input", function(){ updateScaling(Number(slider.value)); });
+    updateScaling(15);
+  }
+  initScalingPlayground();
+
+  /* ================= 데이터프레임 응용: wide/long PLAYGROUND ================= */
+  var RESHAPE_WIDE = [
+    {student:"철수", math:90, eng:85}, {student:"영희", math:78, eng:92}, {student:"민수", math:88, eng:80}
+  ];
+
+  function renderWideTable(){
+    var rows = RESHAPE_WIDE.map(function(r){ return "<tr><td>"+r.student+"</td><td>"+r.math+"</td><td>"+r.eng+"</td></tr>"; }).join("");
+    return "<thead><tr><th>student</th><th>수학</th><th>영어</th></tr></thead><tbody>"+rows+"</tbody>";
+  }
+  function renderLongTable(){
+    var rows = [];
+    RESHAPE_WIDE.forEach(function(r){
+      rows.push("<tr><td>"+r.student+"</td><td>수학</td><td>"+r.math+"</td></tr>");
+      rows.push("<tr><td>"+r.student+"</td><td>영어</td><td>"+r.eng+"</td></tr>");
+    });
+    return "<thead><tr><th>student</th><th>variable</th><th>value</th></tr></thead><tbody>"+rows.join("")+"</tbody>";
+  }
+  function initReshapePlayground(){
+    var wideBtn = document.getElementById("reshapeWideBtn"), longBtn = document.getElementById("reshapeLongBtn");
+    var table = document.getElementById("reshapeTable"), codeEl = document.getElementById("reshapeCode");
+    if (!wideBtn) return;
+    function showWide(){
+      wideBtn.className="btn btn-primary"; longBtn.className="btn btn-ghost";
+      wideBtn.style.flex="1"; longBtn.style.flex="1";
+      table.innerHTML = renderWideTable();
+      codeEl.innerHTML = '<div class="note-box">한 학생이 한 줄, 과목이 옆으로 펼쳐진 <b>Wide</b> 형태예요.</div>';
+    }
+    function showLong(){
+      longBtn.className="btn btn-primary"; wideBtn.className="btn btn-ghost";
+      wideBtn.style.flex="1"; longBtn.style.flex="1";
+      table.innerHTML = renderLongTable();
+      codeEl.innerHTML = '<div class="note-box"><code>df.melt(id_vars=\'student\', var_name=\'variable\', value_name=\'value\')</code> — 과목이 세로로 눕혀진 <b>Long</b> 형태예요. 담긴 정보량은 똑같아요!</div>';
+    }
+    wideBtn.addEventListener("click", showWide);
+    longBtn.addEventListener("click", showLong);
+    showWide();
+  }
+  initReshapePlayground();
+
+  /* ================= 시각화: 상관관계 PLAYGROUND ================= */
+  var CORR_X = [], CORR_NOISE = [];
+  (function(){
+    for (var i=0;i<40;i++){
+      CORR_X.push(boxMullerNormal(0,1));
+      CORR_NOISE.push(boxMullerNormal(0,1));
+    }
+  })();
+
+  function computeCorrPoints(r){
+    return CORR_X.map(function(x,i){ return { x:x, y: r*x + Math.sqrt(Math.max(0,1-r*r))*CORR_NOISE[i] }; });
+  }
+
+  function drawCorrScatter(points){
+    var canvas = document.getElementById("corrCanvas");
+    if (!canvas) return;
+    var ctx6 = canvas.getContext("2d");
+    var w=canvas.width, h=canvas.height;
+    ctx6.clearRect(0,0,w,h);
+    var dark = isDark();
+    var dotColor = dark ? "#6FC1EA" : "#1D5C8A";
+    var axisColor = dark ? "rgba(236,231,216,0.3)" : "rgba(36,39,43,0.3)";
+    var range = 3.5;
+    function toXY(x,y){ return [ w/2 + (x/range)*(w/2-20), h/2 - (y/range)*(h/2-20) ]; }
+    ctx6.strokeStyle = axisColor;
+    ctx6.beginPath();
+    ctx6.moveTo(20,h/2); ctx6.lineTo(w-20,h/2);
+    ctx6.moveTo(w/2,20); ctx6.lineTo(w/2,h-20);
+    ctx6.stroke();
+    points.forEach(function(p){
+      var xy = toXY(p.x,p.y);
+      ctx6.fillStyle = dotColor;
+      ctx6.beginPath(); ctx6.arc(xy[0],xy[1],4,0,Math.PI*2); ctx6.fill();
+    });
+  }
+
+  var corrCurrentR = 0.7;
+  function updateCorr(rTarget){
+    corrCurrentR = rTarget;
+    document.getElementById("corrTargetVal").textContent = rTarget.toFixed(1);
+    var points = computeCorrPoints(rTarget);
+    drawCorrScatter(points);
+    var actual = pearsonCorr(points.map(function(p){return p.x;}), points.map(function(p){return p.y;}));
+    document.getElementById("corrActualVal").textContent = actual.toFixed(3);
+  }
+
+  function initCorrPlayground(){
+    var slider = document.getElementById("corrSlider");
+    if (!slider) return;
+    slider.addEventListener("input", function(){ updateCorr(Number(slider.value)/10); });
+    updateCorr(0.7);
+  }
+  initCorrPlayground();
+
+  /* ================= 특징선택: PCA 방향 찾기 PLAYGROUND ================= */
+  var PCA_POINTS = [];
+  (function(){
+    for (var i=0;i<30;i++){
+      var x = boxMullerNormal(0,2.2);
+      var y = 0.75*x + boxMullerNormal(0,0.9);
+      PCA_POINTS.push([x,y]);
+    }
+  })();
+
+  function pcaMeans(){
+    var mx=0,my=0;
+    PCA_POINTS.forEach(function(p){ mx+=p[0]; my+=p[1]; });
+    return [mx/PCA_POINTS.length, my/PCA_POINTS.length];
+  }
+  function pcaProjectedVariance(theta){
+    var rad = theta*Math.PI/180;
+    var dx = Math.cos(rad), dy = Math.sin(rad);
+    var m = pcaMeans();
+    var projections = PCA_POINTS.map(function(p){ return (p[0]-m[0])*dx + (p[1]-m[1])*dy; });
+    var meanProj = projections.reduce(function(a,b){return a+b;},0)/projections.length;
+    return projections.reduce(function(a,b){return a+(b-meanProj)*(b-meanProj);},0)/projections.length;
+  }
+  function truePcaAngle(){
+    var m = pcaMeans();
+    var varX=0,varY=0,covXY=0;
+    PCA_POINTS.forEach(function(p){
+      var dx=p[0]-m[0], dy=p[1]-m[1];
+      varX+=dx*dx; varY+=dy*dy; covXY+=dx*dy;
+    });
+    varX/=PCA_POINTS.length; varY/=PCA_POINTS.length; covXY/=PCA_POINTS.length;
+    var angle = 0.5*Math.atan2(2*covXY, varX-varY);
+    var deg = angle*180/Math.PI;
+    if (deg<0) deg+=180;
+    return deg;
+  }
+
+  function drawPca(theta){
+    var canvas = document.getElementById("pcaCanvas");
+    if (!canvas) return;
+    var ctx7 = canvas.getContext("2d");
+    var w=canvas.width, h=canvas.height;
+    ctx7.clearRect(0,0,w,h);
+    var dark = isDark();
+    var dotColor = dark ? "rgba(236,231,216,0.7)" : "rgba(36,39,43,0.65)";
+    var lineColor = dark ? "#FF8A73" : "#C1443C";
+    var cx=w/2, cy=h/2, scale=28;
+    PCA_POINTS.forEach(function(p){
+      ctx7.fillStyle = dotColor;
+      ctx7.beginPath();
+      ctx7.arc(cx+p[0]*scale, cy-p[1]*scale, 4, 0, Math.PI*2);
+      ctx7.fill();
+    });
+    var rad = theta*Math.PI/180;
+    var dx=Math.cos(rad)*160, dy=Math.sin(rad)*160;
+    ctx7.strokeStyle = lineColor;
+    ctx7.lineWidth = 2.5;
+    ctx7.beginPath();
+    ctx7.moveTo(cx-dx, cy+dy); ctx7.lineTo(cx+dx, cy-dy);
+    ctx7.stroke();
+  }
+
+  function updatePca(theta){
+    document.getElementById("pcaAngleVal").textContent = theta;
+    drawPca(theta);
+    var v = pcaProjectedVariance(theta);
+    var trueAngle = truePcaAngle();
+    var trueVar = pcaProjectedVariance(trueAngle);
+    var diff = Math.min(Math.abs(theta-trueAngle), 180-Math.abs(theta-trueAngle));
+    var close = diff < 8;
+    document.getElementById("pcaResult").innerHTML =
+      '<div class="formula-grid">' +
+        '<div class="formula-card"><h4>이 방향의 분산</h4><div class="result">'+v.toFixed(2)+'</div></div>' +
+        '<div class="formula-card"><h4>실제 PCA 최적 각도</h4><div class="result">'+trueAngle.toFixed(0)+'° (분산 '+trueVar.toFixed(2)+')</div></div>' +
+      '</div>' +
+      (close ? '<div class="note-box">🎉 거의 PCA가 찾은 방향과 같아요! 이 방향으로 점들을 투영하면 정보 손실이 가장 적어요.</div>' : '');
+  }
+
+  function initPcaPlayground(){
+    var slider = document.getElementById("pcaAngleSlider");
+    if (!slider) return;
+    slider.addEventListener("input", function(){ updatePca(Number(slider.value)); });
+    updatePca(0);
+  }
+  initPcaPlayground();
+
+  /* ================= 파이썬 기초: 불변성 실험기 PLAYGROUND ================= */
+  function initTupleExpPlayground(){
+    var listBtn = document.getElementById("tupleExpListBtn"), tupleBtn = document.getElementById("tupleExpTupleBtn");
+    var resultEl = document.getElementById("tupleExpResult");
+    if (!listBtn) return;
+    function showList(){
+      listBtn.className="btn btn-primary"; tupleBtn.className="btn btn-ghost";
+      listBtn.style.flex="1"; tupleBtn.style.flex="1";
+      resultEl.innerHTML =
+        '<div class="note-box"><code>mylist = [1, 2, 3]</code><br><code>mylist[0] = 99</code></div>' +
+        '<div style="padding:10px; background:var(--green-soft); border-radius:8px; color:var(--green); font-weight:700; margin-top:8px;">✅ 성공! mylist = [99, 2, 3] — 리스트는 자유롭게 수정할 수 있어요.</div>';
+    }
+    function showTuple(){
+      tupleBtn.className="btn btn-primary"; listBtn.className="btn btn-ghost";
+      listBtn.style.flex="1"; tupleBtn.style.flex="1";
+      resultEl.innerHTML =
+        '<div class="note-box"><code>mytuple = (1, 2, 3)</code><br><code>mytuple[0] = 99</code></div>' +
+        '<div style="padding:10px; background:var(--red-soft); border-radius:8px; color:var(--red); font-weight:700; margin-top:8px; font-family:var(--font-mono); font-size:.85rem;">❌ TypeError: \'tuple\' object does not support item assignment</div>' +
+        '<div class="note-box" style="margin-top:8px;">튜플은 한 번 만들면 내용을 바꿀 수 없어요(불변). 값을 바꾸려면 통째로 새 튜플을 만들어 재할당해야 해요.</div>';
+    }
+    listBtn.addEventListener("click", showList);
+    tupleBtn.addEventListener("click", showTuple);
+    showList();
+  }
+  initTupleExpPlayground();
 
   /* ---------- tab switching ---------- */
   var tabBtns = document.querySelectorAll(".tab-btn");
@@ -1668,11 +2797,20 @@ print(df.iloc[0:2, 0:2])   # 0~1번 행 (2개), 0~1번 열`
   document.getElementById("quizResetBtn").addEventListener("click", renderQuiz);
   renderQuiz();
 
-  /* redraw regression canvas on theme change */
-  if (window.matchMedia){
-    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+  /* redraw canvases on theme change */
+  function redrawAllCanvases(){
+    draw();
+    drawGiniChart(giniSelected);
+    drawResampleChart(resampleSelected);
+    drawKmeans();
+    drawMomentsHistogram(momentsMerge(momentsCurrentPct));
+    drawCorrScatter(computeCorrPoints(corrCurrentR));
+    drawPca(Number(document.getElementById("pcaAngleSlider") ? document.getElementById("pcaAngleSlider").value : 0));
   }
-  var mo = new MutationObserver(draw);
+  if (window.matchMedia){
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redrawAllCanvases);
+  }
+  var mo = new MutationObserver(redrawAllCanvases);
   mo.observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
 })();
 </script>
