@@ -12,3 +12,8 @@
 !sw.js
 !icons/
 !icons/*.png
+!baseballhomerun/
+!baseballhomerun/main.py
+!baseballhomerun/logic.py
+!baseballhomerun/game.html
+!baseballhomerun/requirements.txt
