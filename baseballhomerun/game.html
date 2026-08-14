@@ -1,0 +1,1869 @@
+<meta charset="UTF-8">
+<title>회의록_최종_v3 — 몰래 야구</title>
+<style>
+  :root{
+    --bg-0:#0b0d12;
+    --bg-1:#12151d;
+    --surface:#181c26;
+    --surface-2:#1f2430;
+    --line:#2a3142;
+    --ink:#e9ebf1;
+    --ink-dim:#9aa2b4;
+    --ink-faint:#5b6376;
+    --accent:#e2543f;
+    --accent-dim:#8a3a2f;
+    --grass:#5fbf77;
+    --grass-dim:#2f5c3a;
+    --amber:#e0a83e;
+    --paper:#eee7d6;
+    --paper-ink:#2b2a26;
+    --paper-line:#c9c0a6;
+    --shadow: 0 30px 80px -20px rgba(0,0,0,0.65);
+  }
+
+  *{ box-sizing:border-box; }
+
+  html, body{
+    margin:0;
+    background:transparent;
+    color:var(--ink);
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, "Liberation Mono", monospace;
+  }
+
+  /* ---- floating popup, docked to the bottom of the screen ---- */
+  .popup{
+    position:fixed;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%);
+    width:100%;
+    max-width:336px;
+    padding:0 14px;
+    z-index:2147483000;
+    animation: rise .45s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes rise{
+    from{ opacity:0; transform:translate(-50%, 16px); }
+    to{ opacity:1; transform:translate(-50%, 0); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .popup{ animation:none; }
+  }
+  @media (max-width:420px){
+    .popup{ max-width:100%; padding:0 10px; }
+  }
+
+  /* ---- fake editor window ---- */
+  .window{
+    width:100%;
+    background:rgba(21,25,34,0.62);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+
+  .titlebar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 12px;
+    background:rgba(10,12,18,0.4);
+    border-bottom:1px solid rgba(255,255,255,0.07);
+  }
+  .dots{ display:flex; gap:6px; flex:0 0 auto; }
+  .dots span{ width:10px; height:10px; border-radius:50%; display:block; }
+  .dots span:nth-child(1){ background:#e2544c; }
+  .dots span:nth-child(2){ background:#e0b23e; }
+  .dots span:nth-child(3){ background:#4fae63; }
+
+  .filename{
+    flex:1 1 auto;
+    text-align:center;
+    font-size:12px;
+    color:var(--ink-dim);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    letter-spacing:.01em;
+  }
+  .filename .dot{ color:var(--grass); }
+
+  .disguise-btn{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    font:inherit;
+    font-size:11px;
+    letter-spacing:.02em;
+    padding:5px 9px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .disguise-btn:hover{ color:var(--ink); border-color:#3a4256; }
+  .disguise-btn:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  .bat-btn{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:5px;
+    background:rgba(224,168,62,0.1);
+    border:1.5px solid var(--amber);
+    color:var(--amber);
+    font:inherit;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:.01em;
+    padding:7px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .bat-btn:hover{ background:rgba(224,168,62,0.2); }
+  .bat-btn:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+  .bat-btn.ready{ animation: batReady 1.1s ease-in-out infinite; }
+  @keyframes batReady{
+    0%, 100%{ box-shadow:0 0 0 0 rgba(224,168,62,0.55); }
+    50%{ box-shadow:0 0 0 6px rgba(224,168,62,0); }
+  }
+
+  .tut-btn{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:26px;
+    height:26px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    font:inherit;
+    font-size:12px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .tut-btn:hover{ border-color:#3a4256; color:var(--ink); }
+  .tut-btn:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  .stage{
+    position:relative;
+    height:236px;
+    background:
+      linear-gradient(180deg, #141824 0%, #10131b 62%, #0d1017 100%);
+  }
+
+  canvas{
+    display:block;
+    width:100%;
+    height:100%;
+  }
+
+  .flash{
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-58%) scale(.85);
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:.02em;
+    opacity:0;
+    pointer-events:none;
+    text-shadow:0 2px 18px rgba(0,0,0,.6);
+    transition:opacity .18s ease, transform .18s ease;
+    white-space:nowrap;
+  }
+  .flash.show{ opacity:1; transform:translate(-50%,-58%) scale(1); }
+  .flash.hr{ color:var(--grass); font-size:16px; white-space:normal; max-width:270px; text-align:center; text-shadow:0 0 22px rgba(95,191,119,.75), 0 2px 18px rgba(0,0,0,.6); }
+  .flash.hr.show{ animation: hrPulse .6s ease; }
+  .flash.hit{ color:var(--amber); font-size:18px; white-space:normal; max-width:270px; text-align:center; }
+  .flash.out{ color:var(--accent); font-size:18px; }
+  .flash.strike{ color:var(--accent-dim); font-size:15px; }
+  .flash.ball{ color:#7fd6ff; font-size:15px; }
+  .flash.walk{ color:#7fd6ff; font-size:18px; }
+
+  @keyframes hrPulse{
+    0%{ transform:translate(-50%,-58%) scale(.55); }
+    45%{ transform:translate(-50%,-58%) scale(1.25); }
+    100%{ transform:translate(-50%,-58%) scale(1); }
+  }
+
+  .hint{
+    position:absolute;
+    left:0; right:0; bottom:8px;
+    text-align:center;
+    font-size:10.5px;
+    color:var(--ink-faint);
+    letter-spacing:.03em;
+    pointer-events:none;
+  }
+
+  /* ---- disguise (fake doc) overlay ---- */
+  .doc{
+    position:absolute;
+    inset:0;
+    background:var(--paper);
+    color:var(--paper-ink);
+    padding:16px 18px;
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-size:12px;
+    line-height:1.9;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .12s ease;
+  }
+  .doc.show{ opacity:1; pointer-events:auto; }
+  .doc h3{
+    margin:0 0 10px;
+    font-size:13px;
+    border-bottom:1px solid var(--paper-line);
+    padding-bottom:8px;
+    letter-spacing:.01em;
+  }
+  .doc ol{ margin:0; padding-left:18px; }
+  .doc li{ margin-bottom:4px; }
+  .doc .cursor{
+    display:inline-block; width:6px; height:12px;
+    background:var(--paper-ink);
+    vertical-align:-2px;
+    animation:blink 1s step-end infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* ---- game over overlay ---- */
+  .gameover{
+    position:absolute;
+    inset:0;
+    background:rgba(10,12,18,0.88);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    padding:16px;
+    text-align:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .gameover.show{ opacity:1; pointer-events:auto; }
+  .gameover .go-title{
+    font-size:20px;
+    font-weight:800;
+    color:var(--accent);
+    letter-spacing:.04em;
+  }
+  .gameover .go-line{ font-size:12px; color:var(--ink-dim); margin-top:4px; }
+  .gameover .go-new{ color:var(--grass); font-weight:700; }
+  .go-lb{
+    margin-top:10px;
+    width:100%;
+    max-width:210px;
+  }
+  .go-lb-title{
+    font-size:9px;
+    letter-spacing:.08em;
+    color:var(--ink-faint);
+    margin-bottom:3px;
+    text-transform:uppercase;
+  }
+  .lb-row{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    padding:2px 5px;
+    font-size:10.5px;
+    color:var(--ink-faint);
+    border-radius:4px;
+  }
+  .lb-row.lb-me{
+    color:var(--grass);
+    font-weight:700;
+    background:rgba(95,191,119,0.1);
+  }
+  .lb-empty{ font-size:10.5px; color:var(--ink-faint); }
+  .gameover .restart-btn{
+    margin-top:12px;
+    background:var(--accent);
+    color:#1a0f0d;
+    border:none;
+    font:inherit;
+    font-weight:700;
+    font-size:12px;
+    padding:7px 18px;
+    border-radius:7px;
+    cursor:pointer;
+    letter-spacing:.02em;
+  }
+  .gameover .restart-btn:hover{ filter:brightness(1.08); }
+  .gameover .restart-btn:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  /* ---- bat enhancement overlay ---- */
+  .bat-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(10,12,18,0.93);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    padding:14px;
+    text-align:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+  }
+  .bat-overlay.show{ opacity:1; pointer-events:auto; }
+  .bo-title{ font-size:14px; font-weight:800; color:var(--amber); letter-spacing:.03em; }
+  .bo-level{
+    font-size:24px;
+    font-weight:800;
+    color:var(--ink);
+    margin-top:4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .bo-bonus{ font-size:11px; color:var(--grass); margin-top:2px; }
+  .bo-bonus b{ font-weight:800; }
+  .bo-stats{
+    width:100%;
+    max-width:190px;
+    margin-top:8px;
+  }
+  .bo-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:10.5px;
+    color:var(--ink-faint);
+    padding:2px 2px;
+  }
+  .bo-row span:last-child{
+    color:var(--ink-dim);
+    font-weight:700;
+    font-variant-numeric: tabular-nums;
+  }
+  .enhance-btn{
+    margin-top:12px;
+    background:var(--amber);
+    color:#241a06;
+    border:none;
+    font:inherit;
+    font-weight:800;
+    font-size:12px;
+    padding:8px 18px;
+    border-radius:7px;
+    cursor:pointer;
+    letter-spacing:.02em;
+  }
+  .enhance-btn:hover{ filter:brightness(1.08); }
+  .enhance-btn:disabled{ opacity:.4; cursor:not-allowed; filter:none; }
+  .enhance-btn:focus-visible{ outline:2px solid var(--grass); outline-offset:2px; }
+  .bat-result{ min-height:14px; margin-top:8px; font-size:11px; font-weight:700; }
+  .bat-result.success{ color:var(--grass); }
+  .bat-result.fail{ color:var(--accent); }
+  .bat-close-btn{
+    margin-top:8px;
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-faint);
+    font:inherit;
+    font-size:10.5px;
+    padding:5px 14px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .bat-close-btn:hover{ color:var(--ink-dim); }
+  .bat-close-btn:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  /* ---- burn (bonus round) offer overlay ---- */
+  .burn-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(10,12,18,0.92);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    padding:16px;
+    text-align:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+  }
+  .burn-overlay.show{ opacity:1; pointer-events:auto; }
+  .bn-title{ font-size:17px; font-weight:800; color:#ff7a3d; letter-spacing:.03em; }
+  .bn-desc{ font-size:11.5px; color:var(--ink-dim); line-height:1.65; margin-top:6px; }
+  .bn-desc b{ color:#ff7a3d; }
+  .bn-points{ font-size:10.5px; color:var(--ink-faint); margin-top:8px; }
+  .bn-btns{ display:flex; gap:8px; margin-top:12px; }
+  .burn-btn{
+    background:#ff7a3d;
+    color:#241205;
+    border:none;
+    font:inherit;
+    font-weight:800;
+    font-size:12px;
+    padding:8px 16px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .burn-btn:hover{ filter:brightness(1.08); }
+  .burn-btn:focus-visible{ outline:2px solid var(--grass); outline-offset:2px; }
+  .burn-skip-btn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-faint);
+    font:inherit;
+    font-size:11px;
+    padding:8px 14px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .burn-skip-btn:hover{ color:var(--ink-dim); }
+  .burn-skip-btn:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  /* ---- tutorial overlay ---- */
+  .tut-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(10,12,18,0.95);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:14px;
+    text-align:left;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+  }
+  .tut-overlay.show{ opacity:1; pointer-events:auto; }
+  .tut-title{
+    flex:0 0 auto;
+    font-size:14px;
+    font-weight:800;
+    color:var(--ink);
+    letter-spacing:.02em;
+    margin-bottom:8px;
+  }
+  .tut-body{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    width:100%;
+    font-size:10.5px;
+    line-height:1.6;
+    color:var(--ink-dim);
+  }
+  .tut-body p{ margin:0 0 8px; }
+  .tut-body b{ color:var(--amber); }
+  .tut-close-btn{
+    flex:0 0 auto;
+    margin-top:10px;
+    background:var(--accent);
+    color:#1a0f0d;
+    border:none;
+    font:inherit;
+    font-weight:700;
+    font-size:12px;
+    padding:7px 18px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .tut-close-btn:hover{ filter:brightness(1.08); }
+  .tut-close-btn:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  /* ---- ball/strike count ---- */
+  .count-bar{
+    display:flex;
+    justify-content:center;
+    gap:16px;
+    padding:6px 10px;
+    font-size:10px;
+    color:var(--ink-faint);
+    letter-spacing:.04em;
+    border-top:1px solid rgba(255,255,255,0.06);
+    background:rgba(10,12,18,0.3);
+  }
+  .count-group{ display:flex; align-items:center; gap:4px; }
+  .count-group b{ color:var(--ink-dim); font-weight:700; margin-right:2px; }
+  .pip{
+    width:6px; height:6px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.14);
+    display:inline-block;
+  }
+  .pip.s.on{ background:var(--accent); }
+  .pip.b.on{ background:#7fd6ff; }
+
+  /* ---- scoreboard ---- */
+  .board{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    border-top:1px solid var(--line);
+    background:var(--bg-1);
+  }
+  .cell{
+    padding:10px 6px 11px;
+    text-align:center;
+    border-left:1px solid var(--line);
+  }
+  .cell:first-child{ border-left:none; }
+  .cell .num{
+    font-size:19px;
+    font-weight:700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing:-.01em;
+  }
+  .cell .label{
+    margin-top:2px;
+    font-size:9.5px;
+    color:var(--ink-faint);
+    letter-spacing:.06em;
+  }
+  .cell.hr .num{ color:var(--grass); }
+  .cell.hit .num{ color:var(--amber); }
+  .cell.out .num{ color:var(--accent); }
+  .cell.best .num{ color:var(--ink); }
+
+  .score-bar{
+    display:flex;
+    align-items:baseline;
+    justify-content:center;
+    gap:6px;
+    padding:8px 10px;
+    border-top:1px solid var(--line);
+    background:rgba(10,12,18,0.35);
+  }
+  .score-bar .score-label{
+    font-size:9.5px;
+    color:var(--ink-faint);
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .score-bar .score-num{
+    font-size:22px;
+    font-weight:800;
+    color:var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing:-.01em;
+  }
+  .score-bar .score-unit{ font-size:10px; color:var(--ink-faint); }
+
+  .caption{
+    margin:0;
+    padding:7px 12px 9px;
+    border-top:1px solid rgba(255,255,255,0.07);
+    text-align:center;
+    font-size:10px;
+    color:var(--ink-faint);
+    letter-spacing:.03em;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .caption b{ color:var(--ink-dim); font-weight:600; }
+
+  @media (prefers-reduced-motion: reduce){
+    .flash{ transition:opacity .01s linear; transform:translate(-50%,-58%) scale(1); }
+    .flash.hr.show{ animation:none; }
+    .doc{ transition:opacity .01s linear; }
+    .gameover{ transition:opacity .01s linear; }
+    .bat-overlay{ transition:opacity .01s linear; }
+    .burn-overlay{ transition:opacity .01s linear; }
+    .tut-overlay{ transition:opacity .01s linear; }
+    .bat-btn.ready{ animation:none; }
+  }
+</style>
+
+<div class="popup">
+  <div class="window" id="window">
+    <div class="titlebar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="filename">회의록_최종_v3.hwp<span class="dot"> ● 자동저장됨</span></div>
+      <button class="tut-btn" id="tutBtn" type="button" aria-label="도움말">❓</button>
+      <button class="bat-btn" id="batBtn" type="button">🏏 +0</button>
+      <button class="disguise-btn" id="disguiseBtn" type="button" aria-pressed="false">🙈 위장</button>
+    </div>
+
+    <div class="stage" id="stage" tabindex="0" aria-label="스페이스바 또는 클릭으로 스윙">
+      <canvas id="field"></canvas>
+      <div class="flash" id="flash"></div>
+      <div class="hint" id="hint">스페이스바 또는 클릭 · 탭으로 스윙</div>
+
+      <div class="doc" id="doc">
+        <h3>주간 정기 회의록</h3>
+        <ol>
+          <li>지난 스프린트 회고 공유</li>
+          <li>2분기 로드맵 우선순위 재정렬</li>
+          <li>리소스 배분 및 일정 조정</li>
+          <li>다음 주 액션 아이템 확정<span class="cursor"></span></li>
+        </ol>
+      </div>
+
+      <div class="gameover" id="gameOver">
+        <div class="go-title">GAME OVER</div>
+        <div class="go-line" id="goLine">홈런 0 · 안타 0 · 최고 0m</div>
+        <div class="go-lb">
+          <div class="go-lb-title">TOP 5 기록</div>
+          <div id="goBoard"></div>
+        </div>
+        <button class="restart-btn" id="restartBtn" type="button">다시 시작</button>
+      </div>
+
+      <div class="bat-overlay" id="batOverlay">
+        <div class="bo-title">🏏 배트 강화</div>
+        <div class="bo-level" id="batLevelDisplay">+0 / 11</div>
+        <div class="bo-bonus">비거리 보너스 <b id="batBonus">+0%</b></div>
+        <div class="bo-stats">
+          <div class="bo-row"><span>보유 포인트</span><span id="batPoints">0</span></div>
+          <div class="bo-row"><span>필요 포인트</span><span id="batCost">30</span></div>
+          <div class="bo-row"><span>성공 확률</span><span id="batChance">90%</span></div>
+        </div>
+        <button class="enhance-btn" id="enhanceBtn" type="button">강화하기 (30P)</button>
+        <div class="bat-result" id="batResult"></div>
+        <button class="bat-close-btn" id="batCloseBtn" type="button">닫기</button>
+      </div>
+
+      <div class="burn-overlay" id="burnOverlay">
+        <div class="bn-title">🔥 보너스 라운드?</div>
+        <div class="bn-desc">포인트 <b id="burnCost">50</b>P를 태우면<br>보너스 타석 도전 — 획득 점수 <b>2배</b></div>
+        <div class="bn-points">보유 포인트 <span id="burnPoints">0</span>P</div>
+        <div class="bn-btns">
+          <button class="burn-btn" id="burnYesBtn" type="button">🔥 태우기</button>
+          <button class="burn-skip-btn" id="burnNoBtn" type="button">그냥 종료</button>
+        </div>
+      </div>
+
+      <div class="tut-overlay" id="tutOverlay">
+        <div class="tut-title">📖 게임 설명</div>
+        <div class="tut-body">
+          <p><b>조작</b> — 스페이스바 또는 탭/클릭으로 스윙. 타이밍을 맞춰야 함.</p>
+          <p><b>판정</b> — 정확히 맞으면 홈런, 살짝 빗나가면 안타, 어중간하면 플라이아웃(그 자리에서 아웃), 완전히 빗나가거나 안 치면 스트라이크.</p>
+          <p><b>볼/스트라이크</b> — 스트라이크 3개 = 삼진 아웃. 주황색 볼을 안 치면 볼, 4개 모이면 포볼(출루).</p>
+          <p><b>난이도</b> — 잘 칠수록 공이 빨라지고 판정 범위도 좁아짐. 못 치면 다시 관대해짐.</p>
+          <p><b>점수</b> — 안타는 비거리만큼, 홈런은 비거리×2점. 아웃 5개면 게임 종료.</p>
+          <p><b>배트 강화</b> — 게임이 끝나면 총점만큼 강화 포인트 획득. 🏏 버튼에서 포인트로 배트를 확률 강화(+11까지). +6부터 임팩트가 화려해지고, +9부터는 카메라가 공을 따라가는 하이라이트 연출과 추가 보너스 점수가 터짐.</p>
+          <p><b>버닝 라운드</b> — 5번째 아웃을 당했을 때 포인트가 있으면, 그 포인트를 태워 보너스 타석에 도전할 수 있음. 이후 얻는 점수가 2배로 적용됨(계속 성공하면 계속 이어짐).</p>
+          <p><b>위장</b> — 🙈 버튼으로 즉시 가짜 회의록으로 전환. Esc로도 전환됨.</p>
+        </div>
+        <button class="tut-close-btn" id="tutCloseBtn" type="button">닫기</button>
+      </div>
+    </div>
+
+    <div class="count-bar" id="countBar">
+      <span class="count-group"><b>S</b><i class="pip s"></i><i class="pip s"></i><i class="pip s"></i></span>
+      <span class="count-group"><b>B</b><i class="pip b"></i><i class="pip b"></i><i class="pip b"></i><i class="pip b"></i></span>
+    </div>
+
+    <div class="board">
+      <div class="cell hr"><div class="num" id="statHr">0</div><div class="label">홈런</div></div>
+      <div class="cell hit"><div class="num" id="statHit">0</div><div class="label">안타</div></div>
+      <div class="cell out"><div class="num" id="statOut">0</div><div class="label">아웃</div></div>
+      <div class="cell best"><div class="num" id="statBest">0m</div><div class="label">최고비거리</div></div>
+    </div>
+
+    <div class="score-bar">
+      <span class="score-label">총점</span>
+      <span class="score-num" id="statScore">0</span>
+      <span class="score-unit">점</span>
+    </div>
+
+    <p class="caption">아웃 <b>5개</b>면 종료 · <b>🏏</b>로 배트 강화 · <b>🙈</b>로 즉시 위장</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var stage = document.getElementById('stage');
+  var canvas = document.getElementById('field');
+  var ctx = canvas.getContext('2d');
+  var flashEl = document.getElementById('flash');
+  var hintEl = document.getElementById('hint');
+  var docEl = document.getElementById('doc');
+  var disguiseBtn = document.getElementById('disguiseBtn');
+
+  var W = 0, H = 0, DPR = 1;
+  function resize(){
+    var rect = stage.getBoundingClientRect();
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = rect.width; H = rect.height;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ---- layout ----
+  function groundY(){ return H * 0.72; }
+  function pitcherX(){ return W * 0.16; }
+  function plateX(){ return W * 0.62; }
+
+  var OUT_LIMIT = 5;
+
+  // ---- this game's stats (resets each game; OUT_LIMIT outs ends it) ----
+  var stats = { hr:0, hit:0, out:0, best:0, score:0 };
+
+  // ---- local leaderboard: top 5 games ever played here, ranked by total
+  // score — the only thing that survives across games ----
+  var HISTORY_KEY = 'sneak-baseball-history-v2';
+  var history = [];
+  try{
+    var savedHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    if(Array.isArray(savedHistory)) history = savedHistory;
+  }catch(e){}
+
+  // ---- bat enhancement: a persistent meta-currency earned from each game's
+  // score, spent on gacha-style upgrades that boost how far every hit flies ----
+  var BAT_KEY = 'sneak-baseball-bat-v1';
+  var BAT_MAX = 11;
+  var bat = { level: 0, points: 0 };
+  try{
+    var savedBat = JSON.parse(localStorage.getItem(BAT_KEY) || 'null');
+    if(savedBat) bat = savedBat;
+  }catch(e){}
+
+  function batMultiplier(level){
+    if(level <= 0) return 1;
+    if(level <= 5) return 1 + level * 0.05;       // +1..+5: +5% per level, up to +25%
+    return 1.25 + (level - 5) * 0.12;             // +6..+11: steep, up to ~+97%
+  }
+  // score multiplier — escalates much harder than distance so the number itself
+  // tells the story: modest through +5, a real jump into the fire tier, an
+  // absurd finisher jump for +9~+11 (every hit there is a "critical")
+  var SCORE_MULT = [1, 1.5, 2, 2.5, 3, 3.5, 5, 6.5, 8, 12, 18, 26];
+  function scoreMultiplier(level){ return SCORE_MULT[level] || 1; }
+  // bat length in px, by level — by +10 it's visibly dominating the stage,
+  // by +11 it sweeps clean across it. BAT_BASE_WIDTH is the bat's stroke
+  // width at the unscaled base size.
+  var BAT_LEN = [20, 24, 28, 34, 44, 56, 70, 88, 110, 145, 190, 260];
+  var BAT_BASE_WIDTH = 4;
+  // the batter's own body grows with the bat, but on a much tamer curve —
+  // capped so the character always fits inside the stage, even at +11
+  var BATTER_SCALE = [1, 1.2, 1.4, 1.6, 1.9, 2.2, 2.6, 3.0, 3.5, 4.0, 4.7, 5.5];
+  // how many firework bursts fire on a hit — scales 1:1 with level through the
+  // early tiers, capped once it'd get silly
+  function fireworkBursts(level){ return Math.max(1, Math.min(8, level)); }
+  // gold → reddening → burning as the bat climbs through +6~+8
+  function batColorFor(level){
+    if(level <= 0) return '#e0a83e';
+    if(level <= 5) return '#f2c14e';
+    if(level === 6) return '#f2934e';
+    if(level === 7) return '#e8622f';
+    return '#ff3d1a'; // 8 and the +9~11 fire tier draw a flame gradient over this
+  }
+  function enhanceCost(level){ return 30 + level * 15; }
+  // chance of leveling THIS level up by one — index = current level (0..10).
+  // a smooth 90%→40% climb through +6, a hard cliff into the fiery tier, then
+  // a near-impossible chase for +9~+11 so the last stretch feels like a real
+  // finisher, not just another number
+  var ENHANCE_CHANCE = [0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.25, 0.10, 0.01, 0.005, 0.001];
+  function enhanceChance(level){ return ENHANCE_CHANCE[level] || 0; }
+  function formatChance(c){
+    var pct = c * 100;
+    return (pct < 1 ? pct.toFixed(1) : Math.round(pct)) + '%';
+  }
+
+  var elHr = document.getElementById('statHr');
+  var elHit = document.getElementById('statHit');
+  var elOut = document.getElementById('statOut');
+  var elBest = document.getElementById('statBest');
+  var elScore = document.getElementById('statScore');
+  var gameOverEl = document.getElementById('gameOver');
+  var goLineEl = document.getElementById('goLine');
+  var goBoardEl = document.getElementById('goBoard');
+  var restartBtn = document.getElementById('restartBtn');
+
+  var batBtn = document.getElementById('batBtn');
+  var batOverlayEl = document.getElementById('batOverlay');
+  var batLevelEl = document.getElementById('batLevelDisplay');
+  var batBonusEl = document.getElementById('batBonus');
+  var batPointsEl = document.getElementById('batPoints');
+  var batCostEl = document.getElementById('batCost');
+  var batChanceEl = document.getElementById('batChance');
+  var enhanceBtn = document.getElementById('enhanceBtn');
+  var batResultEl = document.getElementById('batResult');
+  var batCloseBtn = document.getElementById('batCloseBtn');
+
+  function renderBat(){
+    batBtn.textContent = '🏏 강화 +' + bat.level;
+    batLevelEl.textContent = '+' + bat.level + ' / ' + BAT_MAX;
+    batBonusEl.textContent = '+' + Math.round((batMultiplier(bat.level) - 1) * 100) + '%';
+    batPointsEl.textContent = bat.points;
+    if(bat.level >= BAT_MAX){
+      batCostEl.textContent = '-';
+      batChanceEl.textContent = 'MAX';
+      enhanceBtn.disabled = true;
+      enhanceBtn.textContent = '최대 강화 완료';
+      batBtn.classList.remove('ready');
+    } else {
+      var cost = enhanceCost(bat.level);
+      batCostEl.textContent = cost;
+      batChanceEl.textContent = formatChance(enhanceChance(bat.level));
+      enhanceBtn.disabled = bat.points < cost;
+      batBtn.classList.toggle('ready', bat.points >= cost);
+      enhanceBtn.textContent = '강화하기 (' + cost + 'P)';
+    }
+  }
+  renderBat();
+
+  function attemptEnhance(){
+    if(bat.level >= BAT_MAX) return;
+    var cost = enhanceCost(bat.level);
+    if(bat.points < cost) return;
+    bat.points -= cost;
+    var success = Math.random() < enhanceChance(bat.level);
+    if(success){
+      bat.level++;
+      batResultEl.textContent = '✨ 강화 성공! +' + bat.level;
+      batResultEl.className = 'bat-result success';
+      beep(880, 0.12, 'square', 0.05);
+      setTimeout(function(){ beep(1320, 0.14, 'square', 0.05); }, 90);
+    } else {
+      batResultEl.textContent = '실패… 포인트만 소모됐어요';
+      batResultEl.className = 'bat-result fail';
+      beep(150, 0.15, 'sawtooth', 0.05);
+    }
+    try{ localStorage.setItem(BAT_KEY, JSON.stringify(bat)); }catch(e){}
+    renderBat();
+    clearTimeout(attemptEnhance._t);
+    attemptEnhance._t = setTimeout(function(){
+      batResultEl.textContent = '';
+      batResultEl.className = 'bat-result';
+    }, 1800);
+  }
+
+  var batOpen = false;
+  function setBatOverlay(on){
+    batOpen = on;
+    if(on) renderBat();
+    batOverlayEl.classList.toggle('show', on);
+  }
+  batBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    setBatOverlay(true);
+  });
+  batCloseBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    setBatOverlay(false);
+  });
+  enhanceBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    attemptEnhance();
+  });
+
+  // ---- tutorial overlay ----
+  var tutBtn = document.getElementById('tutBtn');
+  var tutOverlayEl = document.getElementById('tutOverlay');
+  var tutCloseBtn = document.getElementById('tutCloseBtn');
+  var tutOpen = false;
+  function setTutOverlay(on){
+    tutOpen = on;
+    tutOverlayEl.classList.toggle('show', on);
+  }
+  tutBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    setTutOverlay(true);
+  });
+  tutCloseBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    setTutOverlay(false);
+  });
+
+  // ---- burning bonus round: spend saved-up bat points for one more
+  // plate appearance where every point earned counts double ----
+  var BURN_COST = 50;
+  var burning = false;
+  var burnOffered = false;
+  var burnOverlayEl = document.getElementById('burnOverlay');
+  var burnCostEl = document.getElementById('burnCost');
+  var burnPointsEl = document.getElementById('burnPoints');
+  var burnYesBtn = document.getElementById('burnYesBtn');
+  var burnNoBtn = document.getElementById('burnNoBtn');
+  burnCostEl.textContent = BURN_COST;
+
+  function offerBurn(){
+    phase = 'burnoffer';
+    burnPointsEl.textContent = bat.points;
+    burnOverlayEl.classList.add('show');
+  }
+  burnYesBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    burnOffered = true;
+    bat.points -= BURN_COST;
+    try{ localStorage.setItem(BAT_KEY, JSON.stringify(bat)); }catch(err){}
+    renderBat();
+    burning = true;
+    stats.out--; // refund the out that would have ended the game — this is the bonus at-bat
+    renderStats();
+    burnOverlayEl.classList.remove('show');
+    flashText('🔥 버닝! 이후 점수 2배', 'walk');
+    hintEl.style.opacity = '0.85';
+    scheduleNextPitch(450 + Math.random() * 250);
+  });
+  burnNoBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    burnOffered = true;
+    burnOverlayEl.classList.remove('show');
+    triggerGameOver();
+  });
+
+  function renderStats(){
+    elHr.textContent = stats.hr;
+    elHit.textContent = stats.hit;
+    elOut.textContent = stats.out + '/' + OUT_LIMIT;
+    elBest.textContent = stats.best + 'm';
+    elScore.textContent = stats.score;
+  }
+  renderStats();
+
+  // ---- audio (tiny synthesized cues, no assets) ----
+  var actx = null;
+  function beep(freq, dur, type, gain){
+    try{
+      if(!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      var t0 = actx.currentTime;
+      var osc = actx.createOscillator();
+      var g = actx.createGain();
+      osc.type = type || 'square';
+      osc.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(gain || 0.06, t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      osc.connect(g); g.connect(actx.destination);
+      osc.start(t0); osc.stop(t0 + dur + 0.02);
+    }catch(e){}
+  }
+
+  // ---- pitch state machine ----
+  // phases: 'idle' -> 'pitching' -> 'result' -> (delay) -> 'pitching'...
+  var phase = 'idle';
+  var pitchStart = 0;
+  var pitchDuration = 0;
+  var targetTime = 0;
+  var deadline = 0;
+  var trail = [];
+  var cometTrail = []; // +9~+11 home runs: a fading tail behind the comet head
+  var pitchArcAmp = 10, pitchYOffset = 0, pitchWobbleAmp = 0, pitchWobbleFreq = 3;
+  var pitchIsBall = false; // this pitch's type: a hittable strike, or one better taken
+  var resultAt = 0;
+  var resultKind = null; // 'hr' | 'hit' | 'flyout' | 'strikeout' | 'walk' | 'strike' | 'ball'
+  var resultSurge = false; // +6~+8 only: a perfectly-timed 200m+ HR borrows the +9 punch-through motion
+  var returnBall = null; // +9~+11 only: a perfectly-timed HR bounces off the wall and might come back for a bonus crit
+  var resultDistance = 0;
+  var resultHitStop = 0;
+  var resultProgress = 0;
+  var resolved = false;   // this pitch has already been judged (guards double-resolution)
+  var playerSwung = false; // the batter actually swung at this pitch (vs took it)
+  var strikeCount = 0;
+  var ballCount = 0;
+
+  // ---- adaptive difficulty: reads the player's recent timing and leans against it ----
+  var difficulty = 0;       // 0 (fresh) .. 12 (brutal); rises on hits, eases on outs
+  var recentErrors = [];    // last few signed swing errors (ms, +late/-early)
+
+  var sPips = document.querySelectorAll('#countBar .pip.s');
+  var bPips = document.querySelectorAll('#countBar .pip.b');
+  function renderCount(){
+    for(var i = 0; i < sPips.length; i++) sPips[i].classList.toggle('on', i < strikeCount);
+    for(var i = 0; i < bPips.length; i++) bPips[i].classList.toggle('on', i < ballCount);
+  }
+  renderCount();
+
+  // ---- impact feel: shake + hit-stop + fireworks particles ----
+  var shakeStart = 0, shakeDur = 0, shakeMag = 0;
+  var particles = [];
+  var impactFlashStart = 0, impactFlashDur = 0; // full-screen "close-up bang" — only at bat +6 and above
+
+  function spawnBurst(x, y, colors, count, power){
+    for(var i=0;i<count;i++){
+      var ang = Math.random() * Math.PI * 2;
+      var spd = (0.4 + Math.random() * 1) * power;
+      particles.push({
+        x: x, y: y,
+        vx: Math.cos(ang) * spd,
+        vy: Math.sin(ang) * spd - power * 0.35,
+        life: 1,
+        decay: 0.011 + Math.random() * 0.012,
+        color: colors[(Math.random() * colors.length) | 0],
+        size: 1.3 + Math.random() * 1.7
+      });
+    }
+  }
+
+  // +9~+11 bat: a continuous flicker of flame along the bat itself, not just
+  // a glow — count per tick scales with level so +11 is a real inferno
+  var FLAME_COLORS = ['#fff2b0', '#ffb347', '#ff5a1a', '#ff2d0e'];
+  var lastFlameAt = 0;
+  function spawnFlame(x, y, count){
+    for(var i = 0; i < count; i++){
+      particles.push({
+        x: x + (Math.random() - 0.5) * 5,
+        y: y + (Math.random() - 0.5) * 5,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: -0.5 - Math.random() * 0.9,
+        life: 1,
+        decay: 0.06 + Math.random() * 0.06,
+        color: FLAME_COLORS[(Math.random() * FLAME_COLORS.length) | 0],
+        size: 1.2 + Math.random() * 2.1
+      });
+    }
+  }
+
+  function updateAndDrawParticles(){
+    for(var i = particles.length - 1; i >= 0; i--){
+      var p = particles[i];
+      p.x += p.vx; p.y += p.vy; p.vy += 0.05;
+      p.life -= p.decay;
+      if(p.life <= 0){ particles.splice(i, 1); continue; }
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ---- tier-3 finisher (+9~+11): a cascading bonus-point reveal, like a
+  // highlight-reel score ticking up ----
+  var scorePopups = [];
+  function spawnScorePopup(x, y, text, delay){
+    setTimeout(function(){
+      scorePopups.push({ x: x, y: y, text: text, start: performance.now(), dur: 700 });
+    }, delay);
+  }
+  function updateAndDrawScorePopups(now){
+    for(var i = scorePopups.length - 1; i >= 0; i--){
+      var p = scorePopups[i];
+      var t = (now - p.start) / p.dur;
+      if(t >= 1){ scorePopups.splice(i, 1); continue; }
+      var alpha = 1 - t;
+      var rise = t * 36;
+      var scale = t < 0.15 ? (t / 0.15) : 1;
+      ctx.save();
+      ctx.translate(p.x, p.y - rise);
+      ctx.scale(scale, scale);
+      ctx.font = '800 16px ui-monospace, monospace';
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(20,12,4,' + (alpha * 0.6) + ')';
+      ctx.strokeText(p.text, 0, 0);
+      ctx.fillStyle = 'rgba(255,214,140,' + alpha + ')';
+      ctx.fillText(p.text, 0, 0);
+      ctx.restore();
+    }
+  }
+
+  function scheduleNextPitch(delay){
+    phase = 'delay';
+    setTimeout(function(){
+      startPitch();
+    }, delay);
+  }
+
+  function startPitch(){
+    phase = 'pitching';
+    resolved = false;
+    playerSwung = false;
+    trail = [];
+    pitchStart = performance.now();
+
+    // difficulty tightens and speeds up the pitch-duration range: the better
+    // the player is doing this game, the less time and room they get to react
+    var diffT = Math.min(1, difficulty / 10);
+    var minDur = 480 - diffT * 180;  // down to 300ms at max difficulty
+    var maxDur = 1000 - diffT * 300; // down to 700ms at max difficulty
+    if(maxDur < minDur + 140) maxDur = minDur + 140;
+    var baseDur = minDur + Math.random() * (maxDur - minDur);
+
+    // read the player's recent swings: if they've settled into a consistent
+    // early/late habit, this pitch leans the other way to break the rhythm
+    var bias = 0;
+    if(recentErrors.length >= 3){
+      var sum = 0;
+      for(var ri = 0; ri < recentErrors.length; ri++) sum += recentErrors[ri];
+      bias = sum / recentErrors.length;
+    }
+    pitchDuration = Math.max(260, baseDur - bias * 0.5);
+    targetTime = pitchStart + pitchDuration;
+    deadline = targetTime + 210;
+    hintEl.style.opacity = '0';
+
+    // every pitch also gets its own random shape: some rise like a fastball,
+    // some dip like a sinker, some wobble like a breaking ball — and that
+    // range widens as difficulty climbs
+    pitchArcAmp = -8 + Math.random() * (30 + diffT * 20);
+    pitchYOffset = -10 + Math.random() * 22;
+    pitchWobbleAmp = (Math.random() - 0.5) * (16 + diffT * 18);
+    pitchWobbleFreq = 2 + Math.random() * (3.5 + diffT * 2);
+
+    // pitches outside the zone get more common too, up to ~50%
+    pitchIsBall = Math.random() < (0.38 + diffT * 0.12);
+  }
+
+  function flashText(text, cls){
+    flashEl.textContent = text;
+    flashEl.className = 'flash show ' + cls;
+    clearTimeout(flashText._t);
+    flashText._t = setTimeout(function(){
+      flashEl.className = 'flash ' + cls;
+    }, 620);
+  }
+
+  var FIREWORK_COLORS = ['#5fbf77', '#e0a83e', '#eee7d6', '#e2543f', '#7fd6ff'];
+  var MAX_VIS_DIST = 165; // just past the max possible home-run distance; normalizes how "far" every hit visually reads
+
+  function commitResult(kind, distance, isPerfect){
+    resultAt = performance.now();
+    resultDistance = distance || 0;
+    resultProgress = 0;
+    resultSurge = false;
+    phase = 'result';
+    resultHitStop = 0;
+
+    var bx = plateX(), gy = groundY();
+    var terminal = true;      // does this end the at-bat (new batter next)?
+    var pauseMs = 700;        // how long the flash sits before the next pitch
+    var nextGap = 650 + Math.random() * 350;
+
+    // the enhanced bat doesn't just fly farther — the whole impact gets more
+    // violent, the firework count itself scales with level, past +6 it earns
+    // a distinct close-up flash, and past +9 every hit is a "critical" with a
+    // shattering burst and a cascading bonus-point reveal
+    var batPunch = 1 + bat.level * 0.06;
+    var batTier2 = bat.level >= 6;
+    var batTier3 = bat.level >= 9;
+    var scoreMult = scoreMultiplier(bat.level);
+    var bursts = fireworkBursts(bat.level);
+
+    if(kind === 'hr'){
+      resultKind = 'hr';
+      resultHitStop = 100;
+      cometTrail = [];
+      // a +6~+8 bat that lands a perfectly-timed 200m+ homer earns the +9
+      // punch-through motion early, as a reward for a flawless swing
+      resultSurge = !batTier3 && batTier2 && !!isPerfect && distance > 200;
+      difficulty += 1.3;
+      stats.hr++;
+      if(distance > stats.best) stats.best = distance;
+      var hrPts = Math.round(distance * 2 * scoreMult);
+      if(burning) hrPts *= 2;
+      stats.score += hrPts;
+      flashText((batTier3 ? '💥 CRITICAL! ' : '🎉 ') + '홈런! ' + distance + 'm (+' + hrPts + '점)' + (burning ? ' 🔥' : ''), 'hr');
+      beep(660, 0.18, 'square', 0.07);
+      setTimeout(function(){ beep(990, 0.22, 'square', 0.06); }, 90);
+
+      shakeStart = resultAt; shakeDur = 260; shakeMag = 9 * batPunch;
+      if(batTier2){ impactFlashStart = resultAt; impactFlashDur = batTier3 ? 340 : 220; }
+      spawnBurst(bx, gy - 20, ['#eee7d6', '#e0a83e'], Math.round(14 * batPunch), 1.6 * batPunch);
+      for(var fbh = 0; fbh < bursts; fbh++){
+        (function(i){
+          setTimeout(function(){
+            spawnBurst(W * (0.28 + Math.random()*0.5), H * (0.16 + Math.random()*0.22), FIREWORK_COLORS, Math.round(24*batPunch), 2.0 + Math.random()*0.6);
+            beep(760 + i*90, 0.08, 'square', 0.03);
+          }, 90 + i * 160);
+        })(fbh);
+      }
+      if(batTier3){
+        spawnBurst(bx, gy - 20, ['#fff2b0', '#ffb347', '#ff2d0e', '#ffffff'], 26, 3.2); // the ball shatters
+        for(var s3 = 1; s3 <= (bat.level - 8); s3++){
+          (function(step){
+            spawnScorePopup(bx, gy - 55, '+' + (step * 100), 380 + step * 170);
+            setTimeout(function(){ beep(700 + step*220, 0.09, 'square', 0.04); }, 380 + step * 170);
+          })(s3);
+        }
+
+        // a perfectly-timed +9~+11 homer punches through, bounces off the
+        // wall, and comes back — 50/50 it beans the batter for a second,
+        // riskier crit worth double points all over again
+        if(isPerfect){
+          (function(bonusPts, doesHit){
+            setTimeout(function(){
+              returnBall = {
+                start: performance.now(),
+                dur: 380,
+                hit: doesHit,
+                x0: W + 6, y0: gy - 130,
+                x1: bx, y1: gy - 20
+              };
+              beep(500, 0.1, 'triangle', 0.05);
+              if(doesHit){
+                setTimeout(function(){
+                  stats.score += bonusPts;
+                  renderStats();
+                  flashText('💥 반사 크리티컬! 점수 2배!', 'hr');
+                  shakeStart = performance.now(); shakeDur = 240; shakeMag = 11;
+                  spawnBurst(bx, gy - 20, ['#fff2b0', '#ffb347', '#ff2d0e', '#ffffff'], 32, 3.4);
+                  beep(1200, 0.16, 'square', 0.07);
+                }, 380);
+              }
+            }, 780);
+          })(hrPts, Math.random() < 0.5);
+        }
+      }
+
+    } else if(kind === 'hit'){
+      resultKind = 'hit';
+      resultHitStop = 55;
+      difficulty += 0.7;
+      stats.hit++;
+      if(distance > stats.best) stats.best = distance;
+      var hitPts = Math.round(distance * scoreMult);
+      if(burning) hitPts *= 2;
+      stats.score += hitPts;
+      flashText((batTier3 ? '💥 CRITICAL! ' : '') + '안타! ' + distance + 'm (+' + hitPts + '점)' + (burning ? ' 🔥' : ''), 'hit');
+      beep(520, 0.12, 'triangle', 0.06);
+
+      shakeStart = resultAt; shakeDur = 150; shakeMag = 4 * batPunch;
+      if(batTier2){ impactFlashStart = resultAt; impactFlashDur = batTier3 ? 260 : 150; }
+      spawnBurst(bx, gy - 20, ['#eee7d6', '#c9c0a6'], Math.round(8 * batPunch), 1.0 * batPunch);
+      for(var fbi = 0; fbi < Math.min(bursts, 4); fbi++){
+        (function(i){
+          setTimeout(function(){
+            spawnBurst(W * (0.3 + Math.random()*0.45), H * (0.2 + Math.random()*0.2), FIREWORK_COLORS, Math.round(16*batPunch), 1.6 + Math.random()*0.5);
+          }, 80 + i * 140);
+        })(fbi);
+      }
+      if(batTier3){
+        spawnBurst(bx, gy - 20, ['#fff2b0', '#ffb347', '#ff2d0e', '#ffffff'], 20, 2.6);
+        for(var s3b = 1; s3b <= (bat.level - 8); s3b++){
+          (function(step){
+            spawnScorePopup(bx, gy - 55, '+' + (step * 100), 300 + step * 150);
+            setTimeout(function(){ beep(700 + step*220, 0.09, 'square', 0.04); }, 300 + step * 150);
+          })(s3b);
+        }
+      }
+
+    } else if(kind === 'flyout'){
+      resultKind = 'flyout';
+      difficulty -= 0.4;
+      stats.out++;
+      burning = false; // the bonus at-bat ends the moment you're actually put out
+      flashText('플라이아웃…', 'out');
+      beep(180, 0.16, 'sawtooth', 0.05);
+      shakeStart = resultAt; shakeDur = 120; shakeMag = 3;
+      spawnBurst(bx, gy - 20, ['#eee7d6', '#8891a6'], 6, 0.7);
+
+    } else if(kind === 'strike'){
+      strikeCount++;
+      beep(300, 0.08, 'square', 0.04);
+      if(strikeCount >= 3){
+        resultKind = 'strikeout';
+        difficulty -= 0.8;
+        burning = false; // the bonus at-bat ends the moment you're actually put out
+        stats.out++;
+        flashText('⚾ 삼진 아웃!', 'out');
+        beep(140, 0.2, 'sawtooth', 0.06);
+        strikeCount = 0; ballCount = 0;
+      } else {
+        resultKind = 'strike';
+        flashText('스트라이크 (' + strikeCount + '/3) — ' + (playerSwung ? '헛스윙' : '루킹'), 'strike');
+        terminal = false;
+        pauseMs = 420;
+        nextGap = 380 + Math.random() * 220;
+      }
+
+    } else { // 'ball'
+      ballCount++;
+      beep(560, 0.08, 'triangle', 0.04);
+      if(ballCount >= 4){
+        resultKind = 'walk';
+        flashText('포볼! (4구, 출루)', 'walk');
+        beep(760, 0.16, 'triangle', 0.05);
+        strikeCount = 0; ballCount = 0;
+      } else {
+        resultKind = 'ball';
+        flashText('볼 (' + ballCount + '/4)', 'ball');
+        terminal = false;
+        pauseMs = 420;
+        nextGap = 380 + Math.random() * 220;
+      }
+    }
+
+    if(terminal){ strikeCount = 0; ballCount = 0; }
+    difficulty = Math.max(0, Math.min(12, difficulty));
+    renderStats();
+    renderCount();
+
+    setTimeout(function(){
+      if(stats.out >= OUT_LIMIT){
+        if(!burnOffered && !burning && bat.points >= BURN_COST){
+          offerBurn();
+        } else {
+          triggerGameOver();
+        }
+      } else {
+        hintEl.style.opacity = '0.85';
+        scheduleNextPitch(nextGap);
+      }
+    }, pauseMs);
+  }
+
+  function triggerGameOver(){
+    phase = 'gameover';
+
+    var entry = { score: stats.score, hr: stats.hr, hit: stats.hit, dist: stats.best };
+    history.push(entry);
+    history.sort(function(a, b){
+      return b.score - a.score;
+    });
+    var madeTop = history.indexOf(entry) !== -1 && history.indexOf(entry) < 5;
+    history = history.slice(0, 5);
+    try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }catch(e){}
+
+    // this game's score converts into bat-enhancement points, so every
+    // playthrough — win or lose — makes the next one's bat a bit stronger
+    var earnedPoints = stats.score > 0 ? Math.max(1, Math.floor(stats.score / 20)) : 0;
+    bat.points += earnedPoints;
+    try{ localStorage.setItem(BAT_KEY, JSON.stringify(bat)); }catch(e){}
+    renderBat();
+
+    goLineEl.innerHTML = '총점 ' + stats.score + '점 · 홈런 ' + stats.hr + ' · 안타 ' + stats.hit +
+      (madeTop ? ' <span class="go-new">— TOP 5 진입!</span>' : '') +
+      '<br>🏏 강화 포인트 +' + earnedPoints;
+
+    var rows = '';
+    for(var i = 0; i < history.length; i++){
+      var h = history[i];
+      rows += '<div class="lb-row' + (h === entry ? ' lb-me' : '') + '">' +
+        '<span>' + (i + 1) + '. ' + h.score + '점</span>' +
+        '<span>홈런' + h.hr + ' 안타' + h.hit + '</span></div>';
+    }
+    goBoardEl.innerHTML = rows || '<div class="lb-empty">기록 없음</div>';
+
+    gameOverEl.classList.add('show');
+  }
+
+  function resetGame(){
+    stats = { hr: 0, hit: 0, out: 0, best: 0, score: 0 };
+    difficulty = 0;
+    recentErrors = [];
+    strikeCount = 0; ballCount = 0;
+    burning = false;
+    burnOffered = false;
+    returnBall = null;
+    renderStats();
+    renderCount();
+    gameOverEl.classList.remove('show');
+    phase = 'idle';
+    hintEl.style.opacity = '0.85';
+  }
+
+  restartBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    resetGame();
+  });
+
+  function attemptSwing(){
+    if(phase !== 'pitching' || resolved) return;
+    resolved = true;
+    playerSwung = true;
+    var now = performance.now();
+    var diff = now - targetTime; // signed: negative = early, positive = late
+    var absDiff = Math.abs(diff);
+
+    recentErrors.push(diff);
+    if(recentErrors.length > 8) recentErrors.shift();
+
+    // the hit/HR/flyout windows themselves tighten with difficulty (same
+    // diffT curve as the pitch speed), so a fresh game gets a clear, generous
+    // window and a hot streak has to be precise to keep cashing in
+    var diffT = Math.min(1, difficulty / 10);
+    var hrWindow = 45 - diffT * 19;       // 45ms -> 26ms
+    var hitWindow = 130 - diffT * 45;     // 130ms -> 85ms
+    var flyoutWindow = 180 - diffT * 60;  // 180ms -> 120ms
+
+    // a bigger bat is a bigger hitbox — from +4 on, the enhanced bat itself
+    // widens every window a little, on top of (not instead of) the difficulty curve
+    var batWindowBonus = 1 + Math.max(0, bat.level - 3) * 0.03;
+    hrWindow *= batWindowBonus;
+    hitWindow *= batWindowBonus;
+    flyoutWindow *= batWindowBonus;
+
+    var batMult = batMultiplier(bat.level);
+
+    if(absDiff <= hrWindow){
+      var isPerfectTiming = absDiff <= hrWindow * 0.25;
+      commitResult('hr', Math.round((95 + Math.round(Math.random() * 55)) * batMult), isPerfectTiming);
+    } else if(absDiff <= hitWindow){
+      commitResult('hit', Math.round((12 + Math.round(Math.random() * 78)) * batMult));
+    } else if(absDiff <= flyoutWindow){
+      // close enough that the bat actually reached the ball — just mistimed,
+      // so it's a real batted ball (caught), not a whiff
+      commitResult('flyout', 0);
+    } else {
+      // swung well before the ball arrived, or well after it had already
+      // passed — the bat never met the ball at all, so it's a swinging strike
+      commitResult('strike', 0);
+    }
+  }
+
+  // ---- input ----
+  stage.addEventListener('pointerdown', function(e){
+    if(batOpen || tutOpen) return; // an overlay sits on top of the stage — don't swing through it
+    stage.focus();
+    if(phase === 'idle'){ startPitch(); return; }
+    attemptSwing();
+  });
+  window.addEventListener('keydown', function(e){
+    if(e.code !== 'Space') return;
+    e.preventDefault();
+    if(batOpen || tutOpen) return;
+    if(phase === 'idle'){ startPitch(); return; }
+    attemptSwing();
+  });
+
+  // ---- drawing ----
+  function drawStickFigure(x, y, swingT){
+    // swingT: 0..1 progress of bat swing animation (0 = idle stance)
+    // the batter grows with the bat too, but on its own tamer curve (capped
+    // at +11) so the character always stays on screen — the bat itself keeps
+    // its full, much larger BAT_LEN growth, computed separately below so the
+    // two don't end up sharing one scale
+    var lvl = bat.level;
+    var scaleFactor = BATTER_SCALE[lvl] || 1;
+    var batWorldLen = BAT_LEN[lvl] || 20;
+    var batWorldWidth = BAT_BASE_WIDTH * (batWorldLen / BAT_LEN[0]);
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scaleFactor, scaleFactor);
+
+    ctx.strokeStyle = '#c7ccdb';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    // head
+    ctx.beginPath();
+    ctx.arc(0, -34, 5, 0, Math.PI * 2);
+    ctx.stroke();
+    // body
+    ctx.beginPath();
+    ctx.moveTo(0, -29);
+    ctx.lineTo(0, -10);
+    ctx.stroke();
+    // legs
+    ctx.beginPath();
+    ctx.moveTo(0, -10); ctx.lineTo(-7, 0);
+    ctx.moveTo(0, -10); ctx.lineTo(7, 0);
+    ctx.stroke();
+    // arms + bat
+    var ang = -0.6 + swingT * 2.3; // swings forward
+    var armLen = 12;
+    var ax = Math.cos(ang) * armLen;
+    var ay = -22 + Math.sin(ang) * armLen;
+    ctx.beginPath();
+    ctx.moveTo(0, -22); ctx.lineTo(ax, ay);
+    ctx.stroke();
+    // bat — drawn at whatever LOCAL length lands on its own full-size
+    // BAT_LEN[level] once the (much tamer) body scale above is applied, so
+    // the bat keeps growing dramatically even as the body caps out; by +9
+    // it's a wall of fire sweeping across the whole stage
+    var batLenLocal = batWorldLen / scaleFactor;
+    var bxL = ax + Math.cos(ang) * batLenLocal;
+    var byL = ay + Math.sin(ang) * batLenLocal;
+
+    if(lvl >= 9){
+      var grad = ctx.createLinearGradient(ax, ay, bxL, byL);
+      grad.addColorStop(0, '#fff2b0');
+      grad.addColorStop(0.45, '#ffb347');
+      grad.addColorStop(1, '#ff2d0e');
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = '#ff5a1a';
+      ctx.shadowBlur = 16 + (lvl - 9) * 10;
+    } else {
+      ctx.strokeStyle = batColorFor(lvl);
+      if(lvl >= 6){
+        ctx.shadowColor = '#ff7a3d';
+        ctx.shadowBlur = 7;
+      }
+    }
+    ctx.lineWidth = batWorldWidth / scaleFactor;
+    ctx.beginPath();
+    ctx.moveTo(ax, ay); ctx.lineTo(bxL, byL);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.restore();
+
+    // 이글이글 — a real flicker of flame off the bat, not just a glow, and it
+    // grows with the level. Particles live in the shared world-space system,
+    // so the bat-tip position has to be converted out of local coordinates.
+    if(lvl >= 9){
+      var worldAx = x + ax * scaleFactor, worldAy = y + ay * scaleFactor;
+      var worldBx = x + bxL * scaleFactor, worldBy = y + byL * scaleFactor;
+      var nowF = performance.now();
+      if(nowF - lastFlameAt > 45){
+        lastFlameAt = nowF;
+        var flameCount = lvl - 8; // 1, 2, 3
+        for(var fi = 0; fi <= 3; fi++){
+          var ft = fi / 3;
+          spawnFlame(worldAx + (worldBx - worldAx) * ft, worldAy + (worldBy - worldAy) * ft, flameCount);
+        }
+      }
+    }
+  }
+
+  function drawPitcher(x, y, t){
+    ctx.strokeStyle = '#8891a6';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(x, y - 32, 5, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y - 27); ctx.lineTo(x, y - 10);
+    ctx.moveTo(x, y - 10); ctx.lineTo(x - 6, y);
+    ctx.moveTo(x, y - 10); ctx.lineTo(x + 6, y);
+    // throwing arm swept back
+    ctx.moveTo(x, y - 22); ctx.lineTo(x - 10 + t * 4, y - 30 + t * 14);
+    ctx.stroke();
+  }
+
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+    var gy = groundY();
+    var px = pitcherX();
+    var bx = plateX();
+    var now = performance.now();
+
+    // camera shake (contact impact)
+    var shaking = false, sdx = 0, sdy = 0;
+    if(now - shakeStart < shakeDur){
+      var k = 1 - (now - shakeStart) / shakeDur;
+      sdx = (Math.random() - 0.5) * shakeMag * k;
+      sdy = (Math.random() - 0.5) * shakeMag * k * 0.6;
+      shaking = true;
+    }
+
+    // camera zoom: punch IN on contact, then pull back OUT as the ball flies —
+    // the pull-back amount scales with the actual hit distance, so a 30m
+    // squeaker and a 150m bomb read as visually different, not just a number.
+    var zoomScale = 1;
+    var panX = 0; // +9~+11 only: the camera visibly tracks the ball, highlight-reel style
+    var resultElapsed = phase === 'result' ? (now - resultAt) : 0;
+    if(phase === 'result' && (resultKind === 'hr' || resultKind === 'hit')){
+      if(resultElapsed < resultHitStop && resultHitStop > 0){
+        var hsT = resultElapsed / resultHitStop;
+        var punch = resultKind === 'hr' ? 0.18 : 0.09;
+        zoomScale = 1 + punch * Math.sin(hsT * Math.PI);
+      } else {
+        var norm = Math.min(1, resultDistance / MAX_VIS_DIST);
+        var zoomAmt = norm * (resultKind === 'hr' ? 0.38 : 0.20);
+        var ease = 1 - Math.pow(1 - resultProgress, 2);
+        zoomScale = 1 - zoomAmt * ease;
+        if(bat.level >= 9){
+          panX = ease * W * 0.18;
+        }
+      }
+    }
+
+    ctx.save();
+    if(shaking) ctx.translate(sdx, sdy);
+    if(zoomScale !== 1){
+      ctx.translate(bx, gy - 10);
+      ctx.scale(zoomScale, zoomScale);
+      ctx.translate(-bx, -(gy - 10));
+    }
+    if(panX !== 0) ctx.translate(-panX, 0);
+
+    // ground
+    ctx.strokeStyle = '#232838';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, gy + 6); ctx.lineTo(W, gy + 6);
+    ctx.stroke();
+
+    // mound + plate marks
+    ctx.fillStyle = '#1b2030';
+    ctx.beginPath(); ctx.ellipse(px, gy + 6, 16, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(bx, gy + 6, 12, 3, 0, 0, Math.PI * 2); ctx.fill();
+
+    var swingT = playerSwung ? Math.min(1, (now - (targetTime - 45)) / 140) : 0;
+    if(swingT < 0) swingT = 0;
+
+    drawPitcher(px, gy, phase === 'pitching' ? Math.min(1,(now-pitchStart)/150) : 0);
+    drawStickFigure(bx, gy, phase === 'pitching' ? swingT : (playerSwung ? 1 : 0));
+
+    if(phase === 'pitching'){
+      var t = (now - pitchStart) / pitchDuration;
+      var clamped = Math.min(t, 1.25);
+      var flightT = Math.min(clamped, 1);
+      var ballX = px + (bx - px) * clamped;
+      var arc = Math.sin(flightT * Math.PI) * pitchArcAmp;
+      var wobble = Math.sin(flightT * Math.PI * pitchWobbleFreq) * pitchWobbleAmp * flightT;
+      var ballY = (gy - 20 + pitchYOffset) - arc + wobble;
+
+      trail.push({x: ballX, y: ballY});
+      if(trail.length > 10) trail.shift();
+
+      var trailRGB = pitchIsBall ? '232,163,85' : '233,235,241';
+      for(var i=0;i<trail.length;i++){
+        var a = (i+1)/trail.length;
+        ctx.fillStyle = 'rgba(' + trailRGB + ',' + (a*0.35) + ')';
+        ctx.beginPath();
+        ctx.arc(trail[i].x, trail[i].y, 2.2*a, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = pitchIsBall ? '#e8a355' : '#eee7d6';
+      ctx.beginPath();
+      ctx.arc(ballX, ballY, 3.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#c94f4f';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.arc(ballX, ballY, 3.6, 0.3, 2.0);
+      ctx.stroke();
+
+      if(now > deadline && !resolved){
+        resolved = true;
+        playerSwung = false;
+        commitResult(pitchIsBall ? 'ball' : 'strike', 0);
+      }
+    } else if(phase === 'result'){
+      var effElapsed = Math.max(0, (now - resultAt) - resultHitStop);
+      resultProgress = Math.min(1, effElapsed / 650);
+
+      if(resultKind === 'hr' || resultKind === 'hit'){
+        // a +6-and-above home run trades the plain dashed arc for a glowing
+        // trail — laser at +6~+8, a burning comet at +9~+11 that never comes
+        // back down, it just punches straight through the edge of the screen
+        var isLaserHR = resultKind === 'hr' && bat.level >= 6;
+        var isStarHR = resultKind === 'hr' && bat.level >= 9;
+        var isMeteorHR = resultKind === 'hr' && bat.level >= 11;
+        // a perfectly-timed 200m+ homer at +6~+8 borrows the punch-through
+        // motion early, as a reward — but not the +9 critical scoring/text
+        var showComet = isStarHR || (resultKind === 'hr' && resultSurge);
+
+        // how far it visually travels/arcs is driven by the actual distance
+        // rolled for this hit, not just its hr/hit category
+        var distNorm = Math.min(1, resultDistance / MAX_VIS_DIST);
+        var travelNorm = 0.14 + 0.86 * distNorm;
+        var arcHeight = 16 + distNorm * 96;
+        var endX, endY;
+        if(showComet){
+          // monotonic rise, extended well past the stage edge — it exits
+          // the frame instead of arcing back down to a landing spot
+          var riseT = Math.min(1, resultProgress * 1.15);
+          endX = bx + (W - bx + 50) * travelNorm * 1.9 * resultProgress;
+          endY = (gy - 20) - Math.sin(riseT * Math.PI * 0.5) * (arcHeight * 2.4 + 40);
+        } else {
+          endX = bx + (W - bx + 50) * travelNorm * resultProgress;
+          endY = (gy - 20) - Math.sin(resultProgress * Math.PI * 0.9) * arcHeight;
+        }
+
+        // a +6-and-above home run gets a wall to actually clear
+        if(resultKind === 'hr' && bat.level >= 6){
+          var fenceX = W * 0.9;
+          var fenceTop = gy - 62;
+          var cleared = endX > fenceX;
+          ctx.fillStyle = 'rgba(60,42,30,0.9)';
+          ctx.fillRect(fenceX, fenceTop, W - fenceX + 20, gy - fenceTop);
+          ctx.fillStyle = cleared ? '#ffd873' : '#caa24a';
+          ctx.fillRect(fenceX, fenceTop, W - fenceX + 20, 4);
+          if(cleared){
+            ctx.save();
+            ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now * 0.02);
+            ctx.strokeStyle = '#ffe9a8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(fenceX, fenceTop - 1);
+            ctx.lineTo(W, fenceTop - 1);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+
+        if(isLaserHR && showComet){
+          // a comet, not a laser: a real fading tail traced from where the
+          // head has actually been, plus embers — no dip back down, it just
+          // rockets off and punches through the edge of the frame
+          cometTrail.push({ x: endX, y: endY });
+          if(cometTrail.length > 16) cometTrail.shift();
+          ctx.save();
+          for(var ci = 0; ci < cometTrail.length; ci++){
+            var ct = (ci + 1) / cometTrail.length;
+            ctx.strokeStyle = 'rgba(255,150,60,' + (ct * 0.6) + ')';
+            ctx.lineWidth = (isMeteorHR ? 7 : 4) * ct;
+            ctx.beginPath();
+            if(ci === 0){ ctx.moveTo(bx, gy - 20); } else { ctx.moveTo(cometTrail[ci-1].x, cometTrail[ci-1].y); }
+            ctx.lineTo(cometTrail[ci].x, cometTrail[ci].y);
+            ctx.stroke();
+          }
+          ctx.shadowColor = '#ff5a1a';
+          ctx.shadowBlur = isMeteorHR ? 30 : 20;
+          ctx.strokeStyle = '#ffd9a0';
+          ctx.lineWidth = isMeteorHR ? 4 : 2.5;
+          ctx.beginPath();
+          var lastPt = cometTrail.length > 1 ? cometTrail[cometTrail.length - 2] : { x: bx, y: gy - 20 };
+          ctx.moveTo(lastPt.x, lastPt.y);
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+          ctx.restore();
+          spawnFlame(endX, endY, isMeteorHR ? 3 : 1);
+        } else if(isLaserHR){
+          ctx.save();
+          ctx.strokeStyle = '#7fe8ff';
+          ctx.shadowColor = '#7fe8ff';
+          ctx.shadowBlur = 10;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(bx, gy - 20);
+          ctx.quadraticCurveTo((bx+endX)/2, endY - 30, endX, endY);
+          ctx.stroke();
+          ctx.restore();
+        } else {
+          ctx.strokeStyle = resultKind === 'hr' ? 'rgba(95,191,119,0.55)' : 'rgba(224,168,62,0.5)';
+          ctx.setLineDash([3,4]);
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(bx, gy - 20);
+          ctx.quadraticCurveTo((bx+endX)/2, endY - 30, endX, endY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        if(isLaserHR && !showComet){
+          // +6~+8: doesn't punch through the screen yet, but it should still
+          // read as launched with real force — stretch the ball into a
+          // streak along its flight direction, easing back to round
+          var dx0 = endX - bx, dy0 = endY - (gy - 20);
+          var distLen = Math.sqrt(dx0*dx0 + dy0*dy0) || 1;
+          var stretch = Math.max(0, 1 - resultProgress * 2.2) * 11;
+          ctx.save();
+          ctx.translate(endX, endY);
+          ctx.rotate(Math.atan2(dy0 / distLen, dx0 / distLen));
+          ctx.fillStyle = '#eee7d6';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 3.6 + stretch, 3.6, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          ctx.fillStyle = '#eee7d6';
+          ctx.beginPath();
+          ctx.arc(endX, endY, isMeteorHR ? 7 : 3.6, 0, Math.PI*2);
+          ctx.fill();
+          if(isMeteorHR){
+            ctx.strokeStyle = 'rgba(255,180,71,0.9)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(endX, endY, 7, 0, Math.PI*2);
+            ctx.stroke();
+          }
+        }
+
+        // live distance readout, tracking the ball as it flies
+        if(resultProgress > 0.04){
+          var liveDist = Math.round(resultDistance * resultProgress);
+          ctx.font = '700 11px ui-monospace, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = 'rgba(244,241,230,0.95)';
+          ctx.fillText(liveDist + 'm', endX, endY - 10);
+        }
+      } else if(resultKind === 'flyout' || resultKind === 'strikeout'){
+        ctx.fillStyle = '#8891a6';
+        ctx.beginPath();
+        ctx.arc(bx + 4, gy - 4, 3, 0, Math.PI*2);
+        ctx.fill();
+      }
+      // 'strike' / 'ball' / 'walk': no ball marker — the pitch was just taken or whiffed
+    } else if(phase === 'idle'){
+      ctx.fillStyle = 'rgba(233,235,241,0.9)';
+      ctx.font = '600 12px ui-monospace, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('클릭 또는 스페이스바로 시작', W/2, H * 0.42);
+    }
+
+    ctx.restore();
+
+    // close-up impact flash — only a +6-and-above bat earns this
+    if(now - impactFlashStart < impactFlashDur){
+      var fk = 1 - (now - impactFlashStart) / impactFlashDur;
+      var grad = ctx.createRadialGradient(bx, gy - 20, 0, bx, gy - 20, Math.max(W, H) * 0.75);
+      grad.addColorStop(0, 'rgba(255,225,150,' + (0.6 * fk) + ')');
+      grad.addColorStop(1, 'rgba(255,225,150,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    // "팍!" — a sharp comic-style starburst right at the contact point,
+    // separate from the soft radial flash above, so +6-and-above contact
+    // reads as a hit, not just a glow
+    if(bat.level >= 6 && now - impactFlashStart < 140){
+      var sk = 1 - (now - impactFlashStart) / 140;
+      ctx.save();
+      ctx.translate(bx, gy - 20);
+      ctx.strokeStyle = 'rgba(255,240,205,' + sk + ')';
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      var spikes = 8;
+      for(var spi = 0; spi < spikes; spi++){
+        var spAng = (spi / spikes) * Math.PI * 2;
+        var innerR = 4;
+        var outerR = 10 + 16 * sk;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(spAng) * innerR, Math.sin(spAng) * innerR);
+        ctx.lineTo(Math.cos(spAng) * outerR, Math.sin(spAng) * outerR);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // the returning ball from a perfectly-timed +9~+11 wall-bounce — flies
+    // back toward the batter, glowing hotter the closer it gets to a beaning
+    if(returnBall){
+      var rbT = (now - returnBall.start) / returnBall.dur;
+      if(rbT >= 1){
+        returnBall = null;
+      } else {
+        var rbx = returnBall.x0 + (returnBall.x1 - returnBall.x0) * rbT;
+        var rby = returnBall.y0 + (returnBall.y1 - returnBall.y0) * rbT;
+        ctx.save();
+        ctx.shadowColor = '#ff5a1a';
+        ctx.shadowBlur = 12 + rbT * 14;
+        ctx.fillStyle = returnBall.hit ? '#ff5a1a' : '#ffe9a8';
+        ctx.beginPath();
+        ctx.arc(rbx, rby, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // particles (fireworks / impact dust) render in fixed screen space, on top
+    updateAndDrawParticles();
+    updateAndDrawScorePopups(now);
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  // ---- disguise toggle ----
+  var disguised = false;
+  function setDisguise(on){
+    disguised = on;
+    docEl.classList.toggle('show', on);
+    hintEl.style.visibility = on ? 'hidden' : 'visible';
+    disguiseBtn.textContent = on ? '🙉 복귀' : '🙈 위장';
+    disguiseBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  disguiseBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    setDisguise(!disguised);
+  });
+  window.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    if(tutOpen){ setTutOverlay(false); }
+    else if(batOpen){ setBatOverlay(false); }
+    else if(phase !== 'idle'){ setDisguise(true); }
+  });
+})();
+</script>
