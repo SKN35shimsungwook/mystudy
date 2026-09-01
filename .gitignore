@@ -5,6 +5,7 @@
 
 !.gitignore
 !.nojekyll
+!README.md
 !ml_study_playground.py
 !ml_study_playground.html
 !ml_study_playground.ipynb
