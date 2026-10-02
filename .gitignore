@@ -29,9 +29,3 @@
 !wheelaccelracing/game.html
 !wheelaccelracing/requirements.txt
 !wheelaccelracing/README.md
-!date_request/
-!date_request/app.py
-!date_request/requirements.txt
-!date_request/README.md
-!date_request/.streamlit/
-!date_request/.streamlit/config.toml
