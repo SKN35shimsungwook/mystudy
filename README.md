@@ -1,5 +1,7 @@
 # 📚 mystudy
 
+**⚾ 야구 홈런 게임(baseballhomerun) 바로 실행해 보기:** https://kodq7fgdwnrozkw5npbcin.streamlit.app
+
 데이터 분석을 공부하면서 만든 연습 노트와, 쉬어가는 겸 만든 미니 게임 몇 개를 모아둔 저장소예요.
 
 ## 이 저장소에는 뭐가 있나요?
