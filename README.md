@@ -2,7 +2,7 @@
 
 **⚾ 야구 홈런 게임(baseballhomerun) 바로 실행해 보기:** https://kodq7fgdwnrozkw5npbcin.streamlit.app
 
-데이터 분석을 공부하면서 만든 연습 노트와, 쉬어가는 겸 만든 미니 게임 몇 개를 모아둔 저장소예요.
+데이터 분석을 공부하면서 만든 연습 노트와, 쉬어 가는 겸 만든 미니 게임 몇 개를 모아 둔 제 공부 저장소입니다.
 
 ## 이 저장소에는 뭐가 있나요?
 
@@ -22,7 +22,7 @@
 
 ### 🎮 보너스: 미니 게임 (Streamlit 임베드)
 
-공부하다 지칠 때 만든 게임들이에요. HTML/JS로 만든 게임을 `st.components.v1.html()`로
+공부하다 지칠 때 만든 게임들입니다. HTML/JS로 만든 게임을 `st.components.v1.html()`로
 Streamlit 안에 그대로 넣은 구조예요.
 
 | 폴더 | 내용 | 실행 |
@@ -30,11 +30,9 @@ Streamlit 안에 그대로 넣은 구조예요.
 | [`baseballhomerun/`](./baseballhomerun) | 몰래 야구 홈런더비 — 타이밍 맞춰 스윙하는 게임 + 서버 공유 랭킹전 | `streamlit run baseballhomerun/main.py` |
 | [`spiderwebswing/`](./spiderwebswing) | 스파이더맨 웹스윙 3D — Three.js로 만든 실시간 3D 액션 게임 ([단독 저장소](https://github.com/SKN35shimsungwook/spider)도 있음) | `streamlit run spiderwebswing/main.py` |
 
-## 왜 파일이 이렇게 적어 보여요?
+## 왜 파일이 이렇게 적어 보이나요?
 
-이 저장소는 원래 훨씬 많은 개인 작업 폴더(강의 자료, API 키, 캡처 이미지 등)와 같은 폴더를 공유하고
-있어서, `.gitignore`에서 **기본적으로 전부 무시하고 위 파일들만 명시적으로 허용**해뒀어요. 그래서
-실제 로컬 폴더에는 더 많은 파일이 있어도, 이 저장소(GitHub)에는 위 항목들만 올라와 있어요.
+이 폴더는 원래 제 개인 작업 폴더(강의 자료, API 키, 캡처 이미지 등)와 같이 쓰고 있었습니다. 그래서 `.gitignore`에서 **기본적으로 전부 무시하고 위 파일들만 골라서 허용**해 두었습니다. 제 PC에는 더 많은 파일이 있지만, GitHub에는 위 항목들만 올렸습니다.
 
 ## 코드 구성
 
@@ -62,15 +60,17 @@ Streamlit 화면 코드(`main.py`)와 분리된 **순수 게임 규칙 함수 �
 (`score_multiplier`), 랭킹 저장(`submit_score`, `load_history`) 같은 함수들이 UI 코드 없이
 독립적으로 테스트 가능하게 분리돼 있어요.
 
-## 트러블슈팅
+## 만들면서 겪은 문제
+
+직접 써 보고 배포하면서 실제로 부딪힌 문제와, 원인을 찾아 고친 방법을 적어 둡니다.
 
 **GitHub에서 `ml_study_playground.html`을 직접 받아 폰 브라우저로 열면 한글이 깨짐**
 
 - 원인: 원래 이 파일은 `<title>`과 `<style>`만 있고 `<!doctype html>`, `<head>`, `<meta charset="UTF-8">`가
-  없는 "조각(fragment)" 상태였어요. Streamlit의 `components.html()`은 이걸 `srcdoc`으로 감싸서
+  없는 "조각(fragment)" 상태였습니다. Streamlit의 `components.html()`은 이걸 `srcdoc`으로 감싸서
   항상 UTF-8로 해석하지만, GitHub에서 파일을 그대로 내려받아 열면 브라우저가 인코딩을 추측하다가
-  한글이 깨지는 경우가 있었어요.
-- 해결: 파일을 완전한 HTML 문서로 감쌈.
+  한글이 깨지는 경우가 있었습니다.
+- 해결: 파일을 완전한 HTML 문서로 감쌌습니다.
 
 ```diff
 +<!doctype html>
@@ -88,7 +88,3 @@ Streamlit 화면 코드(`main.py`)와 분리된 **순수 게임 규칙 함수 �
 +</body>
 +</html>
 ```
-
----
-
-🤖 이 저장소의 README는 Claude Code와 함께 작성했어요.
