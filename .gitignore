@@ -29,3 +29,5 @@
 !wheelaccelracing/game.html
 !wheelaccelracing/requirements.txt
 !wheelaccelracing/README.md
+!django_guide/
+!django_guide/*.html

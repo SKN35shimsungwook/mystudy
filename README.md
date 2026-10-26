@@ -4,6 +4,22 @@
 
 데이터 분석을 공부하면서 만든 연습 노트와, 쉬어 가는 겸 만든 미니 게임 몇 개를 모아 둔 제 공부 저장소입니다.
 
+## 🔗 클릭하면 바로 열리는 페이지
+
+GitHub에서 `.html` 파일을 누르면 코드만 보여서, GitHub Pages 주소로 바로 열리게 모아 두었어요.
+
+| 페이지 | 바로 열기 | 파일 |
+|---|---|---|
+| 🧭 장고 가이드 모음 (시작 페이지) | [열기](https://skn35shimsungwook.github.io/mystudy/django_guide/index.html) | [`django_guide/index.html`](./django_guide/index.html) |
+| 🍪 장고 첫걸음: 간식 투표 앱 튜토리얼 | [열기](https://skn35shimsungwook.github.io/mystudy/django_guide/%EC%9E%A5%EA%B3%A0_%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC.html) | [`django_guide/장고_튜토리얼.html`](./django_guide/%EC%9E%A5%EA%B3%A0_%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC.html) |
+| 🗺️ 장고 앱 출시 지도 | [열기](https://skn35shimsungwook.github.io/mystudy/django_guide/%EC%9E%A5%EA%B3%A0_%EC%95%B1%EA%B0%9C%EB%B0%9C_%EC%B6%9C%EC%8B%9C_%EA%B0%80%EC%9D%B4%EB%93%9C.html) | [`django_guide/장고_앱개발_출시_가이드.html`](./django_guide/%EC%9E%A5%EA%B3%A0_%EC%95%B1%EA%B0%9C%EB%B0%9C_%EC%B6%9C%EC%8B%9C_%EA%B0%80%EC%9D%B4%EB%93%9C.html) |
+| 🏗️ 최종 프로젝트 구조도 · 8주 일정표 | [열기](https://skn35shimsungwook.github.io/mystudy/django_guide/%EC%B5%9C%EC%A2%85%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8_%EA%B5%AC%EC%A1%B0%EB%8F%84_%EC%9D%BC%EC%A0%95%ED%91%9C.html) | [`django_guide/최종프로젝트_구조도_일정표.html`](./django_guide/%EC%B5%9C%EC%A2%85%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8_%EA%B5%AC%EC%A1%B0%EB%8F%84_%EC%9D%BC%EC%A0%95%ED%91%9C.html) |
+| 💰 내 앱 출시 · 수익화 계획 | [열기](https://skn35shimsungwook.github.io/mystudy/django_guide/%EC%95%B1%EC%B6%9C%EC%8B%9C_%EC%88%98%EC%9D%B5%ED%99%94_%EA%B3%84%ED%9A%8D.html) | [`django_guide/앱출시_수익화_계획.html`](./django_guide/%EC%95%B1%EC%B6%9C%EC%8B%9C_%EC%88%98%EC%9D%B5%ED%99%94_%EA%B3%84%ED%9A%8D.html) |
+| 🧮 데이터 분석 전체 연습 노트 | [열기](https://skn35shimsungwook.github.io/mystudy/ml_study_playground.html) | [`ml_study_playground.html`](./ml_study_playground.html) |
+| ⚾ 몰래 야구 홈런더비 | [열기](https://skn35shimsungwook.github.io/mystudy/baseballhomerun/game.html) | [`baseballhomerun/game.html`](./baseballhomerun/game.html) |
+| 🕸️ 스파이더맨 웹스윙 3D | [열기](https://skn35shimsungwook.github.io/mystudy/spiderwebswing/game.html) | [`spiderwebswing/game.html`](./spiderwebswing/game.html) |
+| 🏎️ 휠 액셀 카레이싱 | [열기](https://skn35shimsungwook.github.io/mystudy/wheelaccelracing/game.html) | [`wheelaccelracing/game.html`](./wheelaccelracing/game.html) |
+
 ## 이 저장소에는 뭐가 있나요?
 
 ### 🧮 데이터 분석 전체 연습 노트 (메인)
@@ -19,6 +35,10 @@
   ```bash
   streamlit run ml_study_playground.py
   ```
+
+### 🧭 장고 가이드 (`django_guide/`)
+
+Streamlit을 쓰던 제가 최종 프로젝트에서 장고를 쓰려고 만든 정리예요. 간식 투표 튜토리얼, 장고 앱 출시 지도, 최종 프로젝트 구조도·8주 일정표, 캠프 이후 앱 출시·수익화 계획까지 순서대로 이어져요. 수업 교재 요약 PDF는 강사님 자료 보호를 위해 올리지 않았어요.
 
 ### 🎮 보너스: 미니 게임 (Streamlit 임베드)
 

@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>장고 앱 출시 지도</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* 간식 투표 튜토리얼과 같은 톤. 본문 46rem 한 줄, 그림은 HTML 블록으로 그려 폰에서 세로로 접힌다 */
+:root {
+  --bg: #f1f7f6; --surface: #ffffff; --tint: #e3f0ed; --fg: #1f2d3d; --muted: #5d6b78; --line: #d3e2de;
+  --coral: #e8603f; --on-coral: #ffffff; --navy: #20406a; --mint: #2a9d8f; --sun: #f4b63d; --violet: #6b5bd2;
+  --ok-bg: #e2f5ea; --ok: #1d7a4a; --warn-bg: #fdece6; --warn: #b24324;
+  --f-display: "Jua", "Malgun Gothic", sans-serif;
+  --f-body: "Gowun Dodum", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  --f-code: "JetBrains Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111a22; --surface: #18242f; --tint: #1e2f39; --fg: #e5edf3; --muted: #9fb0bd; --line: #2b3d4a;
+  --coral: #ff8566; --on-coral: #1a0f0b; --navy: #9cc2ff; --mint: #5fd0c1; --sun: #ffcd6b; --violet: #b3a8ff;
+  --ok-bg: #173826; --ok: #7fe0a8; --warn-bg: #3d2117; --warn: #ffab8f; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #111a22; --surface: #18242f; --tint: #1e2f39; --fg: #e5edf3; --muted: #9fb0bd; --line: #2b3d4a;
+  --coral: #ff8566; --on-coral: #1a0f0b; --navy: #9cc2ff; --mint: #5fd0c1; --sun: #ffcd6b; --violet: #b3a8ff;
+  --ok-bg: #173826; --ok: #7fe0a8; --warn-bg: #3d2117; --warn: #ffab8f; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 17px; line-height: 1.8; padding: 0 16px 5rem; }
+main { max-width: 46rem; margin: 0 auto; }
+nav.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); margin: 0 -16px; padding: .5rem 16px; display: flex; gap: .4rem; overflow-x: auto; scrollbar-width: none; }
+nav.top a { flex: none; font-size: .85rem; color: var(--muted); text-decoration: none; padding: .15rem .65rem; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); }
+nav.top a:hover, nav.top a:focus-visible { color: var(--fg); border-color: var(--mint); outline: none; }
+.hero { padding: 2.2rem 0 .5rem; }
+.badge { display: inline-block; background: var(--sun); color: #3a2a00; font-family: var(--f-display); padding: .1rem .8rem; border-radius: 99px; font-size: .95rem; }
+h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(2rem, 6vw, 2.9rem); line-height: 1.2; margin: .6rem 0; color: var(--navy); text-wrap: balance; }
+h1 em { font-style: normal; color: var(--coral); }
+.lede { color: var(--muted); margin: 0; }
+h2 { font-family: var(--f-display); font-weight: 400; font-size: 1.7rem; color: var(--navy); margin: 3rem 0 .4rem; line-height: 1.3; }
+h3 { font-size: 1.1rem; margin: 1.4rem 0 .3rem; }
+section { scroll-margin-top: 3.5rem; }
+p { margin: .6rem 0; }
+code { font-family: var(--f-code); font-size: .84em; background: var(--tint); padding: .05em .35em; border-radius: 5px; overflow-wrap: anywhere; }
+.note { border-left: 4px solid var(--mint); background: var(--surface); border-radius: 0 10px 10px 0; padding: .7rem 1rem; margin: 1rem 0; }
+.note.warn { border-color: var(--coral); background: var(--warn-bg); }
+.bubble { display: grid; grid-template-columns: 2.6rem minmax(0,1fr); gap: .7rem; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: .9rem 1rem; margin: 1rem 0; }
+.bubble .who { font-size: 1.8rem; line-height: 1; text-align: center; }
+.bubble p { margin: 0; }
+
+/* 큰 그림: 세 층 */
+.arch { display: grid; grid-template-columns: minmax(0,1fr) 2.2rem minmax(0,1.15fr) 2.2rem minmax(0,1fr); align-items: stretch; gap: 0; margin: 1.2rem 0 .5rem; }
+.layer { background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: .7rem .7rem .8rem; min-width: 0; }
+.layer > b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 1.15rem; text-align: center; margin-bottom: .4rem; }
+.layer.front > b { color: var(--coral); } .layer.server > b { color: var(--navy); } .layer.back > b { color: var(--mint); }
+.layer.server { border-color: var(--navy); }
+.chip { display: block; width: 100%; text-align: left; font: inherit; font-size: .88rem; line-height: 1.4; border: 1px solid var(--line); background: var(--tint); color: var(--fg); border-radius: 10px; padding: .35rem .55rem; margin-top: .35rem; cursor: pointer; }
+.chip small { display: block; color: var(--muted); font-family: var(--f-code); font-size: .7rem; overflow-wrap: anywhere; }
+.chip:hover, .chip:focus-visible, .chip.on { border-color: var(--coral); outline: none; background: var(--warn-bg); }
+.arrow { display: grid; place-items: center; color: var(--muted); font-size: 1.3rem; }
+#chipInfo { background: var(--surface); border: 1px dashed var(--line); border-radius: 12px; padding: .7rem .95rem; min-height: 3.4rem; }
+@media (max-width: 640px) {
+  .arch { grid-template-columns: minmax(0,1fr); }
+  .arrow { transform: rotate(90deg); height: 2rem; }
+}
+
+/* 비교 탭 */
+.tabs { display: flex; gap: .4rem; margin: 1rem 0 0; flex-wrap: wrap; }
+.tab { font: inherit; font-family: var(--f-display); font-size: 1.02rem; border: 2px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 12px 12px 0 0; padding: .3rem 1rem; cursor: pointer; }
+.tab[aria-selected="true"] { border-color: var(--navy); background: var(--navy); color: var(--bg); }
+.tab:focus-visible { outline: 3px solid var(--sun); }
+.panel { background: var(--surface); border: 2px solid var(--navy); border-radius: 0 14px 14px 14px; padding: 1rem 1.1rem; }
+.panel[hidden] { display: none; }
+.flow { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin: .5rem 0; }
+.flow span { background: var(--tint); border-radius: 8px; padding: .1rem .55rem; font-size: .9rem; }
+.flow i { font-style: normal; color: var(--muted); }
+.pc { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .6rem; margin-top: .6rem; }
+.pc div { border-radius: 10px; padding: .5rem .75rem; font-size: .93rem; }
+.pc .pro { background: var(--ok-bg); } .pc .con { background: var(--warn-bg); }
+.pc b { display: block; font-family: var(--f-display); font-weight: 400; }
+@media (max-width: 560px) { .pc { grid-template-columns: minmax(0,1fr); } }
+
+/* 최신 기술 카드 */
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .7rem; margin: 1rem 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: .8rem .95rem; min-width: 0; }
+.card .tag { display: inline-block; font-size: .72rem; border-radius: 99px; padding: 0 .55rem; margin-bottom: .2rem; font-family: var(--f-code); }
+.tag.dj { background: var(--navy); color: var(--bg); } .tag.ai { background: var(--violet); color: var(--bg); } .tag.ops { background: var(--mint); color: var(--bg); }
+.card h3 { margin: .1rem 0 .3rem; font-family: var(--f-display); font-weight: 400; font-size: 1.15rem; }
+.card p { margin: 0; font-size: .93rem; }
+.card .use { margin-top: .45rem; font-size: .85rem; color: var(--muted); }
+.card .use b { color: var(--coral); }
+@media (max-width: 600px) { .cards { grid-template-columns: minmax(0,1fr); } }
+
+/* 출시 여정 */
+.journey { list-style: none; padding: 0; margin: 1.2rem 0; position: relative; }
+.journey::before { content: ""; position: absolute; left: 1.15rem; top: .5rem; bottom: .5rem; width: 3px; background: linear-gradient(var(--mint), var(--coral)); border-radius: 3px; }
+.journey li { position: relative; padding: 0 0 1.1rem 3.2rem; }
+.journey .dot { position: absolute; left: 0; top: 0; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--surface); border: 3px solid var(--mint); display: grid; place-items: center; font-size: 1.1rem; }
+.journey li.now .dot { border-color: var(--coral); box-shadow: 0 0 0 5px color-mix(in srgb, var(--coral) 25%, transparent); }
+.journey .when { font-family: var(--f-code); font-size: .75rem; color: var(--muted); }
+.journey .now .when { color: var(--coral); font-weight: 600; }
+.journey b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 1.15rem; line-height: 1.35; }
+.journey p { margin: .15rem 0 0; font-size: .93rem; }
+
+.tablewrap { overflow-x: auto; margin: 1rem 0; }
+table { border-collapse: collapse; width: 100%; min-width: 32rem; font-size: .92rem; background: var(--surface); }
+th, td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: var(--tint); font-family: var(--f-display); font-weight: 400; color: var(--navy); }
+
+.checks { display: grid; gap: .35rem; margin: 1rem 0; }
+.checks label { display: flex; gap: .6rem; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .5rem .8rem; cursor: pointer; font-size: .95rem; }
+.checks input { width: 1.15rem; height: 1.15rem; margin-top: .3rem; accent-color: var(--ok); flex: none; }
+.checks label:has(input:checked) { background: var(--ok-bg); border-color: var(--ok); }
+.meter { height: 10px; background: var(--tint); border-radius: 99px; overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--ok); transition: width .3s; }
+
+.ladder { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .6rem; margin: 1rem 0; align-items: end; }
+.rung { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: .7rem .85rem; min-width: 0; }
+.rung:nth-child(1) { border-top: 6px solid var(--ok); } .rung:nth-child(2) { border-top: 6px solid var(--sun); min-height: 100%; } .rung:nth-child(3) { border-top: 6px solid var(--coral); }
+.rung b { font-family: var(--f-display); font-weight: 400; font-size: 1.12rem; display: block; }
+.rung .cost { font-size: .8rem; color: var(--muted); }
+.rung p { font-size: .9rem; margin: .3rem 0 0; }
+@media (max-width: 600px) { .ladder { grid-template-columns: minmax(0,1fr); } }
+
+.stack { background: var(--navy); color: var(--bg); border-radius: 18px; padding: 1.1rem 1.2rem; margin: 1rem 0; }
+.stack b { font-family: var(--f-display); font-weight: 400; font-size: 1.25rem; display: block; margin-bottom: .4rem; }
+.stack ul { margin: 0; padding-left: 1.2rem; }
+.stack code { background: color-mix(in srgb, var(--bg) 18%, transparent); color: var(--bg); }
+footer { margin-top: 3rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+footer a { color: var(--mint); }
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+</head>
+<body>
+<nav class="top" aria-label="바로가기">
+  <a href="#map">큰 그림</a><a href="#two">두 가지 방식</a><a href="#phone">휴대폰 앱?</a><a href="#new">최신 기술</a><a href="#launch">출시 여정</a><a href="#check">출시 체크</a><a href="#mobile">모바일 출시</a><a href="#pick">추천 조합</a>
+</nav>
+<main>
+<header class="hero">
+  <span class="badge">AI 활용 애플리케이션 개발 주간</span>
+  <h1>장고로 만든 앱은 <em>어떻게 세상에 나갈까?</em></h1>
+  <p class="lede">수업에서 배우는 화면 구현 → Django → 리눅스 → 클라우드가 하나의 길로 이어져 있다는 걸 그림으로 정리했어요. 마지막엔 최종 프로젝트에 쓸 조합을 추천합니다.</p>
+</header>
+
+<section id="map">
+  <h2>1. 앱의 큰 그림: 장고는 가운데</h2>
+  <p>이 과정에서 말하는 "앱"은 대부분 <b>AI 기능이 들어간 웹 서비스</b>예요. 장고는 그 한가운데에서 <b>요청을 받아 판단하고, 꺼내 오고, 돌려주는 서버</b>를 맡아요. 상자를 눌러 보세요.</p>
+  <div class="arch">
+    <div class="layer front"><b>🖥️ 화면</b>
+      <button class="chip" type="button" data-k="web">웹 브라우저<small>HTML · CSS · JS</small></button>
+      <button class="chip" type="button" data-k="mob">휴대폰 앱<small>Flutter · React Native</small></button>
+    </div>
+    <div class="arrow" aria-hidden="true">⇄</div>
+    <div class="layer server"><b>⚙️ 서버 = Django</b>
+      <button class="chip" type="button" data-k="urls">주소 안내<small>urls.py</small></button>
+      <button class="chip" type="button" data-k="views">처리 로직<small>views.py · services.py</small></button>
+      <button class="chip" type="button" data-k="auth">로그인 · 권한 · 관리자<small>django.contrib.auth · admin</small></button>
+      <button class="chip" type="button" data-k="api">API 창구<small>DRF · Django Ninja</small></button>
+    </div>
+    <div class="arrow" aria-hidden="true">⇄</div>
+    <div class="layer back"><b>🗄️ 저장 · AI</b>
+      <button class="chip" type="button" data-k="db">데이터베이스<small>MySQL · PostgreSQL</small></button>
+      <button class="chip" type="button" data-k="llm">LLM API<small>OpenAI 등</small></button>
+      <button class="chip" type="button" data-k="ft">내 모델<small>RunPod 파인튜닝</small></button>
+      <button class="chip" type="button" data-k="vec">벡터 검색<small>pgvector (RAG)</small></button>
+    </div>
+  </div>
+  <div id="chipInfo" aria-live="polite">상자를 누르면 여기에 설명이 나와요.</div>
+  <div class="bubble"><div class="who">💡</div><p><b>Streamlit</b>은 화면과 로직이 한 파일에 섞여 있어서 혼자 쓰는 데모에 좋아요. <b>장고</b>는 화면 · 서버 · 데이터를 나눠서 <b>여러 사람, 로그인, 오래 남는 데이터</b>를 감당해요. 그래서 "출시하는 서비스"에 맞아요.</p></div>
+</section>
+
+<section id="two">
+  <h2>2. 장고로 앱을 만드는 두 가지 방식</h2>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" type="button" aria-selected="true" aria-controls="pA" id="tA">A. 장고 풀스택</button>
+    <button class="tab" role="tab" type="button" aria-selected="false" aria-controls="pB" id="tB">B. 장고는 API만</button>
+  </div>
+  <div class="panel" id="pA" role="tabpanel" aria-labelledby="tA">
+    <p>수업에서 배운 <b>MTV 방식 그대로</b>예요. 장고가 화면(HTML)까지 직접 만들어 보내요.</p>
+    <div class="flow"><span>브라우저</span><i>→</i><span>urls</span><i>→</i><span>views</span><i>→</i><span>models</span><i>→</i><span>템플릿 HTML</span><i>→</i><span>브라우저</span></div>
+    <p>요즘은 여기에 <b>HTMX</b>를 붙여서 "버튼 누르면 그 부분만 바뀌는" 화면을 React 없이 만들어요.</p>
+    <div class="pc"><div class="pro"><b>좋은 점</b>빠르다 · 팀원 모두 파이썬만 알면 된다 · 배운 걸 그대로 쓴다</div><div class="con"><b>아쉬운 점</b>스토어에 올리는 휴대폰 앱으로 만들긴 어렵다</div></div>
+    <p class="use" style="margin-top:.6rem"><b>👉 8주 최종 프로젝트, 웹 서비스라면 이쪽을 추천해요.</b></p>
+  </div>
+  <div class="panel" id="pB" role="tabpanel" aria-labelledby="tB" hidden>
+    <p>장고는 화면 없이 <b>데이터(JSON)만</b> 주고받아요. 화면은 React·Next.js 웹이나 Flutter·React Native 앱이 따로 그려요.</p>
+    <div class="flow"><span>웹 / 앱 화면</span><i>→</i><span>/api/chat/</span><i>→</i><span>Django(DRF)</span><i>→</i><span>{"answer": "…"}</span><i>→</i><span>화면이 그림</span></div>
+    <div class="pc"><div class="pro"><b>좋은 점</b>휴대폰 앱과 웹이 서버 하나를 같이 쓴다 · 역할이 깔끔히 나뉜다</div><div class="con"><b>아쉬운 점</b>프론트엔드를 따로 배워야 하고 일이 두 배 · 로그인(토큰) 처리가 더 복잡</div></div>
+    <p class="use" style="margin-top:.6rem"><b>👉 "휴대폰 앱이 꼭 있어야 하는" 기획일 때만 고르세요.</b></p>
+  </div>
+</section>
+
+<section id="phone">
+  <h2>3. 휴대폰 앱 안에 장고가 들어가나요?</h2>
+  <p><b>아니요!</b> 이게 제일 많이 헷갈리는 부분이에요. 휴대폰에 설치되는 앱(.apk / .ipa)은 Flutter나 React Native로 만든 <b>화면 프로그램</b>이에요. 장고는 <b>인터넷 저편 AWS 서버</b>에서 돌아가고, 앱은 그 서버에 "질문 보내 줘", "답 줘" 하고 말을 걸어요.</p>
+  <div class="flow" style="font-size:1.05rem"><span>📱 휴대폰 앱</span><i>── 인터넷(HTTPS) ──▶</i><span>☁️ AWS의 Django</span><i>──▶</i><span>🤖 LLM</span></div>
+  <div class="note">그래서 웹으로 먼저 만든 장고 서버는 <b>나중에 휴대폰 앱을 붙여도 그대로</b> 써요. 서버를 다시 만들 필요가 없어요.</div>
+</section>
+
+<section id="new">
+  <h2>4. 요즘 많이 쓰는 기술 (2025~2026)</h2>
+  <p>"최신"이라고 다 쓸 필요는 없어요. 카드 아래 <b>언제 쓰나</b>를 보고 우리 기획에 필요한 것만 고르세요.</p>
+  <div class="cards">
+    <div class="card"><span class="tag dj">Django</span><h3>Django 5.2 LTS · 6.0</h3><p>5.2는 오래 지원되는 안정판(수업 버전). 2025년 말 나온 6.0에는 백그라운드 작업(<code>django.tasks</code>), 템플릿 조각(partials), 보안 정책(CSP) 기본 지원이 들어왔어요.</p><p class="use"><b>언제?</b> 팀 프로젝트는 5.2로 시작하면 안전해요.</p></div>
+    <div class="card"><span class="tag dj">Django</span><h3>async 뷰 + 스트리밍</h3><p>ChatGPT처럼 답이 <b>한 글자씩 흘러나오게</b> 하려면 비동기 뷰와 <code>StreamingHttpResponse</code>, ASGI 서버(uvicorn)를 써요.</p><p class="use"><b>언제?</b> 챗봇이 들어가면 거의 필수.</p></div>
+    <div class="card"><span class="tag dj">화면</span><h3>HTMX</h3><p>HTML 속성 몇 개(<code>hx-post</code>, <code>hx-target</code>)로 새로고침 없이 부분만 바꿔요. 장고 개발자 사이에서 아주 인기가 많아요.</p><p class="use"><b>언제?</b> React 없이 요즘 웹처럼 부드럽게.</p></div>
+    <div class="card"><span class="tag dj">API</span><h3>DRF · Django Ninja</h3><p>DRF는 장고 API의 표준, Ninja는 FastAPI처럼 타입 힌트로 짧게 써요. 둘 다 자동 API 문서를 만들어 줘요.</p><p class="use"><b>언제?</b> 휴대폰 앱이나 별도 프론트가 있을 때.</p></div>
+    <div class="card"><span class="tag ai">AI</span><h3>RAG + pgvector</h3><p>내 문서를 잘게 잘라 벡터로 저장하고, 질문과 비슷한 조각을 찾아 LLM에 같이 넣어요. PostgreSQL에 pgvector를 켜면 DB 하나로 끝나요.</p><p class="use"><b>언제?</b> "우리 자료를 아는 챗봇".</p></div>
+    <div class="card"><span class="tag ai">AI</span><h3>에이전트 · MCP</h3><p>LangGraph로 여러 단계를 생각하고 도구를 부르는 에이전트를 만들고, MCP로 외부 도구(검색, 캘린더, DB)를 표준 방식으로 연결해요.</p><p class="use"><b>언제?</b> 단순 Q&amp;A를 넘어 "일을 해 주는" AI.</p></div>
+    <div class="card"><span class="tag ai">AI</span><h3>뒤에서 처리하기</h3><p>문서 분석, 이미지 생성처럼 오래 걸리는 일은 Celery나 <code>django.tasks</code>로 뒤에서 돌리고 화면엔 "처리 중"을 보여 줘요.</p><p class="use"><b>언제?</b> 10초 넘게 걸리는 AI 작업.</p></div>
+    <div class="card"><span class="tag ops">출시</span><h3>Docker + AWS + CI/CD</h3><p>Docker로 내 PC와 서버 환경을 같게 맞추고, AWS(EC2·RDS·S3)에 올리고, GitHub Actions로 push하면 자동 테스트·배포.</p><p class="use"><b>언제?</b> 출시하는 모든 프로젝트.</p></div>
+  </div>
+</section>
+
+<section id="launch">
+  <h2>5. 개발에서 출시까지: 남은 수업이 곧 출시 과정</h2>
+  <p>커리큘럼 순서가 그대로 <b>서비스를 세상에 내놓는 순서</b>예요.</p>
+  <ol class="journey">
+    <li><span class="dot">🎨</span><span class="when">10/16 ~ 10/20 · 화면 구현</span><b>사용자가 보는 화면 만들기</b><p>HTML · CSS · JS. 장고 템플릿의 재료가 돼요.</p></li>
+    <li class="now"><span class="dot">⚙️</span><span class="when">10/21 ~ 10/27 · Django (지금)</span><b>서비스 기능 만들기</b><p>모델 · 뷰 · 폼 · 로그인 · 테스트. AI 호출은 <code>services.py</code>에.</p></li>
+    <li><span class="dot">🐧</span><span class="when">10/28 · 리눅스</span><b>서버 컴퓨터 다루기</b><p>AWS 서버는 리눅스예요. SSH 접속, 파일 · 권한, 프로세스, 로그 보기.</p></li>
+    <li><span class="dot">📐</span><span class="when">10/29 · SW공학</span><b>팀으로 만드는 법</b><p>요구사항 → 설계 → 테스트 → 일정. 최종 프로젝트 기획서의 뼈대.</p></li>
+    <li><span class="dot">☁️</span><span class="when">10/30 ~ 11/3 · 클라우드(AWS)</span><b>진짜 출시</b><p>EC2에 Docker로 올리고, 도메인 · HTTPS 연결. 이때부터 누구나 접속할 수 있어요.</p></li>
+    <li><span class="dot">🧪</span><span class="when">11/4 ~ 11/5 · 단위 프로젝트</span><b>개발 → 배포 한 바퀴 연습</b><p>작은 서비스로 처음부터 끝까지 한 번 돌려 보기.</p></li>
+    <li><span class="dot">🚀</span><span class="when">11/6 ~ 12/30 · 최종 프로젝트</span><b>팀 서비스 출시 · 운영</b><p>팀 지원: AWS 30만 원 · ChatGPT API $300 · RunPod $300 · Plus $40.</p></li>
+  </ol>
+</section>
+
+<section id="check">
+  <h2>6. 출시 체크리스트 (웹 서비스)</h2>
+  <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+  <p id="meterTxt" style="font-size:.85rem;color:var(--muted);margin:.3rem 0 0">0 / 8</p>
+  <div class="checks" id="checks">
+    <label><input type="checkbox"> <span><code>DEBUG = False</code>, <code>ALLOWED_HOSTS</code>에 내 도메인</span></label>
+    <label><input type="checkbox"> <span>비밀값(<code>SECRET_KEY</code>, DB 비번, API 키)은 <code>.env</code> / AWS 환경변수에만. GitHub엔 <code>.env.example</code>만</span></label>
+    <label><input type="checkbox"> <span>SQLite → MySQL 또는 PostgreSQL(RDS)로 옮기고 <code>migrate</code></span></label>
+    <label><input type="checkbox"> <span><code>collectstatic</code> 후 nginx가 정적 파일 제공, 업로드 파일은 S3</span></label>
+    <label><input type="checkbox"> <span>gunicorn(동기) 또는 uvicorn(스트리밍 필요 시)으로 장고 실행</span></label>
+    <label><input type="checkbox"> <span>도메인 연결 + HTTPS 인증서</span></label>
+    <label><input type="checkbox"> <span>API 비용 보호: 사용자별 호출 제한, OpenAI 사용 한도, AWS 예산 알림</span></label>
+    <label><input type="checkbox"> <span>push하면 <code>pytest</code>가 자동으로 도는 GitHub Actions</span></label>
+  </div>
+</section>
+
+<section id="mobile">
+  <h2>7. "휴대폰 앱처럼" 내고 싶다면: 쉬운 순서</h2>
+  <div class="ladder">
+    <div class="rung"><b>① PWA</b><span class="cost">하루 · 비용 없음</span><p>웹사이트에 manifest와 아이콘을 넣어 "홈 화면에 추가". 장고 그대로.</p></div>
+    <div class="rung"><b>② Capacitor</b><span class="cost">며칠 · 스토어 계정 필요</span><p>웹을 앱 껍데기로 감싸 스토어에 올려요. 화면은 웹 그대로.</p></div>
+    <div class="rung"><b>③ Flutter / React Native</b><span class="cost">몇 주 · 심사 있음</span><p>진짜 모바일 앱 + 장고 API(방식 B). iOS 심사는 보통 며칠, 개발자 계정 비용도 들어요.</p></div>
+  </div>
+  <div class="note warn">8주 안에 ③까지 하면 AI 기능을 다듬을 시간이 부족해지기 쉬워요. <b>①로 시작하고, 발표 데모가 모바일이어야 할 때만 ②</b>를 권해요.</div>
+</section>
+
+<section id="pick">
+  <h2>8. 최종 프로젝트 추천 조합</h2>
+  <div class="stack"><b>🍱 우리 팀 기본 도시락</b>
+    <ul>
+      <li>서버: <code>Django 5.2</code> + 템플릿 + <code>HTMX</code></li>
+      <li>데이터: <code>PostgreSQL + pgvector</code> (연습은 SQLite, 7·8장처럼 Docker로)</li>
+      <li>AI: OpenAI API 스트리밍 + 필요하면 RAG / LangGraph, 파인튜닝 모델은 RunPod</li>
+      <li>출시: <code>Docker compose</code> → AWS EC2, HTTPS, GitHub Actions</li>
+      <li>모바일: PWA. 꼭 필요할 때만 DRF API 추가</li>
+    </ul>
+  </div>
+  <div class="bubble"><div class="who">🧭</div><p><b>AX 컨설턴트 · 기술영업을 꿈꾼다면:</b> 직접 다 코딩하는 것보다 1번 그림을 보면서 "이 기능은 어느 층에서, 비용은 어디서, 시간은 어디서 드는지"를 설명할 수 있는 게 더 큰 무기예요. 최종 프로젝트에서 기획 · 구조도 · 발표를 맡으면 그 연습이 그대로 돼요.</p></div>
+</section>
+
+<footer>함께 보면 좋은 자료: <a href="최종프로젝트_구조도_일정표.html">최종 프로젝트 구조도 · 8주 일정표</a> · <a href="장고_튜토리얼.html">장고 첫걸음(간식 투표)</a> · <a href="앱출시_수익화_계획.html">내 앱 출시 · 수익화 계획</a>. 기술 동향은 2026년 상반기 기준이라 시작 전에 공식 문서로 버전을 한 번 더 확인하세요.</footer>
+</main>
+<script>
+(function () {
+  var info = {
+    web: "🖥️ <b>웹 브라우저</b>: 수업 '화면 구현'에서 배우는 HTML·CSS·JS예요. 방식 A에서는 장고 템플릿이 이 HTML을 만들어 보내요.",
+    mob: "📱 <b>휴대폰 앱</b>: Flutter나 React Native로 만든 별도 프로그램이에요. 장고와는 인터넷으로 JSON을 주고받아요(방식 B).",
+    urls: "🧑‍💼 <b>urls.py</b>: '/chat/'으로 오면 챗 뷰, '/api/…'로 오면 API 뷰. 손님을 담당자에게 안내해요.",
+    views: "🧑‍🍳 <b>views.py · services.py</b>: 진짜 일을 하는 곳. 뷰는 요청을 받고, AI 호출처럼 긴 로직은 services.py로 빼면 테스트하기 쉬워요(17장 구조).",
+    auth: "🔐 <b>로그인 · 권한 · admin</b>: 장고가 기본으로 주는 선물. 회원가입, 로그인, 관리자 화면을 거의 공짜로 써요.",
+    api: "📮 <b>DRF · Django Ninja</b>: 화면 대신 JSON을 돌려주는 창구. 휴대폰 앱이나 React가 여기에 말을 걸어요.",
+    db: "🧊 <b>DB</b>: 회원, 대화 기록, 결과를 저장. 연습은 SQLite, 출시는 MySQL/PostgreSQL(AWS RDS).",
+    llm: "🤖 <b>LLM API</b>: 장고 서버가 대신 호출해요. API 키는 절대 화면(JS)에 두지 말고 서버 .env에만!",
+    ft: "🏋️ <b>파인튜닝 모델</b>: RunPod 등 GPU 서버에서 돌리고, 장고는 그 주소로 요청만 보내요.",
+    vec: "🔎 <b>벡터 검색</b>: 내 문서에서 질문과 비슷한 부분을 찾아 LLM에 함께 넣는 RAG의 핵심 저장소."
+  };
+  var box = document.getElementById("chipInfo"), chips = document.querySelectorAll(".chip");
+  chips.forEach(function (c) {
+    c.addEventListener("click", function () {
+      chips.forEach(function (x) { x.classList.toggle("on", x === c); });
+      box.innerHTML = info[c.dataset.k];
+    });
+  });
+
+  var tabs = document.querySelectorAll(".tab");
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () {
+      tabs.forEach(function (x) {
+        var on = x === t; x.setAttribute("aria-selected", on);
+        document.getElementById(x.getAttribute("aria-controls")).hidden = !on;
+      });
+    });
+  });
+
+  // 출시 체크: 이 브라우저에만 기억한다.
+  var KEY = "django-launch-checks", saved = [];
+  try { saved = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { saved = []; }
+  var boxes = document.querySelectorAll("#checks input");
+  function update() {
+    var n = 0; boxes.forEach(function (b) { if (b.checked) n++; });
+    document.getElementById("meter").style.width = (n / boxes.length * 100) + "%";
+    document.getElementById("meterTxt").textContent = n + " / " + boxes.length + (n === boxes.length ? " · 출시 준비 끝! 🚀" : "");
+  }
+  boxes.forEach(function (b, i) {
+    b.checked = !!saved[i];
+    b.addEventListener("change", function () {
+      saved[i] = b.checked; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} update();
+    });
+  });
+  update();
+})();
+</script>
+</body>
+</html>
