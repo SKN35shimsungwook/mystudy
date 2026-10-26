@@ -6,14 +6,13 @@
 
 ## 따로 옮긴 프로젝트
 
-예전에는 미니 게임과 정리 자료도 이 저장소에 함께 넣었는데, 저장소 하나에 성격이 다른 것들이 섞여서 찾기 어려웠습니다. 그래서 프로젝트마다 저장소를 나눴습니다.
+예전에는 미니 게임도 이 저장소에 함께 넣었는데, 저장소 하나에 성격이 다른 것들이 섞여서 찾기 어려웠습니다. 그래서 프로젝트마다 저장소를 나눴습니다.
 
 | 프로젝트 | 저장소 | 바로 열기 |
 |---|---|---|
 | ⚾ 몰래 야구 홈런더비 | [baseballhomerun](https://github.com/SKN35shimsungwook/baseballhomerun) | [게임](https://skn35shimsungwook.github.io/baseballhomerun/game.html) |
 | 🕸️ 스파이더맨 웹스윙 3D | [spider](https://github.com/SKN35shimsungwook/spider) | [게임](https://skn35shimsungwook.github.io/spider/) |
 | 🏎️ 휠 액셀 카레이싱 | [wheelaccelracing](https://github.com/SKN35shimsungwook/wheelaccelracing) | [게임](https://skn35shimsungwook.github.io/wheelaccelracing/game.html) |
-| 🧭 장고 가이드 | [django-guide](https://github.com/SKN35shimsungwook/django-guide) | [가이드 모음](https://skn35shimsungwook.github.io/django-guide/) |
 
 ## 이 저장소에는 뭐가 있나요?
 
